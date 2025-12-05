@@ -571,9 +571,13 @@ html {
   }
 }
 
-/* Prevent horizontal overflow on mobile */
-html, body {
-  overflow-x: hidden;
+/* Prevent horizontal overflow on mobile - use clip instead to preserve sticky */
+html {
+  overflow-x: clip;
+}
+
+body {
+  overflow-x: clip;
   max-width: 100vw;
 }
 

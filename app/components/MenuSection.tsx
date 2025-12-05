@@ -74,9 +74,9 @@ const PopularMenuCard = ({ item, index }: { item: MenuItem; index: number }) => 
             </Badge>
           </div>
 
-          {/* Quick Add Button - Now uses CartQuantityButton */}
-          <div className="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
-            <CartQuantityButton item={item} size="md" />
+          {/* Quick Add Button - Always visible on mobile, hover on desktop */}
+          <div className="absolute bottom-3 right-3 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
+            <CartQuantityButton item={item} size="sm" />
           </div>
         </div>
 
@@ -162,7 +162,7 @@ export default function MenuSection() {
           initial={{ opacity: 0, y: 20 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.6, delay: 0.2 }}
-          className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6"
+          className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 max-sm:w-77 max-sm:mx-auto"
         >
           {isLoading ? (
             // Loading skeleton

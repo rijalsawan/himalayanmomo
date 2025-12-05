@@ -257,9 +257,9 @@ const MenuCard = ({ item, index }: { item: MenuItem; index: number }) => {
               )}
             </div>
 
-            {/* Cart Button - Appears on Hover */}
-            <div className="absolute bottom-4 right-4 transform translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
-              <CartQuantityButton item={item} size="md" />
+            {/* Cart Button - Always visible on mobile, hover on desktop */}
+            <div className="absolute bottom-4 right-4 transform md:translate-y-2 md:opacity-0 md:group-hover:translate-y-0 md:group-hover:opacity-100 transition-all duration-300">
+              <CartQuantityButton item={item} size="sm" />
             </div>
           </div>
         </div>
@@ -449,10 +449,10 @@ export default function MenuPage() {
   };
 
   return (
-    <>
+    <div className="min-h-screen bg-[#FDF8F3]">
       <Navbar />
       
-      <main className="min-h-screen bg-[#FDF8F3] pt-20">
+      <main className="pt-16 md:pt-20">
         {/* Hero Banner */}
         <section className="relative py-16 md:py-24 bg-gradient-to-br from-[#1A1A1A] to-[#2A2A2A] overflow-hidden">
           {/* Decorative Elements */}
@@ -488,7 +488,7 @@ export default function MenuPage() {
         </section>
 
         {/* Search and Filters */}
-        <section className="sticky top-20 z-30 bg-white/95 backdrop-blur-md border-b border-gray-100 shadow-sm">
+        <section className="sticky top-16 md:top-20 z-30 bg-white/95 backdrop-blur-md border-b border-gray-100 shadow-sm">
           <div className="container-custom py-4">
             <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
               {/* Search */}
@@ -671,21 +671,7 @@ export default function MenuPage() {
                   </Button>
                 )}
 
-                {/* Cart Button */}
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={openCart}
-                  className="border-primary text-primary hover:bg-primary hover:text-white relative ml-2"
-                >
-                  <ShoppingCart className="w-4 h-4 mr-2" />
-                  Cart
-                  {totalItems > 0 && (
-                    <Badge className="absolute -top-2 -right-2 bg-primary text-white text-xs w-5 h-5 p-0 flex items-center justify-center">
-                      {totalItems}
-                    </Badge>
-                  )}
-                </Button>
+                
               </div>
             </div>
           </div>
@@ -821,6 +807,6 @@ export default function MenuPage() {
       </main>
 
       <Footer />
-    </>
+    </div>
   );
 }
