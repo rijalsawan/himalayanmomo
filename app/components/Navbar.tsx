@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { motion } from 'framer-motion';
 import { Menu, ShoppingCart, User, LogOut, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from '@/components/ui/sheet';
@@ -66,18 +65,15 @@ export default function Navbar() {
   const useDarkText = true;
 
   return (
-    <motion.nav
-      initial={{ y: -100 }}
-      animate={{ y: 0 }}
-      transition={{ duration: 0.6 }}
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+    <nav
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 animate-slide-down ${
         scrolled
           ? 'bg-white/95 backdrop-blur-md shadow-lg border-b border-border'
           : 'bg-white/80 backdrop-blur-sm'
       }`}
     >
-      <div className="container-custom">
-        <div className="flex items-center justify-between h-20">
+      <div className="container-custom overflow-hidden">
+        <div className="flex items-center justify-between h-16 md:h-20">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 group">
             <div className="flex flex-col">
@@ -129,11 +125,9 @@ export default function Navbar() {
             ))}
 
             {/* Cart Button */}
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+            <button
               onClick={openCart}
-              className={`relative p-2 rounded-full transition-colors ${
+              className={`relative p-2 rounded-full transition-all duration-200 hover:scale-105 active:scale-95 ${
                 useDarkText
                   ? 'text-foreground hover:bg-gray-100'
                   : 'text-white hover:bg-white/10'
@@ -141,15 +135,13 @@ export default function Navbar() {
             >
               <ShoppingCart className="w-5 h-5" />
               {totalItems > 0 && (
-                <motion.span
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  className="absolute -top-1 -right-1 w-5 h-5 bg-primary text-white text-xs rounded-full flex items-center justify-center font-semibold"
+                <span
+                  className="absolute -top-1 -right-1 w-5 h-5 bg-primary text-white text-xs rounded-full flex items-center justify-center font-semibold animate-scale-in"
                 >
                   {totalItems}
-                </motion.span>
+                </span>
               )}
-            </motion.button>
+            </button>
 
             {/* Auth Section */}
             {status === 'loading' ? (
@@ -226,12 +218,11 @@ export default function Navbar() {
           </div>
 
           {/* Mobile Menu */}
-          <div className="flex items-center gap-2 md:hidden">
+          <div className="flex items-center gap-1 md:hidden flex-shrink-0">
             {/* Mobile Cart Button */}
-            <motion.button
-              whileTap={{ scale: 0.95 }}
+            <button
               onClick={openCart}
-              className={`relative p-2 rounded-full transition-colors ${
+              className={`relative p-2 rounded-full transition-all duration-200 active:scale-95 flex-shrink-0 ${
                 useDarkText
                   ? 'text-foreground hover:bg-gray-100'
                   : 'text-white hover:bg-white/10'
@@ -239,46 +230,49 @@ export default function Navbar() {
             >
               <ShoppingCart className="w-5 h-5" />
               {totalItems > 0 && (
-                <motion.span
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
+                <span
                   className="absolute -top-1 -right-1 w-5 h-5 bg-primary text-white text-xs rounded-full flex items-center justify-center font-semibold"
                 >
                   {totalItems}
-                </motion.span>
+                </span>
               )}
-            </motion.button>
+            </button>
 
             <Sheet open={isOpen} onOpenChange={setIsOpen}>
               <SheetTrigger asChild>
                 <Button
                   variant="ghost"
                   size="icon"
-                  className={useDarkText ? 'text-foreground' : 'text-white'}
+                  className={`flex-shrink-0 w-10 h-10 ${useDarkText ? 'text-foreground' : 'text-white'}`}
                 >
-                  <Menu className="w-6 h-6" />
+                  <Menu className="w-5 h-5" />
                   <span className="sr-only">Toggle menu</span>
                 </Button>
               </SheetTrigger>
-              <SheetContent side="right" className="w-[300px] bg-white">
+              <SheetContent side="right" className="w-[280px] sm:w-[320px] bg-white p-0 overflow-y-auto">
                 <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
-                <div className="flex flex-col gap-6 mt-8">
-                  <div className="flex flex-col">
-                    <span className="font-playfair text-2xl font-bold text-foreground">
-                      Himalayan
-                    </span>
-                    <span className="font-dancing text-lg text-primary -mt-1">
-                      Momos
-                    </span>
+                <div className="flex flex-col h-full">
+                  {/* Header */}
+                  <div className="p-6 border-b border-gray-100">
+                    <div className="flex flex-col">
+                      <span className="font-playfair text-xl font-bold text-foreground">
+                        Himalayan
+                      </span>
+                      <span className="font-dancing text-base text-primary -mt-1">
+                        Momos
+                      </span>
+                    </div>
                   </div>
-                  <nav className="flex flex-col gap-4">
+                  
+                  {/* Navigation */}
+                  <nav className="flex flex-col p-4">
                     {navLinks.map((link) => (
                       link.href === '/menu' ? (
                         <Link
                           key={link.name}
                           href={link.href}
                           onClick={() => setIsOpen(false)}
-                          className="text-left text-lg font-medium text-foreground/80 hover:text-primary transition-colors py-2 border-b border-border"
+                          className="flex items-center text-base font-medium text-foreground/80 hover:text-primary hover:bg-gray-50 transition-colors py-3 px-3 rounded-lg"
                         >
                           {link.name}
                         </Link>
@@ -286,7 +280,7 @@ export default function Navbar() {
                         <button
                           key={link.name}
                           onClick={() => handleNavClick(link.href)}
-                          className="text-left text-lg font-medium text-foreground/80 hover:text-primary transition-colors py-2 border-b border-border"
+                          className="flex items-center text-base font-medium text-foreground/80 hover:text-primary hover:bg-gray-50 transition-colors py-3 px-3 rounded-lg text-left"
                         >
                           {link.name}
                         </button>
@@ -295,11 +289,12 @@ export default function Navbar() {
                   </nav>
 
                   {/* Mobile Auth Section */}
-                  <div className="mt-6 pt-6 border-t border-border">
+                  <div className="mt-auto p-4 border-t border-gray-100">
                     {session ? (
-                      <div className="space-y-4">
-                        <div className="flex items-center gap-3 px-2">
-                          <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                      <div className="space-y-3">
+                        {/* User Info */}
+                        <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
+                          <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
                             {session.user?.image ? (
                               <img
                                 src={session.user.image}
@@ -310,31 +305,36 @@ export default function Navbar() {
                               <User className="w-5 h-5 text-primary" />
                             )}
                           </div>
-                          <div>
-                            <p className="font-medium text-[#1A1A1A]">
+                          <div className="min-w-0 flex-1">
+                            <p className="font-medium text-[#1A1A1A] text-sm truncate">
                               {session.user?.name}
                             </p>
-                            <p className="text-sm text-gray-500">
+                            <p className="text-xs text-gray-500 truncate">
                               {session.user?.email}
                             </p>
                           </div>
                         </div>
-                        <Link
-                          href="/profile"
-                          onClick={() => setIsOpen(false)}
-                          className="flex items-center gap-2 px-2 py-2 text-foreground/80 hover:text-primary transition-colors"
-                        >
-                          <User className="w-4 h-4" />
-                          My Profile
-                        </Link>
-                        <Link
-                          href="/orders"
-                          onClick={() => setIsOpen(false)}
-                          className="flex items-center gap-2 px-2 py-2 text-foreground/80 hover:text-primary transition-colors"
-                        >
-                          <ShoppingCart className="w-4 h-4" />
-                          My Orders
-                        </Link>
+                        
+                        {/* User Links */}
+                        <div className="grid grid-cols-2 gap-2">
+                          <Link
+                            href="/profile"
+                            onClick={() => setIsOpen(false)}
+                            className="flex items-center justify-center gap-2 p-3 text-sm font-medium text-foreground/80 hover:text-primary hover:bg-gray-50 transition-colors rounded-lg border border-gray-200"
+                          >
+                            <User className="w-4 h-4" />
+                            Profile
+                          </Link>
+                          <Link
+                            href="/orders"
+                            onClick={() => setIsOpen(false)}
+                            className="flex items-center justify-center gap-2 p-3 text-sm font-medium text-foreground/80 hover:text-primary hover:bg-gray-50 transition-colors rounded-lg border border-gray-200"
+                          >
+                            <ShoppingCart className="w-4 h-4" />
+                            Orders
+                          </Link>
+                        </div>
+                        
                         <Button
                           onClick={() => {
                             signOut({ callbackUrl: '/' });
@@ -351,7 +351,7 @@ export default function Navbar() {
                       <div className="space-y-3">
                         <Button
                           asChild
-                          className="w-full bg-primary hover:bg-[#B8420A] text-white"
+                          className="w-full bg-primary hover:bg-[#B8420A] text-white h-12"
                           onClick={() => setIsOpen(false)}
                         >
                           <Link href="/login">Sign In</Link>
@@ -359,7 +359,7 @@ export default function Navbar() {
                         <Button
                           asChild
                           variant="outline"
-                          className="w-full border-[#1A1A1A] text-[#1A1A1A] hover:bg-[#1A1A1A] hover:text-white"
+                          className="w-full border-[#1A1A1A] text-[#1A1A1A] hover:bg-[#1A1A1A] hover:text-white h-12"
                           onClick={() => setIsOpen(false)}
                         >
                           <Link href="/signup">Create Account</Link>
@@ -373,6 +373,6 @@ export default function Navbar() {
           </div>
         </div>
       </div>
-    </motion.nav>
+    </nav>
   );
 }

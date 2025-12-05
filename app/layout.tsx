@@ -40,9 +40,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="scroll-smooth">
+    <html lang="en" className="scroll-smooth overflow-x-hidden">
       <body
-        className={`${inter.variable} ${poppins.variable} ${quicksand.variable} font-sans antialiased`}
+        className={`${inter.variable} ${poppins.variable} ${quicksand.variable} font-sans antialiased overflow-x-hidden`}
       >
         <AuthProvider>
           <CartProvider>

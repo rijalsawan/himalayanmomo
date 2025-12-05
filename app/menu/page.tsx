@@ -212,7 +212,7 @@ const MenuCard = ({ item, index }: { item: MenuItem; index: number }) => {
       exit={{ opacity: 0, scale: 0.9 }}
       transition={{ duration: 0.4, delay: index * 0.05 }}
     >
-      <Card className="group overflow-hidden border-0 shadow-lg hover:shadow-2xl transition-all duration-500 bg-white h-full rounded-2xl">
+      <Card className="group overflow-hidden border-0 shadow-lg hover:shadow-2xl transition-all duration-500 bg-white h-full rounded-2xl max-sm:w-77 max-sm:mx-auto">
         {/* Image Container with Overlay */}
         <div className="relative">
           {/* Main Image */}
