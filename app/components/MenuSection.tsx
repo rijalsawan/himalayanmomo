@@ -2,15 +2,29 @@
 
 import { motion } from 'framer-motion';
 import { useInView } from 'framer-motion';
-import { useRef } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Flame, Leaf, Star, ArrowRight } from 'lucide-react';
+import { Flame, Leaf, Star, ArrowRight, Loader2 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { menuItems, MenuItem } from '../data/menuItems';
 import CartQuantityButton from './CartQuantityButton';
+
+// Define MenuItem type for database items
+interface MenuItem {
+  id: string;
+  slug: string;
+  name: string;
+  description: string;
+  price: number;
+  category: string;
+  image: string;
+  spiceLevel: number;
+  isVegetarian: boolean;
+  isPopular: boolean;
+  isNew: boolean;
+}
 
 const SpiceIndicator = ({ level }: { level: number }) => {
   return (
@@ -99,9 +113,26 @@ const PopularMenuCard = ({ item, index }: { item: MenuItem; index: number }) => 
 export default function MenuSection() {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-100px' });
+  const [popularItems, setPopularItems] = useState<MenuItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Get only popular items for the landing page
-  const popularItems = menuItems.filter((item) => item.isPopular).slice(0, 6);
+  // Fetch popular items from API
+  useEffect(() => {
+    const fetchPopularItems = async () => {
+      try {
+        const response = await fetch('/api/menu?isPopular=true&limit=6');
+        if (response.ok) {
+          const data = await response.json();
+          setPopularItems(data);
+        }
+      } catch (error) {
+        console.error('Error fetching popular items:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchPopularItems();
+  }, []);
 
   return (
     <section id="menu" className="section-padding bg-white" ref={ref}>
@@ -133,9 +164,24 @@ export default function MenuSection() {
           transition={{ duration: 0.6, delay: 0.2 }}
           className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6"
         >
-          {popularItems.map((item, index) => (
-            <PopularMenuCard key={item.id} item={item} index={index} />
-          ))}
+          {isLoading ? (
+            // Loading skeleton
+            Array.from({ length: 6 }).map((_, index) => (
+              <Card key={index} className="overflow-hidden border-0 shadow-md bg-white h-full animate-pulse">
+                <div className="aspect-[4/3] bg-gray-200" />
+                <CardContent className="p-5">
+                  <div className="h-5 bg-gray-200 rounded w-3/4 mb-2" />
+                  <div className="h-4 bg-gray-200 rounded w-1/4 mb-4" />
+                  <div className="h-3 bg-gray-200 rounded w-full mb-2" />
+                  <div className="h-3 bg-gray-200 rounded w-2/3" />
+                </CardContent>
+              </Card>
+            ))
+          ) : (
+            popularItems.map((item, index) => (
+              <PopularMenuCard key={item.id} item={item} index={index} />
+            ))
+          )}
         </motion.div>
 
         {/* View Full Menu CTA */}

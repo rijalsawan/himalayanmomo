@@ -3,12 +3,19 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, ShoppingCart } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { Menu, ShoppingCart, User, LogOut, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from '@/components/ui/sheet';
-import { Badge } from '@/components/ui/badge';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { useCart } from '../context/CartContext';
+import { useSession, signOut } from 'next-auth/react';
 
 const navLinks = [
   { name: 'Home', href: '/#home' },
@@ -22,6 +29,7 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const { totalItems, openCart } = useCart();
+  const { data: session, status } = useSession();
   const pathname = usePathname();
   const isHomePage = pathname === '/';
 
@@ -143,12 +151,78 @@ export default function Navbar() {
               )}
             </motion.button>
 
-            <Button
-              asChild
-              className="bg-primary hover:bg-[#B8420A] text-white"
-            >
-              <Link href="/menu">Order Now</Link>
-            </Button>
+            {/* Auth Section */}
+            {status === 'loading' ? (
+              <div className="w-8 h-8 rounded-full bg-gray-200 animate-pulse" />
+            ) : session ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button className="flex items-center gap-2 px-3 py-2 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors">
+                    <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                      {session.user?.image ? (
+                        <img
+                          src={session.user.image}
+                          alt={session.user.name || 'User'}
+                          className="w-full h-full rounded-full object-cover"
+                        />
+                      ) : (
+                        <User className="w-4 h-4 text-primary" />
+                      )}
+                    </div>
+                    <span className="text-sm font-medium text-[#1A1A1A] max-w-[100px] truncate">
+                      {session.user?.name?.split(' ')[0] || 'User'}
+                    </span>
+                    <ChevronDown className="w-4 h-4 text-gray-500" />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  <div className="px-3 py-2 border-b">
+                    <p className="text-sm font-medium text-[#1A1A1A]">
+                      {session.user?.name}
+                    </p>
+                    <p className="text-xs text-gray-500 truncate">
+                      {session.user?.email}
+                    </p>
+                  </div>
+                  <DropdownMenuItem asChild>
+                    <Link href="/profile" className="cursor-pointer">
+                      <User className="w-4 h-4 mr-2" />
+                      My Profile
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/orders" className="cursor-pointer">
+                      <ShoppingCart className="w-4 h-4 mr-2" />
+                      My Orders
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    onClick={() => signOut({ callbackUrl: '/' })}
+                    className="text-red-600 focus:text-red-600 cursor-pointer"
+                  >
+                    <LogOut className="w-4 h-4 mr-2" />
+                    Sign Out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <div className="flex items-center gap-2">
+                <Link href="/login">
+                  <Button
+                    variant="ghost"
+                    className="text-[#1A1A1A] hover:bg-gray-100"
+                  >
+                    Sign In
+                  </Button>
+                </Link>
+                <Link href="/signup">
+                  <Button className="bg-primary hover:bg-[#B8420A] text-white">
+                    Sign Up
+                  </Button>
+                </Link>
+              </div>
+            )}
           </div>
 
           {/* Mobile Menu */}
@@ -219,13 +293,80 @@ export default function Navbar() {
                       )
                     ))}
                   </nav>
-                  <Button
-                    asChild
-                    className="w-full bg-primary hover:bg-[#B8420A] text-white mt-4"
-                    onClick={() => setIsOpen(false)}
-                  >
-                    <Link href="/menu">Order Now</Link>
-                  </Button>
+
+                  {/* Mobile Auth Section */}
+                  <div className="mt-6 pt-6 border-t border-border">
+                    {session ? (
+                      <div className="space-y-4">
+                        <div className="flex items-center gap-3 px-2">
+                          <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                            {session.user?.image ? (
+                              <img
+                                src={session.user.image}
+                                alt={session.user.name || 'User'}
+                                className="w-full h-full rounded-full object-cover"
+                              />
+                            ) : (
+                              <User className="w-5 h-5 text-primary" />
+                            )}
+                          </div>
+                          <div>
+                            <p className="font-medium text-[#1A1A1A]">
+                              {session.user?.name}
+                            </p>
+                            <p className="text-sm text-gray-500">
+                              {session.user?.email}
+                            </p>
+                          </div>
+                        </div>
+                        <Link
+                          href="/profile"
+                          onClick={() => setIsOpen(false)}
+                          className="flex items-center gap-2 px-2 py-2 text-foreground/80 hover:text-primary transition-colors"
+                        >
+                          <User className="w-4 h-4" />
+                          My Profile
+                        </Link>
+                        <Link
+                          href="/orders"
+                          onClick={() => setIsOpen(false)}
+                          className="flex items-center gap-2 px-2 py-2 text-foreground/80 hover:text-primary transition-colors"
+                        >
+                          <ShoppingCart className="w-4 h-4" />
+                          My Orders
+                        </Link>
+                        <Button
+                          onClick={() => {
+                            signOut({ callbackUrl: '/' });
+                            setIsOpen(false);
+                          }}
+                          variant="outline"
+                          className="w-full border-red-200 text-red-600 hover:bg-red-50"
+                        >
+                          <LogOut className="w-4 h-4 mr-2" />
+                          Sign Out
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="space-y-3">
+                        <Button
+                          asChild
+                          className="w-full bg-primary hover:bg-[#B8420A] text-white"
+                          onClick={() => setIsOpen(false)}
+                        >
+                          <Link href="/login">Sign In</Link>
+                        </Button>
+                        <Button
+                          asChild
+                          variant="outline"
+                          className="w-full border-[#1A1A1A] text-[#1A1A1A] hover:bg-[#1A1A1A] hover:text-white"
+                          onClick={() => setIsOpen(false)}
+                        >
+                          <Link href="/signup">Create Account</Link>
+                        </Button>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </SheetContent>
             </Sheet>

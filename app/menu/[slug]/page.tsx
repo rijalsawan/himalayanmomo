@@ -26,8 +26,32 @@ import { Separator } from '@/components/ui/separator';
 import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
 import CartQuantityButton from '../../components/CartQuantityButton';
-import { getMenuItemBySlug, getRelatedItems, MenuItem } from '../../data/menuItems';
 import { useCart } from '../../context/CartContext';
+
+// Define MenuItem type for database items
+interface MenuItem {
+  id: string;
+  slug: string;
+  name: string;
+  description: string;
+  longDescription?: string | null;
+  price: number;
+  category: string;
+  image: string;
+  spiceLevel: number;
+  isVegetarian: boolean;
+  isPopular: boolean;
+  isNew: boolean;
+  isAvailable: boolean;
+  ingredients: string[];
+  allergens: string[];
+  calories?: number | null;
+  protein?: string | null;
+  carbs?: string | null;
+  fat?: string | null;
+  preparationTime?: string | null;
+  servingSize?: string | null;
+}
 
 const SpiceIndicator = ({ level }: { level: number }) => {
   const labels = ['Mild', 'Medium', 'Spicy', 'Extra Hot'];
@@ -117,6 +141,7 @@ export default function ItemDetailPage() {
   const slug = params.slug as string;
   const [item, setItem] = useState<MenuItem | null>(null);
   const [relatedItems, setRelatedItems] = useState<MenuItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
   const { addItem, items, openCart } = useCart();
 
@@ -124,10 +149,31 @@ export default function ItemDetailPage() {
   const isInCart = !!cartItem;
 
   useEffect(() => {
-    const menuItem = getMenuItemBySlug(slug);
-    if (menuItem) {
-      setItem(menuItem);
-      setRelatedItems(getRelatedItems(menuItem, 4));
+    const fetchItem = async () => {
+      try {
+        // Fetch the item
+        const response = await fetch(`/api/menu/${slug}`);
+        if (response.ok) {
+          const data = await response.json();
+          setItem(data);
+          
+          // Fetch related items from the same category
+          const relatedResponse = await fetch(`/api/menu?category=${data.category}&limit=5`);
+          if (relatedResponse.ok) {
+            const relatedData = await relatedResponse.json();
+            // Filter out the current item
+            setRelatedItems(relatedData.filter((i: MenuItem) => i.id !== data.id).slice(0, 4));
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching menu item:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    if (slug) {
+      fetchItem();
     }
   }, [slug]);
 
@@ -369,14 +415,14 @@ export default function ItemDetailPage() {
                 )}
 
                 {/* Nutrition Info */}
-                {item.nutritionInfo && (
+                {(item.calories || item.protein || item.carbs || item.fat) && (
                   <div>
                     <h3 className="font-heading text-lg font-semibold mb-4">Nutrition Facts</h3>
                     <div className="grid grid-cols-4 gap-3">
-                      <NutritionCard label="Calories" value={item.nutritionInfo.calories} />
-                      <NutritionCard label="Protein" value={item.nutritionInfo.protein} />
-                      <NutritionCard label="Carbs" value={item.nutritionInfo.carbs} />
-                      <NutritionCard label="Fat" value={item.nutritionInfo.fat} />
+                      {item.calories && <NutritionCard label="Calories" value={item.calories} />}
+                      {item.protein && <NutritionCard label="Protein" value={item.protein} />}
+                      {item.carbs && <NutritionCard label="Carbs" value={item.carbs} />}
+                      {item.fat && <NutritionCard label="Fat" value={item.fat} />}
                     </div>
                   </div>
                 )}

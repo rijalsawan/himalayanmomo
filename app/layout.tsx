@@ -3,6 +3,8 @@ import { Inter, Poppins, Quicksand } from "next/font/google";
 import "./globals.css";
 import { CartProvider } from "./context/CartContext";
 import CartSidebar from "./components/CartSidebar";
+import AuthProvider from "./providers/AuthProvider";
+import AuthPromptWrapper from "./components/AuthPromptWrapper";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -42,10 +44,13 @@ export default function RootLayout({
       <body
         className={`${inter.variable} ${poppins.variable} ${quicksand.variable} font-sans antialiased`}
       >
-        <CartProvider>
-          {children}
-          <CartSidebar />
-        </CartProvider>
+        <AuthProvider>
+          <CartProvider>
+            {children}
+            <CartSidebar />
+            <AuthPromptWrapper />
+          </CartProvider>
+        </AuthProvider>
       </body>
     </html>
   );

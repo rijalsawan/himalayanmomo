@@ -4,10 +4,24 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Plus, Minus } from 'lucide-react';
 import { useCart } from '../context/CartContext';
-import { MenuItem } from '../data/menuItems';
+
+// Define a minimal MenuItem interface that works with both static and DB items
+interface MenuItemBase {
+  id: string;
+  slug: string;
+  name: string;
+  description: string;
+  price: number;
+  category: string;
+  image: string;
+  spiceLevel: number;
+  isVegetarian: boolean;
+  isPopular?: boolean;
+  isNew?: boolean;
+}
 
 interface CartQuantityButtonProps {
-  item: MenuItem;
+  item: MenuItemBase;
   size?: 'sm' | 'md' | 'lg';
   className?: string;
 }

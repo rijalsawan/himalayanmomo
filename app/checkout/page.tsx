@@ -1,6 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -21,6 +23,9 @@ import {
   Trash2,
   AlertCircle,
   CheckCircle2,
+  Lock,
+  Shield,
+  Loader2,
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -39,9 +44,6 @@ interface FormErrors {
   address?: string;
   city?: string;
   zipCode?: string;
-  cardNumber?: string;
-  expiryDate?: string;
-  cvv?: string;
 }
 
 interface FormData {
@@ -55,32 +57,34 @@ interface FormData {
   state: string;
   zipCode: string;
   deliveryInstructions: string;
-  cardNumber: string;
-  cardName: string;
-  expiryDate: string;
-  cvv: string;
 }
 
 const steps = [
   { id: 1, title: 'Delivery', icon: MapPin },
-  { id: 2, title: 'Payment', icon: CreditCard },
-  { id: 3, title: 'Confirm', icon: Check },
+  { id: 2, title: 'Review & Pay', icon: CreditCard },
 ];
 
 export default function CheckoutPage() {
+  const { data: session, status } = useSession();
+  const router = useRouter();
   const {
     items,
     totalItems,
     subtotal,
     updateQuantity,
     removeItem,
-    clearCart,
   } = useCart();
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [orderComplete, setOrderComplete] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
   const [touched, setTouched] = useState<Record<string, boolean>>({});
+
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    if (status === 'unauthenticated') {
+      router.push('/login?callbackUrl=/checkout');
+    }
+  }, [status, router]);
 
   const [formData, setFormData] = useState<FormData>({
     firstName: '',
@@ -93,10 +97,6 @@ export default function CheckoutPage() {
     state: '',
     zipCode: '',
     deliveryInstructions: '',
-    cardNumber: '',
-    cardName: '',
-    expiryDate: '',
-    cvv: '',
   });
 
   const deliveryFee = subtotal > 30 ? 0 : 4.99;
@@ -112,23 +112,6 @@ export default function CheckoutPage() {
   const validatePhone = (phone: string) => {
     const regex = /^[\d\s\-\+\(\)]{10,}$/;
     return regex.test(phone);
-  };
-
-  const validateCardNumber = (cardNumber: string) => {
-    const cleaned = cardNumber.replace(/\s/g, '');
-    return /^\d{16}$/.test(cleaned);
-  };
-
-  const validateExpiryDate = (date: string) => {
-    const regex = /^(0[1-9]|1[0-2])\/\d{2}$/;
-    if (!regex.test(date)) return false;
-    const [month, year] = date.split('/');
-    const expiry = new Date(2000 + parseInt(year), parseInt(month) - 1);
-    return expiry > new Date();
-  };
-
-  const validateCVV = (cvv: string) => {
-    return /^\d{3,4}$/.test(cvv);
   };
 
   const validateStep = (step: number): boolean => {
@@ -152,24 +135,6 @@ export default function CheckoutPage() {
       if (!formData.zipCode.trim()) newErrors.zipCode = 'ZIP code is required';
     }
 
-    if (step === 2) {
-      if (!formData.cardNumber.trim()) {
-        newErrors.cardNumber = 'Card number is required';
-      } else if (!validateCardNumber(formData.cardNumber)) {
-        newErrors.cardNumber = 'Please enter a valid 16-digit card number';
-      }
-      if (!formData.expiryDate.trim()) {
-        newErrors.expiryDate = 'Expiry date is required';
-      } else if (!validateExpiryDate(formData.expiryDate)) {
-        newErrors.expiryDate = 'Please enter a valid expiry date (MM/YY)';
-      }
-      if (!formData.cvv.trim()) {
-        newErrors.cvv = 'CVV is required';
-      } else if (!validateCVV(formData.cvv)) {
-        newErrors.cvv = 'Please enter a valid CVV';
-      }
-    }
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -187,23 +152,9 @@ export default function CheckoutPage() {
     setTouched((prev) => ({ ...prev, [field]: true }));
   };
 
-  const formatCardNumber = (value: string) => {
-    const cleaned = value.replace(/\D/g, '');
-    const groups = cleaned.match(/.{1,4}/g);
-    return groups ? groups.join(' ').slice(0, 19) : '';
-  };
-
-  const formatExpiryDate = (value: string) => {
-    const cleaned = value.replace(/\D/g, '');
-    if (cleaned.length >= 2) {
-      return cleaned.slice(0, 2) + '/' + cleaned.slice(2, 4);
-    }
-    return cleaned;
-  };
-
   const nextStep = () => {
     if (validateStep(currentStep)) {
-      setCurrentStep((prev) => Math.min(prev + 1, 3));
+      setCurrentStep((prev) => Math.min(prev + 1, 2));
     }
   };
 
@@ -211,19 +162,70 @@ export default function CheckoutPage() {
     setCurrentStep((prev) => Math.max(prev - 1, 1));
   };
 
-  const handleSubmit = async () => {
-    if (!validateStep(2)) return;
+  const handleStripeCheckout = async () => {
+    if (!validateStep(1)) return;
 
     setIsSubmitting(true);
-    // Simulate order processing
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-    setIsSubmitting(false);
-    setOrderComplete(true);
-    clearCart();
+
+    try {
+      const response = await fetch('/api/stripe/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          items: items.map(item => ({
+            name: item.name,
+            price: item.price,
+            quantity: item.quantity,
+            image: item.image || null,
+          })),
+          deliveryInfo: {
+            address: `${formData.address}${formData.apartment ? ', ' + formData.apartment : ''}, ${formData.city}, ${formData.state} ${formData.zipCode}`,
+            phone: formData.phone,
+            instructions: formData.deliveryInstructions,
+          },
+          subtotal,
+          tax,
+          deliveryFee,
+          total,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to create checkout session');
+      }
+
+      const { url } = await response.json();
+      
+      // Redirect to Stripe Checkout
+      if (url) {
+        window.location.href = url;
+      }
+    } catch (error) {
+      console.error('Error creating checkout session:', error);
+      alert('Failed to initiate payment. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
+  // Loading state while checking authentication
+  if (status === 'loading') {
+    return (
+      <>
+        <Navbar />
+        <main className="min-h-screen bg-[#FDF8F3] pt-20 flex items-center justify-center">
+          <div className="text-center">
+            <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+            <p className="text-gray-500">Loading...</p>
+          </div>
+        </main>
+        <Footer />
+      </>
+    );
+  }
+
   // Empty cart check
-  if (items.length === 0 && !orderComplete) {
+  if (items.length === 0) {
     return (
       <>
         <Navbar />
@@ -252,62 +254,6 @@ export default function CheckoutPage() {
                   <ArrowRight className="w-4 h-4 ml-2" />
                 </Link>
               </Button>
-            </motion.div>
-          </div>
-        </main>
-        <Footer />
-      </>
-    );
-  }
-
-  // Order Complete
-  if (orderComplete) {
-    return (
-      <>
-        <Navbar />
-        <main className="min-h-screen bg-[#FDF8F3] pt-20">
-          <div className="container-custom py-20">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="text-center max-w-lg mx-auto"
-            >
-              <motion.div
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                transition={{ type: 'spring', delay: 0.2 }}
-                className="w-24 h-24 rounded-full bg-[#2D6A4F] flex items-center justify-center mx-auto mb-6"
-              >
-                <CheckCircle2 className="w-12 h-12 text-white" />
-              </motion.div>
-              <h1 className="font-playfair text-3xl font-bold text-gray-800 mb-4">
-                Order Confirmed!
-              </h1>
-              <p className="text-gray-500 mb-2">
-                Thank you for your order. Your delicious momos are on the way!
-              </p>
-              <p className="text-gray-600 font-semibold mb-8">
-                Order #HM{Date.now().toString().slice(-6)}
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button
-                  asChild
-                  className="bg-primary hover:bg-[#B8420A] text-white"
-                >
-                  <Link href="/">
-                    Back to Home
-                  </Link>
-                </Button>
-                <Button
-                  asChild
-                  variant="outline"
-                  className="border-primary text-primary hover:bg-primary/5"
-                >
-                  <Link href="/menu">
-                    Order Again
-                  </Link>
-                </Button>
-              </div>
             </motion.div>
           </div>
         </main>
@@ -645,7 +591,7 @@ export default function CheckoutPage() {
                     </motion.div>
                   )}
 
-                  {/* Step 2: Payment */}
+                  {/* Step 2: Review & Pay */}
                   {currentStep === 2 && (
                     <motion.div
                       key="step2"
@@ -653,147 +599,9 @@ export default function CheckoutPage() {
                       animate={{ opacity: 1, x: 0 }}
                       exit={{ opacity: 0, x: -20 }}
                       transition={{ duration: 0.3 }}
+                      className="space-y-6"
                     >
-                      <Card className="border-0 shadow-lg">
-                        <CardHeader>
-                          <CardTitle className="font-playfair flex items-center gap-2">
-                            <CreditCard className="w-5 h-5 text-primary" />
-                            Payment Details
-                          </CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-6">
-                          {/* Card Number */}
-                          <div className="space-y-2">
-                            <label className="text-sm font-medium text-gray-700">
-                              Card Number *
-                            </label>
-                            <div className="relative">
-                              <CreditCard className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                              <Input
-                                placeholder="1234 5678 9012 3456"
-                                value={formData.cardNumber}
-                                onChange={(e) =>
-                                  handleInputChange(
-                                    'cardNumber',
-                                    formatCardNumber(e.target.value)
-                                  )
-                                }
-                                onBlur={() => handleBlur('cardNumber')}
-                                maxLength={19}
-                                className={`pl-10 ${
-                                  errors.cardNumber && touched.cardNumber
-                                    ? 'border-red-500'
-                                    : ''
-                                }`}
-                              />
-                            </div>
-                            {errors.cardNumber && touched.cardNumber && (
-                              <p className="text-red-500 text-xs flex items-center gap-1">
-                                <AlertCircle className="w-3 h-3" />
-                                {errors.cardNumber}
-                              </p>
-                            )}
-                          </div>
-
-                          {/* Card Name */}
-                          <div className="space-y-2">
-                            <label className="text-sm font-medium text-gray-700">
-                              Name on Card
-                            </label>
-                            <Input
-                              placeholder="John Doe"
-                              value={formData.cardName}
-                              onChange={(e) =>
-                                handleInputChange('cardName', e.target.value)
-                              }
-                            />
-                          </div>
-
-                          {/* Expiry & CVV */}
-                          <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                              <label className="text-sm font-medium text-gray-700">
-                                Expiry Date *
-                              </label>
-                              <Input
-                                placeholder="MM/YY"
-                                value={formData.expiryDate}
-                                onChange={(e) =>
-                                  handleInputChange(
-                                    'expiryDate',
-                                    formatExpiryDate(e.target.value)
-                                  )
-                                }
-                                onBlur={() => handleBlur('expiryDate')}
-                                maxLength={5}
-                                className={
-                                  errors.expiryDate && touched.expiryDate
-                                    ? 'border-red-500'
-                                    : ''
-                                }
-                              />
-                              {errors.expiryDate && touched.expiryDate && (
-                                <p className="text-red-500 text-xs flex items-center gap-1">
-                                  <AlertCircle className="w-3 h-3" />
-                                  {errors.expiryDate}
-                                </p>
-                              )}
-                            </div>
-                            <div className="space-y-2">
-                              <label className="text-sm font-medium text-gray-700">
-                                CVV *
-                              </label>
-                              <Input
-                                type="password"
-                                placeholder="123"
-                                value={formData.cvv}
-                                onChange={(e) =>
-                                  handleInputChange(
-                                    'cvv',
-                                    e.target.value.replace(/\D/g, '').slice(0, 4)
-                                  )
-                                }
-                                onBlur={() => handleBlur('cvv')}
-                                maxLength={4}
-                                className={
-                                  errors.cvv && touched.cvv ? 'border-red-500' : ''
-                                }
-                              />
-                              {errors.cvv && touched.cvv && (
-                                <p className="text-red-500 text-xs flex items-center gap-1">
-                                  <AlertCircle className="w-3 h-3" />
-                                  {errors.cvv}
-                                </p>
-                              )}
-                            </div>
-                          </div>
-
-                          {/* Security Note */}
-                          <div className="bg-green-50 rounded-lg p-4 flex items-start gap-3">
-                            <Check className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
-                            <div>
-                              <p className="text-sm font-medium text-green-800">
-                                Secure Payment
-                              </p>
-                              <p className="text-xs text-green-600 mt-1">
-                                Your payment information is encrypted and secure.
-                              </p>
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </motion.div>
-                  )}
-
-                  {/* Step 3: Confirmation */}
-                  {currentStep === 3 && (
-                    <motion.div
-                      key="step3"
-                      initial={{ opacity: 0, x: 20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: -20 }}
-                      transition={{ duration: 0.3 }}
-                    >
+                      {/* Order Review Card */}
                       <Card className="border-0 shadow-lg">
                         <CardHeader>
                           <CardTitle className="font-playfair flex items-center gap-2">
@@ -805,7 +613,7 @@ export default function CheckoutPage() {
                           {/* Delivery Address */}
                           <div className="bg-gray-50 rounded-lg p-4">
                             <div className="flex items-start gap-3">
-                              <MapPin className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
+                              <MapPin className="w-5 h-5 text-primary shrink-0 mt-0.5" />
                               <div>
                                 <p className="font-medium text-gray-800">
                                   Delivery Address
@@ -820,13 +628,21 @@ export default function CheckoutPage() {
                                   {formData.zipCode}
                                 </p>
                               </div>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => setCurrentStep(1)}
+                                className="ml-auto text-primary hover:text-primary/80"
+                              >
+                                Edit
+                              </Button>
                             </div>
                           </div>
 
                           {/* Contact */}
                           <div className="bg-gray-50 rounded-lg p-4">
                             <div className="flex items-start gap-3">
-                              <Phone className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
+                              <Phone className="w-5 h-5 text-primary shrink-0 mt-0.5" />
                               <div>
                                 <p className="font-medium text-gray-800">
                                   Contact Information
@@ -840,21 +656,22 @@ export default function CheckoutPage() {
                             </div>
                           </div>
 
-                          {/* Payment Method */}
-                          <div className="bg-gray-50 rounded-lg p-4">
-                            <div className="flex items-start gap-3">
-                              <CreditCard className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
-                              <div>
-                                <p className="font-medium text-gray-800">
-                                  Payment Method
-                                </p>
-                                <p className="text-sm text-gray-600 mt-1">
-                                  Card ending in ****{' '}
-                                  {formData.cardNumber.slice(-4)}
-                                </p>
+                          {/* Delivery Instructions */}
+                          {formData.deliveryInstructions && (
+                            <div className="bg-gray-50 rounded-lg p-4">
+                              <div className="flex items-start gap-3">
+                                <Home className="w-5 h-5 text-primary shrink-0 mt-0.5" />
+                                <div>
+                                  <p className="font-medium text-gray-800">
+                                    Delivery Instructions
+                                  </p>
+                                  <p className="text-sm text-gray-600 mt-1">
+                                    {formData.deliveryInstructions}
+                                  </p>
+                                </div>
                               </div>
                             </div>
-                          </div>
+                          )}
 
                           {/* Estimated Time */}
                           <div className="bg-primary/10 rounded-lg p-4">
@@ -869,6 +686,94 @@ export default function CheckoutPage() {
                                 </p>
                               </div>
                             </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+
+                      {/* Payment Card */}
+                      <Card className="border-0 shadow-lg overflow-hidden">
+                        <CardHeader className="bg-gradient-to-r from-[#1A1A1A] to-[#2D2D2D] text-white">
+                          <CardTitle className="font-playfair flex items-center gap-2">
+                            <Lock className="w-5 h-5" />
+                            Secure Payment
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent className="p-6 space-y-6">
+                          {/* Stripe Branding */}
+                          <div className="flex items-center justify-center gap-4 py-4">
+                            <div className="flex items-center gap-2 text-gray-600">
+                              <Shield className="w-5 h-5 text-[#2D6A4F]" />
+                              <span className="text-sm font-medium">Powered by</span>
+                            </div>
+                            <div className="flex items-center gap-1 text-[#635BFF] font-bold text-xl">
+                              <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M13.976 9.15c-2.172-.806-3.356-1.426-3.356-2.409 0-.831.683-1.305 1.901-1.305 2.227 0 4.515.858 6.09 1.631l.89-5.494C18.252.975 15.697 0 12.165 0 9.667 0 7.589.654 6.104 1.872 4.56 3.147 3.757 4.992 3.757 7.218c0 4.039 2.467 5.76 6.476 7.219 2.585.92 3.445 1.574 3.445 2.583 0 .98-.84 1.545-2.354 1.545-1.875 0-4.965-.921-6.99-2.109l-.9 5.555C5.175 22.99 8.385 24 11.714 24c2.641 0 4.843-.624 6.328-1.813 1.664-1.305 2.525-3.236 2.525-5.732 0-4.128-2.524-5.851-6.591-7.305z"/>
+                              </svg>
+                              <span>stripe</span>
+                            </div>
+                          </div>
+
+                          {/* Card Icons */}
+                          <div className="flex items-center justify-center gap-3 py-2">
+                            <div className="bg-white border border-gray-200 rounded px-3 py-1.5">
+                              <svg width="40" height="24" viewBox="0 0 40 24" fill="none">
+                                <rect width="40" height="24" rx="4" fill="#1A1F71"/>
+                                <path d="M17 16.5l2.5-9h2l-2.5 9h-2zm10.5-9l-3.5 9h-2l1.75-4.25-2.25-4.75h2.25l1.25 3.25 1.5-3.25h2l-1 1zm-14.25 9l-.75-1h-3l-.5 1h-2l3.5-9h2l3 9h-2.25zm-2-3h2l-1-3-1 3z" fill="white"/>
+                              </svg>
+                            </div>
+                            <div className="bg-white border border-gray-200 rounded px-3 py-1.5">
+                              <svg width="40" height="24" viewBox="0 0 40 24" fill="none">
+                                <rect width="40" height="24" rx="4" fill="#fff"/>
+                                <circle cx="15" cy="12" r="7" fill="#EB001B"/>
+                                <circle cx="25" cy="12" r="7" fill="#F79E1B"/>
+                                <path d="M20 6.5a6.98 6.98 0 012.5 5.5 6.98 6.98 0 01-2.5 5.5 6.98 6.98 0 01-2.5-5.5 6.98 6.98 0 012.5-5.5z" fill="#FF5F00"/>
+                              </svg>
+                            </div>
+                            <div className="bg-white border border-gray-200 rounded px-3 py-1.5">
+                              <svg width="40" height="24" viewBox="0 0 40 24" fill="none">
+                                <rect width="40" height="24" rx="4" fill="#006FCF"/>
+                                <path d="M20 5l7 7-7 7-7-7 7-7z" fill="#fff"/>
+                              </svg>
+                            </div>
+                          </div>
+
+                          <Separator />
+
+                          {/* Total */}
+                          <div className="bg-gray-50 rounded-xl p-4">
+                            <div className="flex justify-between items-center">
+                              <span className="text-gray-600">Total to pay</span>
+                              <span className="text-2xl font-bold text-primary">
+                                ${total.toFixed(2)}
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Pay Button */}
+                          <Button
+                            onClick={handleStripeCheckout}
+                            disabled={isSubmitting}
+                            className="w-full bg-[#635BFF] hover:bg-[#5851DB] text-white py-6 text-lg font-semibold rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl"
+                          >
+                            {isSubmitting ? (
+                              <div className="flex items-center gap-2">
+                                <Loader2 className="w-5 h-5 animate-spin" />
+                                <span>Processing...</span>
+                              </div>
+                            ) : (
+                              <div className="flex items-center gap-2">
+                                <Lock className="w-5 h-5" />
+                                <span>Pay ${total.toFixed(2)} with Stripe</span>
+                              </div>
+                            )}
+                          </Button>
+
+                          {/* Security Note */}
+                          <div className="flex items-center justify-center gap-2 text-xs text-gray-500">
+                            <Shield className="w-4 h-4 text-[#2D6A4F]" />
+                            <span>
+                              Your payment is secured with 256-bit SSL encryption
+                            </span>
                           </div>
                         </CardContent>
                       </Card>
@@ -888,39 +793,25 @@ export default function CheckoutPage() {
                       Back
                     </Button>
                   ) : (
-                    <div />
+                    <Button
+                      asChild
+                      variant="outline"
+                      className="border-gray-200"
+                    >
+                      <Link href="/menu">
+                        <ArrowLeft className="w-4 h-4 mr-2" />
+                        Continue Shopping
+                      </Link>
+                    </Button>
                   )}
 
-                  {currentStep < 3 ? (
+                  {currentStep === 1 && (
                     <Button
                       onClick={nextStep}
                       className="bg-primary hover:bg-[#B8420A] text-white"
                     >
-                      Continue
+                      Review Order
                       <ArrowRight className="w-4 h-4 ml-2" />
-                    </Button>
-                  ) : (
-                    <Button
-                      onClick={handleSubmit}
-                      disabled={isSubmitting}
-                      className="bg-[#2D6A4F] hover:bg-[#245840] text-white min-w-[150px]"
-                    >
-                      {isSubmitting ? (
-                        <motion.div
-                          animate={{ rotate: 360 }}
-                          transition={{
-                            repeat: Infinity,
-                            duration: 1,
-                            ease: 'linear',
-                          }}
-                          className="w-5 h-5 border-2 border-white border-t-transparent rounded-full"
-                        />
-                      ) : (
-                        <>
-                          Place Order
-                          <Check className="w-4 h-4 ml-2" />
-                        </>
-                      )}
                     </Button>
                   )}
                 </div>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useEffect, useRef } from 'react';
+import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -34,11 +34,36 @@ import {
   DropdownMenuTrigger,
   DropdownMenuCheckboxItem,
 } from '@/components/ui/dropdown-menu';
-import { menuItems, categories, MenuItem } from '../data/menuItems';
+import { categories } from '../data/menuItems';
 import { useCart } from '../context/CartContext';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import CartQuantityButton from '../components/CartQuantityButton';
+
+// Define MenuItem type for database items
+interface MenuItem {
+  id: string;
+  slug: string;
+  name: string;
+  description: string;
+  longDescription?: string | null;
+  price: number;
+  category: 'momos' | 'sides' | 'drinks' | 'desserts';
+  image: string;
+  spiceLevel: number;
+  isVegetarian: boolean;
+  isPopular: boolean;
+  isNew: boolean;
+  isAvailable: boolean;
+  ingredients: string[];
+  allergens: string[];
+  calories?: number | null;
+  protein?: string | null;
+  carbs?: string | null;
+  fat?: string | null;
+  preparationTime?: string | null;
+  servingSize?: string | null;
+}
 
 type SortOption = 'default' | 'price-low' | 'price-high' | 'popular' | 'new' | 'name-az' | 'name-za';
 type DietaryFilter = 'all' | 'vegetarian' | 'non-vegetarian';
@@ -285,6 +310,7 @@ const MenuCard = ({ item, index }: { item: MenuItem; index: number }) => {
 };
 
 export default function MenuPage() {
+  const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [activeCategory, setActiveCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<SortOption>('default');
@@ -304,13 +330,25 @@ export default function MenuPage() {
     spiceFilter,
   });
 
-  // Simulate initial loading
-  useEffect(() => {
-    const timer = setTimeout(() => {
+  // Fetch menu items from API
+  const fetchMenuItems = useCallback(async () => {
+    try {
+      const response = await fetch('/api/menu');
+      if (response.ok) {
+        const data = await response.json();
+        setMenuItems(data);
+      }
+    } catch (error) {
+      console.error('Error fetching menu items:', error);
+    } finally {
       setIsLoading(false);
-    }, 1200);
-    return () => clearTimeout(timer);
+    }
   }, []);
+
+  // Initial fetch
+  useEffect(() => {
+    fetchMenuItems();
+  }, [fetchMenuItems]);
 
   // Show skeleton when filters change (after initial load)
   useEffect(() => {
@@ -401,7 +439,7 @@ export default function MenuPage() {
     }
 
     return items;
-  }, [activeCategory, searchQuery, sortBy, dietaryFilter, spiceFilter]);
+  }, [menuItems, activeCategory, searchQuery, sortBy, dietaryFilter, spiceFilter]);
 
   const clearAllFilters = () => {
     setSortBy('default');
