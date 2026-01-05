@@ -47,6 +47,7 @@ model User {
   password      String?
   phone         String?
   address       String?
+  role          Role      @default(USER)
   accounts      Account[]
   sessions      Session[]
   orders        Order[]
@@ -100,6 +101,11 @@ enum OrderStatus {
   CANCELLED
 }
 
+enum Role {
+  USER
+  ADMIN
+}
+
 // Menu Models
 model MenuItem {
   id              String       @id @default(cuid())
@@ -132,4 +138,22 @@ enum MenuCategory {
   sides
   drinks
   desserts
+}
+
+// Notification Model
+model Notification {
+  id        String           @id @default(cuid())
+  type      NotificationType
+  title     String
+  message   String
+  orderId   String?
+  read      Boolean          @default(false)
+  createdAt DateTime         @default(now())
+}
+
+enum NotificationType {
+  NEW_ORDER
+  ORDER_COMPLETED
+  LOW_STOCK
+  SYSTEM
 }

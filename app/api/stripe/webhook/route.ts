@@ -74,29 +74,22 @@ export async function POST(request: NextRequest) {
 
         console.log('Found user:', user.id, user.email);
 
-        // Parse items from metadata
+        // Get items from line items (filter out Tax and Delivery Fee)
         let orderItems: { name: string; price: number; quantity: number; image: string | null }[] = [];
         
-        if (metadata.items) {
-          try {
-            orderItems = JSON.parse(metadata.items);
-            console.log('Parsed order items from metadata:', orderItems.length, 'items');
-          } catch (parseError) {
-            console.error('Failed to parse items from metadata:', parseError);
-          }
-        }
-        
-        // Fallback: get items from line items if metadata parse failed
-        if (orderItems.length === 0 && session.line_items?.data) {
-          console.log('Using line items as fallback');
+        if (session.line_items?.data) {
           orderItems = session.line_items.data
-            .filter(item => item.description !== 'Tax' && item.description !== 'Delivery Fee')
+            .filter(item => {
+              const name = item.description || '';
+              return name !== 'Tax' && name !== 'Delivery Fee';
+            })
             .map(item => ({
               name: item.description || 'Unknown Item',
               price: (item.amount_total || 0) / 100 / (item.quantity || 1),
               quantity: item.quantity || 1,
               image: null,
             }));
+          console.log('Parsed order items from line items:', orderItems.length, 'items');
         }
 
         if (orderItems.length === 0) {
@@ -135,6 +128,20 @@ export async function POST(request: NextRequest) {
         console.log('✅ Order created successfully:', order.id);
         console.log('Order total:', order.total);
         console.log('Order items:', order.items.length);
+
+        // Create notification for new order
+        const itemsSummary = orderItems.slice(0, 3).map(item => `${item.name} x${item.quantity}`).join(', ');
+        const moreItems = orderItems.length > 3 ? ` +${orderItems.length - 3} more` : '';
+        
+        await prisma.notification.create({
+          data: {
+            type: 'NEW_ORDER',
+            title: `New Order #${order.id.slice(-8).toUpperCase()}`,
+            message: itemsSummary + moreItems,
+            orderId: order.id,
+          },
+        });
+        console.log('✅ Notification created for order');
         
       } catch (error) {
         console.error('Error processing checkout session:', error);

@@ -47,6 +47,7 @@ import {
 } from '@/components/ui/dialog';
 import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
+import Pagination from '../components/Pagination';
 
 interface OrderItem {
   name: string;
@@ -145,6 +146,8 @@ const statusToStatsKey: Record<string, keyof OrderStats> = {
   cancelled: 'cancelled',
 };
 
+const ITEMS_PER_PAGE = 10;
+
 export default function OrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [stats, setStats] = useState<OrderStats | null>(null);
@@ -154,6 +157,19 @@ export default function OrdersPage() {
   const [dateFilter, setDateFilter] = useState<string>('all');
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+
+  // Paginated orders
+  const totalPages = Math.ceil(orders.length / ITEMS_PER_PAGE);
+  const paginatedOrders = orders.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  );
+
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, statusFilter, dateFilter]);
 
   // Fetch orders
   const fetchOrders = async () => {
@@ -262,34 +278,6 @@ export default function OrdersPage() {
         </div>
       </div>
 
-      {/* Quick Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
-        {Object.entries(statusConfig).map(([key, config]) => {
-          const statsKey = statusToStatsKey[key];
-          const count = stats?.[statsKey] ?? 0;
-          return (
-            <Card
-              key={key}
-              className={cn(
-                'cursor-pointer transition-all hover:shadow-md border-gray-100',
-                statusFilter === key && 'ring-2 ring-primary ring-offset-2'
-              )}
-              onClick={() => setStatusFilter(statusFilter === key ? 'all' : key)}
-            >
-              <CardContent className="p-4 flex items-center gap-3">
-                <div className={cn('w-10 h-10 rounded-lg flex items-center justify-center', config.bgColor)}>
-                  <config.icon className={cn('w-5 h-5', config.color.split(' ')[1])} />
-                </div>
-                <div>
-                  <p className="text-xl font-bold text-[#1A1A1A]">{count}</p>
-                  <p className="text-xs text-gray-500 truncate">{config.label}</p>
-                </div>
-              </CardContent>
-            </Card>
-          );
-        })}
-      </div>
-
       {/* Filters */}
       <Card className="border-gray-100 shadow-sm">
         <CardContent className="p-4">
@@ -372,14 +360,14 @@ export default function OrdersPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {orders.length === 0 ? (
+                  {paginatedOrders.length === 0 ? (
                     <tr>
                       <td colSpan={6} className="py-12 text-center text-gray-500">
                         No orders found matching your criteria
                       </td>
                     </tr>
                   ) : (
-                    orders.map((order) => {
+                    paginatedOrders.map((order) => {
                       const config = getStatusConfig(order.status);
                       return (
                         <tr
@@ -490,33 +478,40 @@ export default function OrdersPage() {
               </table>
             </div>
           )}
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+            totalItems={orders.length}
+            itemsPerPage={ITEMS_PER_PAGE}
+          />
         </CardContent>
       </Card>
 
       {/* Order Details Dialog */}
       <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="w-[calc(100%-2rem)] max-w-md max-h-[85vh] overflow-y-auto mx-auto">
           <DialogHeader>
-            <DialogTitle className="font-heading text-xl">
+            <DialogTitle className="font-heading text-base sm:text-lg">
               Order Details
             </DialogTitle>
           </DialogHeader>
           {selectedOrder && (
-            <div className="space-y-6">
-              {/* Order Info */}
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 bg-gray-50 rounded-xl">
-                <div>
-                  <p className="text-lg font-semibold text-[#1A1A1A]">
+            <div className="space-y-3 sm:space-y-4">
+              {/* Order Info + Status */}
+              <div className="flex items-center justify-between gap-2">
+                <div className="min-w-0">
+                  <p className="font-semibold text-sm sm:text-base text-[#1A1A1A]">
                     #{selectedOrder.id.slice(-8).toUpperCase()}
                   </p>
-                  <p className="text-sm text-gray-500">
+                  <p className="text-[10px] sm:text-xs text-gray-500">
                     {formatDate(selectedOrder.createdAt)}
                   </p>
                 </div>
                 <Badge
                   variant="outline"
                   className={cn(
-                    'text-sm py-1 px-3',
+                    'text-[10px] sm:text-xs py-0.5 px-1.5 sm:px-2 shrink-0',
                     getStatusConfig(selectedOrder.status).color
                   )}
                 >
@@ -524,124 +519,110 @@ export default function OrdersPage() {
                 </Badge>
               </div>
 
+              <Separator />
+
               {/* Customer Info */}
-              <div>
-                <h3 className="font-medium text-[#1A1A1A] mb-3">Customer Information</h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="flex items-start gap-3">
-                    <Avatar className="w-10 h-10">
-                      <AvatarImage src={selectedOrder.customer.avatar} />
-                      <AvatarFallback className="bg-primary/10 text-primary">
-                        {selectedOrder.customer.name.split(' ').map(n => n[0]).join('')}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <p className="font-medium text-[#1A1A1A]">
-                        {selectedOrder.customer.name}
-                      </p>
-                      <p className="text-sm text-gray-500">
-                        {selectedOrder.customer.email}
-                      </p>
-                    </div>
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <Avatar className="w-7 h-7 sm:w-8 sm:h-8 shrink-0">
+                    <AvatarImage src={selectedOrder.customer.avatar} />
+                    <AvatarFallback className="bg-primary/10 text-primary text-[10px] sm:text-xs">
+                      {selectedOrder.customer.name.split(' ').map(n => n[0]).join('')}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="min-w-0">
+                    <p className="text-xs sm:text-sm font-medium text-[#1A1A1A] truncate">
+                      {selectedOrder.customer.name}
+                    </p>
+                    <p className="text-[10px] sm:text-xs text-gray-500 truncate">
+                      {selectedOrder.customer.email}
+                    </p>
                   </div>
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2 text-sm text-gray-600">
-                      <Phone className="w-4 h-4" />
-                      {selectedOrder.customer.phone}
-                    </div>
-                    <div className="flex items-start gap-2 text-sm text-gray-600">
-                      <MapPin className="w-4 h-4 mt-0.5 flex-shrink-0" />
-                      {selectedOrder.customer.address}
-                    </div>
+                </div>
+                <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 text-[10px] sm:text-xs text-gray-600">
+                  <div className="flex items-center gap-1">
+                    <Phone className="w-3 h-3 shrink-0" />
+                    <span className="truncate">{selectedOrder.customer.phone}</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <MapPin className="w-3 h-3 shrink-0" />
+                    <span className="truncate">{selectedOrder.customer.address}</span>
                   </div>
                 </div>
               </div>
 
               {selectedOrder.notes && (
-                <>
-                  <Separator />
-                  <div>
-                    <h3 className="font-medium text-[#1A1A1A] mb-2">Order Notes</h3>
-                    <p className="text-sm text-gray-600 bg-gray-50 p-3 rounded-lg">{selectedOrder.notes}</p>
-                  </div>
-                </>
+                <p className="text-[10px] sm:text-xs text-gray-600 break-words">
+                  <span className="font-medium">Note:</span> {selectedOrder.notes}
+                </p>
               )}
 
               <Separator />
 
               {/* Order Items */}
-              <div>
-                <h3 className="font-medium text-[#1A1A1A] mb-3">Order Items</h3>
-                <div className="space-y-3">
-                  {selectedOrder.items.map((item, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary font-medium">
-                          {item.quantity}x
-                        </div>
-                        <span className="font-medium text-[#1A1A1A]">{item.name}</span>
-                      </div>
-                      <span className="font-medium text-[#1A1A1A]">
-                        ${(item.price * item.quantity).toFixed(2)}
-                      </span>
+              <div className="space-y-1.5 sm:space-y-2">
+                {selectedOrder.items.map((item, index) => (
+                  <div key={index} className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
+                      <span className="text-[10px] sm:text-xs font-medium text-primary shrink-0">{item.quantity}x</span>
+                      <span className="text-xs sm:text-sm text-[#1A1A1A] truncate">{item.name}</span>
                     </div>
-                  ))}
-                </div>
+                    <span className="text-xs sm:text-sm font-medium text-[#1A1A1A] shrink-0">
+                      ${(item.price * item.quantity).toFixed(2)}
+                    </span>
+                  </div>
+                ))}
               </div>
 
               <Separator />
 
               {/* Order Summary */}
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-500">Subtotal</span>
-                  <span className="text-[#1A1A1A]">${selectedOrder.subtotal.toFixed(2)}</span>
+              <div className="space-y-1">
+                <div className="flex justify-between text-[10px] sm:text-xs text-gray-500">
+                  <span>Subtotal</span>
+                  <span>${selectedOrder.subtotal.toFixed(2)}</span>
                 </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-500">Delivery Fee</span>
-                  <span className="text-[#1A1A1A]">${selectedOrder.deliveryFee.toFixed(2)}</span>
+                <div className="flex justify-between text-[10px] sm:text-xs text-gray-500">
+                  <span>Delivery</span>
+                  <span>${selectedOrder.deliveryFee.toFixed(2)}</span>
                 </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-500">Tax</span>
-                  <span className="text-[#1A1A1A]">${selectedOrder.tax.toFixed(2)}</span>
+                <div className="flex justify-between text-[10px] sm:text-xs text-gray-500">
+                  <span>Tax</span>
+                  <span>${selectedOrder.tax.toFixed(2)}</span>
                 </div>
-                <Separator />
-                <div className="flex justify-between font-semibold text-lg">
+                <div className="flex justify-between font-semibold text-sm sm:text-base pt-1">
                   <span className="text-[#1A1A1A]">Total</span>
                   <span className="text-primary">${selectedOrder.total.toFixed(2)}</span>
                 </div>
               </div>
 
               {/* Actions */}
-              <div className="flex flex-col sm:flex-row gap-3">
+              <div className="flex gap-2 pt-1 sm:pt-2">
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button className="flex-1 bg-primary hover:bg-primary/90 gap-2">
+                    <Button size="sm" className="flex-1 bg-primary hover:bg-primary/90 gap-1 sm:gap-1.5 text-xs sm:text-sm h-8 sm:h-9">
                       Update Status
-                      <ChevronDown className="w-4 h-4" />
+                      <ChevronDown className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent className="w-48">
+                  <DropdownMenuContent className="w-40 sm:w-44">
                     {Object.entries(statusConfig).map(([key, cfg]) => (
                       <DropdownMenuItem
                         key={key}
-                        className="gap-2 cursor-pointer"
+                        className="gap-2 cursor-pointer text-xs sm:text-sm"
                         onClick={() => {
                           handleUpdateStatus(selectedOrder.id, key);
                           setSelectedOrder({ ...selectedOrder, status: key });
                         }}
                       >
-                        <cfg.icon className="w-4 h-4" />
+                        <cfg.icon className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                         {cfg.label}
                       </DropdownMenuItem>
                     ))}
                   </DropdownMenuContent>
                 </DropdownMenu>
-                <Button variant="outline" className="flex-1">
-                  Print Receipt
+                <Button variant="outline" size="sm" className="flex-1 text-xs sm:text-sm h-8 sm:h-9">
+                  Print
                 </Button>
               </div>
             </div>

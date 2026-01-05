@@ -78,20 +78,14 @@ export async function POST(request: NextRequest) {
       metadata: {
         userId: session.user.id || '',
         userEmail: session.user.email || '',
-        deliveryAddress: deliveryInfo.address,
+        deliveryAddress: deliveryInfo.address.substring(0, 450),
         deliveryPhone: deliveryInfo.phone,
-        deliveryInstructions: deliveryInfo.instructions || '',
+        deliveryInstructions: (deliveryInfo.instructions || '').substring(0, 450),
         subtotal: subtotal.toString(),
         tax: tax.toString(),
         deliveryFee: deliveryFee.toString(),
         total: total.toString(),
-        // Store items as JSON string (Stripe metadata values must be strings)
-        items: JSON.stringify(items.map((item: { name: string; price: number; quantity: number; image?: string }) => ({
-          name: item.name,
-          price: item.price,
-          quantity: item.quantity,
-          image: item.image || null,
-        }))),
+        itemCount: items.length.toString(),
       },
     });
 

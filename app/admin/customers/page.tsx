@@ -45,6 +45,7 @@ import {
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { cn } from '@/lib/utils';
+import Pagination from '../components/Pagination';
 
 interface CustomerOrder {
   id: string;
@@ -78,6 +79,8 @@ interface CustomerStats {
   avgOrderValue: number;
 }
 
+const ITEMS_PER_PAGE = 10;
+
 export default function CustomersPage() {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [stats, setStats] = useState<CustomerStats | null>(null);
@@ -86,6 +89,19 @@ export default function CustomersPage() {
   const [statusFilter, setStatusFilter] = useState('all');
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+
+  // Paginated customers
+  const totalPages = Math.ceil(customers.length / ITEMS_PER_PAGE);
+  const paginatedCustomers = customers.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  );
+
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, statusFilter]);
 
   // Fetch customers
   const fetchCustomers = async () => {
@@ -277,14 +293,14 @@ export default function CustomersPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {customers.length === 0 ? (
+                  {paginatedCustomers.length === 0 ? (
                     <tr>
                       <td colSpan={6} className="py-12 text-center text-gray-500">
                         No customers found matching your criteria
                       </td>
                     </tr>
                   ) : (
-                    customers.map((customer) => (
+                    paginatedCustomers.map((customer) => (
                       <tr
                         key={customer.id}
                         className="border-b border-gray-50 hover:bg-gray-50/50 transition-colors"
@@ -381,6 +397,13 @@ export default function CustomersPage() {
               </table>
             </div>
           )}
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+            totalItems={customers.length}
+            itemsPerPage={ITEMS_PER_PAGE}
+          />
         </CardContent>
       </Card>
 

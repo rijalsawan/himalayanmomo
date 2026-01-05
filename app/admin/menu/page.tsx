@@ -63,6 +63,7 @@ import {
   TabsTrigger,
 } from '@/components/ui/tabs';
 import { cn } from '@/lib/utils';
+import Pagination from '../components/Pagination';
 
 interface MenuItem {
   id: string;
@@ -149,6 +150,8 @@ const emptyFormData: FormData = {
   servingSize: '',
 };
 
+const ITEMS_PER_PAGE = 10;
+
 export default function MenuManagementPage() {
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -159,6 +162,19 @@ export default function MenuManagementPage() {
   const [editingItem, setEditingItem] = useState<MenuItem | null>(null);
   const [deleteItem, setDeleteItem] = useState<MenuItem | null>(null);
   const [formData, setFormData] = useState<FormData>(emptyFormData);
+  const [currentPage, setCurrentPage] = useState(1);
+
+  // Paginated menu items
+  const totalPages = Math.ceil(menuItems.length / ITEMS_PER_PAGE);
+  const paginatedItems = menuItems.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  );
+
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, categoryFilter]);
 
   // Fetch menu items
   const fetchMenuItems = async () => {
@@ -417,7 +433,7 @@ export default function MenuManagementPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {menuItems.map((item) => (
+                  {paginatedItems.map((item) => (
                     <tr key={item.id} className="border-b last:border-0 hover:bg-muted/30">
                       <td className="py-3 px-4">
                         <div className="flex items-center gap-3">
@@ -486,6 +502,16 @@ export default function MenuManagementPage() {
             <div className="py-12 text-center">
               <p className="text-muted-foreground">No items found</p>
             </div>
+          )}
+
+          {!isLoading && menuItems.length > 0 && (
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={setCurrentPage}
+              totalItems={menuItems.length}
+              itemsPerPage={ITEMS_PER_PAGE}
+            />
           )}
         </CardContent>
       </Card>
