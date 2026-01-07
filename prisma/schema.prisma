@@ -65,20 +65,21 @@ model VerificationToken {
 
 // Order Models
 model Order {
-  id          String      @id @default(cuid())
-  userId      String
-  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  items       OrderItem[]
-  status      OrderStatus @default(PENDING)
-  total       Float
-  subtotal    Float
-  tax         Float
-  deliveryFee Float       @default(0)
-  notes       String?
-  address     String
-  phone       String
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
+  id              String      @id @default(cuid())
+  userId          String
+  user            User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items           OrderItem[]
+  status          OrderStatus @default(PENDING)
+  total           Float
+  subtotal        Float
+  tax             Float
+  deliveryFee     Float       @default(0)
+  notes           String?
+  address         String
+  phone           String
+  stripeSessionId String?     @unique // Stripe checkout session ID to prevent duplicate orders
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
 }
 
 model OrderItem {

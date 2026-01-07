@@ -97,6 +97,16 @@ export async function POST(request: NextRequest) {
           return NextResponse.json({ received: true, error: 'No items' });
         }
 
+        // Check if order already exists for this Stripe session (prevent duplicates)
+        const existingOrder = await prisma.order.findUnique({
+          where: { stripeSessionId: session.id },
+        });
+
+        if (existingOrder) {
+          console.log('Order already exists for session:', session.id);
+          return NextResponse.json({ received: true, message: 'Order already exists' });
+        }
+
         console.log('Creating order with', orderItems.length, 'items');
 
         // Create order in database
@@ -110,6 +120,7 @@ export async function POST(request: NextRequest) {
             address: metadata.deliveryAddress || 'Address not provided',
             phone: metadata.deliveryPhone || 'Phone not provided',
             notes: metadata.deliveryInstructions || null,
+            stripeSessionId: session.id,
             status: 'CONFIRMED',
             items: {
               create: orderItems.map(item => ({

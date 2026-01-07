@@ -52,11 +52,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if order already exists for this session (prevent duplicates)
-    const existingOrder = await prisma.order.findFirst({
-      where: {
-        userId: user.id,
-        notes: { contains: sessionId },
-      },
+    const existingOrder = await prisma.order.findUnique({
+      where: { stripeSessionId: sessionId },
     });
 
     if (existingOrder) {
@@ -110,7 +107,8 @@ export async function POST(request: NextRequest) {
         total: parseFloat(metadata.total || String((stripeSession.amount_total || 0) / 100)),
         address: metadata.deliveryAddress || 'Address not provided',
         phone: metadata.deliveryPhone || 'Phone not provided',
-        notes: `Stripe Session: ${sessionId}. ${metadata.deliveryInstructions || ''}`.trim(),
+        notes: metadata.deliveryInstructions || null,
+        stripeSessionId: sessionId,
         status: 'CONFIRMED',
         items: {
           create: orderItems.map(item => ({
