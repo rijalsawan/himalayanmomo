@@ -1,11 +1,11 @@
 export const businessInfo = {
-  name: 'Himalayan Momos',
-  tagline: 'Authentic Nepali Dumplings & Cuisine',
+  name: 'MO:MO Station',
+  tagline: 'Authentic Nepali Momos & Dumplings',
   description: 'Experience the authentic taste of Nepal with our handcrafted momos, made fresh daily using traditional family recipes passed down through generations.',
   
   contact: {
     phone: '+1 (555) 123-4567',
-    email: 'hello@himalayanmomos.com',
+    email: 'hello@momostation.com',
     address: {
       street: '123 Himalayan Way',
       city: 'New York',
@@ -26,10 +26,10 @@ export const businessInfo = {
   },
 
   social: {
-    instagram: 'https://instagram.com/himalayanmomos',
-    facebook: 'https://facebook.com/himalayanmomos',
-    tiktok: 'https://tiktok.com/@himalayanmomos',
-    twitter: 'https://twitter.com/himalayanmomos',
+    instagram: 'https://instagram.com/momostation',
+    facebook: 'https://facebook.com/momostation',
+    tiktok: 'https://tiktok.com/@momostation',
+    twitter: 'https://twitter.com/momostation',
   },
 
   features: [
