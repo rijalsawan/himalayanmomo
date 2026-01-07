@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -10,22 +7,20 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// NextAuth.js Models
 model Account {
   id                String  @id @default(cuid())
   userId            String
   type              String
   provider          String
   providerAccountId String
-  refresh_token     String? @db.Text
-  access_token      String? @db.Text
+  refresh_token     String?
+  access_token      String?
   expires_at        Int?
   token_type        String?
   scope             String?
-  id_token          String? @db.Text
+  id_token          String?
   session_state     String?
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
 }
@@ -48,11 +43,11 @@ model User {
   phone         String?
   address       String?
   role          Role      @default(USER)
-  accounts      Account[]
-  sessions      Session[]
-  orders        Order[]
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
+  accounts      Account[]
+  orders        Order[]
+  sessions      Session[]
 }
 
 model VerificationToken {
@@ -63,12 +58,9 @@ model VerificationToken {
   @@unique([identifier, token])
 }
 
-// Order Models
 model Order {
   id              String      @id @default(cuid())
   userId          String
-  user            User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  items           OrderItem[]
   status          OrderStatus @default(PENDING)
   total           Float
   subtotal        Float
@@ -77,19 +69,183 @@ model Order {
   notes           String?
   address         String
   phone           String
-  stripeSessionId String?     @unique // Stripe checkout session ID to prevent duplicate orders
+  stripeSessionId String?     @unique
   createdAt       DateTime    @default(now())
   updatedAt       DateTime    @updatedAt
+  user            User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items           OrderItem[]
 }
 
 model OrderItem {
-  id       String @id @default(cuid())
+  id       String  @id @default(cuid())
   orderId  String
-  order    Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
   name     String
   price    Float
   quantity Int
   image    String?
+  order    Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+}
+
+model MenuItem {
+  id              String       @id @default(cuid())
+  slug            String       @unique
+  name            String
+  description     String
+  longDescription String?
+  price           Float
+  category        MenuCategory
+  image           String
+  spiceLevel      Int          @default(0)
+  isVegetarian    Boolean      @default(false)
+  isPopular       Boolean      @default(false)
+  isNew           Boolean      @default(false)
+  isAvailable     Boolean      @default(true)
+  ingredients     String[]     @default([])
+  allergens       String[]     @default([])
+  calories        Int?
+  protein         String?
+  carbs           String?
+  fat             String?
+  preparationTime String?
+  servingSize     String?
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+}
+
+model Notification {
+  id        String           @id @default(cuid())
+  type      NotificationType
+  title     String
+  message   String
+  orderId   String?
+  read      Boolean          @default(false)
+  createdAt DateTime         @default(now())
+}
+
+model SiteSettings {
+  id                     String   @id @default("default")
+  heroBadgeText          String   @default("Authentic Nepali Mo:Mo")
+  heroHeadingLine1       String   @default("Taste the")
+  heroHighlightText      String   @default("Himalayan")
+  heroHeadingLine2       String   @default("Magic in Every Bite")
+  heroDescription        String   @default("Handcrafted momos made fresh daily using traditional family recipes passed down through generations. Experience the authentic flavors of Nepal.")
+  heroLogo               String   @default("/brandlogo.svg")
+  stat1Icon              String   @default("Award")
+  stat1Value             String   @default("15+")
+  stat1Label             String   @default("Years Experience")
+  stat2Icon              String   @default("Users")
+  stat2Value             String   @default("50K+")
+  stat2Label             String   @default("Happy Customers")
+  stat3Icon              String   @default("Clock")
+  stat3Value             String   @default("20min")
+  stat3Label             String   @default("Avg. Prep Time")
+  aboutImage1            String   @default("https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=800&h=500&fit=crop")
+  aboutImage2            String   @default("https://images.unsplash.com/photo-1556910103-1c02745aae4d?w=400&h=400&fit=crop")
+  aboutImage3            String   @default("https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?w=400&h=400&fit=crop")
+  aboutBadgeNumber       String   @default("15+")
+  aboutBadgeText         String   @default("Years of Excellence")
+  aboutSubtitle          String   @default("Our Story")
+  aboutHeadline          String   @default("A Journey of Authentic Flavors")
+  aboutParagraph         String   @default("What started as a small family kitchen in the heart of Nepal has grown into a beloved destination for momo enthusiasts. Our founder, inspired by generations of family recipes, brought the authentic taste of Himalayan momos to share with the world.")
+  aboutStat1Value        String   @default("15+")
+  aboutStat1Label        String   @default("Years")
+  aboutStat2Value        String   @default("50K+")
+  aboutStat2Label        String   @default("Customers")
+  aboutStat3Value        String   @default("25+")
+  aboutStat3Label        String   @default("Recipes")
+  aboutStat4Value        String   @default("100%")
+  aboutStat4Label        String   @default("Fresh Daily")
+  popularDishIds         String[] @default([])
+  whySubtitle            String   @default("Why Choose Us")
+  whyHeadline            String   @default("What Makes Us")
+  whyHighlightText       String   @default("Special")
+  whyDescription         String   @default("We're not just a restaurant — we're a family dedicated to bringing you the most authentic Nepali dining experience.")
+  whyCtaText             String   @default("Ready to experience the difference?")
+  whyFeature1Icon        String   @default("ChefHat")
+  whyFeature1Title       String   @default("Handmade Fresh Daily")
+  whyFeature1Desc        String   @default("Every momo is handcrafted by our skilled chefs each morning using traditional techniques.")
+  whyFeature2Icon        String   @default("ScrollText")
+  whyFeature2Title       String   @default("Authentic Family Recipes")
+  whyFeature2Desc        String   @default("Recipes passed down through generations, straight from the heart of Nepal.")
+  whyFeature3Icon        String   @default("Leaf")
+  whyFeature3Title       String   @default("Premium Ingredients")
+  whyFeature3Desc        String   @default("We source the freshest local ingredients and authentic Himalayan spices.")
+  whyFeature4Icon        String   @default("Truck")
+  whyFeature4Title       String   @default("Fast Delivery")
+  whyFeature4Desc        String   @default("Hot and fresh momos delivered to your doorstep in 30 minutes or less.")
+  testimonialSubtitle    String   @default("Testimonials")
+  testimonialHeadline    String   @default("Loved by Momo Enthusiasts")
+  testimonialDescription String   @default("Join thousands of satisfied customers who've made us their favorite spot")
+  testimonialStat1Icon   String   @default("Users")
+  testimonialStat1Value  String   @default("500+")
+  testimonialStat1Label  String   @default("Happy Customers")
+  testimonialStat2Icon   String   @default("Star")
+  testimonialStat2Value  String   @default("4.9")
+  testimonialStat2Label  String   @default("Average Rating")
+  testimonialStat3Icon   String   @default("CheckCircle")
+  testimonialStat3Value  String   @default("100%")
+  testimonialStat3Label  String   @default("Authentic Recipes")
+  contactSubtitle        String   @default("Contact Us")
+  contactHeadline        String   @default("Let's Start a Conversation")
+  contactDescription     String   @default("Have a question or want to make a reservation? We'd love to hear from you!")
+  contactFormTitle       String   @default("Send us a Message")
+  contactFormSubtitle    String   @default("We'll get back to you within 24 hours")
+  contactAddressLabel    String   @default("Visit Us")
+  contactAddressStreet   String   @default("123 Momo Street")
+  contactAddressCity     String   @default("San Francisco")
+  contactAddressState    String   @default("CA")
+  contactAddressZip      String   @default("94102")
+  contactPhoneLabel      String   @default("Call Us")
+  contactPhone           String   @default("(415) 555-MOMO")
+  contactEmailLabel      String   @default("Email Us")
+  contactEmail           String   @default("hello@momostation.com")
+  contactHoursLabel      String   @default("Open Hours")
+  contactHoursLine1      String   @default("Mon-Thu: 11AM-10PM")
+  contactHoursLine2      String   @default("Fri-Sat: 10AM-11PM")
+  contactSocial1Name     String   @default("Instagram")
+  contactSocial1Url      String   @default("https://instagram.com")
+  contactSocial1Icon     String   @default("Instagram")
+  contactSocial2Name     String   @default("Facebook")
+  contactSocial2Url      String   @default("https://facebook.com")
+  contactSocial2Icon     String   @default("Facebook")
+  contactSocial3Name     String   @default("TikTok")
+  contactSocial3Url      String   @default("https://tiktok.com")
+  contactSocial3Icon     String   @default("Video")
+  // Footer Section
+  footerCtaHeadline      String   @default("Ready to taste the Himalayas?")
+  footerCtaHighlight     String   @default("Himalayas")
+  footerCtaDescription   String   @default("Order online or visit us today for an authentic momo experience.")
+  footerCtaButton1Text   String   @default("Order Now")
+  footerCtaButton1Url    String   @default("/menu")
+  footerCtaButton2Text   String   @default("Contact Us")
+  footerCtaButton2Url    String   @default("#contact")
+  footerBrandName        String   @default("MO:MO Station")
+  footerBrandDescription String   @default("Authentic Nepali Dumplings. Experience the authentic taste of Nepal with our handcrafted momos, made fresh daily with love and tradition.")
+  footerQuickLinksTitle  String   @default("Quick Links")
+  footerQuickLinks       Json     @default("[{\"text\": \"Home\", \"href\": \"#home\"}, {\"text\": \"About Us\", \"href\": \"#about\"}, {\"text\": \"Our Menu\", \"href\": \"#menu\"}, {\"text\": \"Testimonials\", \"href\": \"#testimonials\"}, {\"text\": \"Contact\", \"href\": \"#contact\"}]")
+  footerMenuTitle        String   @default("Our Menu")
+  footerMenuItemIds      String[] @default([])
+  footerContactTitle     String   @default("Get in Touch")
+  footerCopyright        String   @default("All rights reserved. Made with love for momo lovers.")
+  footerShowSocials      Boolean  @default(true)
+  footerShowQuickLinks   Boolean  @default(true)
+  footerShowMenuLinks    Boolean  @default(true)
+  footerShowContact      Boolean  @default(true)
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+}
+
+model Testimonial {
+  id        String   @id @default(cuid())
+  name      String
+  avatar    String
+  rating    Int      @default(5)
+  text      String
+  location  String?
+  isActive  Boolean  @default(true)
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 enum OrderStatus {
@@ -107,33 +263,6 @@ enum Role {
   ADMIN
 }
 
-// Menu Models
-model MenuItem {
-  id              String       @id @default(cuid())
-  slug            String       @unique
-  name            String
-  description     String
-  longDescription String?
-  price           Float
-  category        MenuCategory
-  image           String
-  spiceLevel      Int          @default(0) // 0-3
-  isVegetarian    Boolean      @default(false)
-  isPopular       Boolean      @default(false)
-  isNew           Boolean      @default(false)
-  isAvailable     Boolean      @default(true)
-  ingredients     String[]     @default([])
-  allergens       String[]     @default([])
-  calories        Int?
-  protein         String?
-  carbs           String?
-  fat             String?
-  preparationTime String?
-  servingSize     String?
-  createdAt       DateTime     @default(now())
-  updatedAt       DateTime     @updatedAt
-}
-
 enum MenuCategory {
   momos
   sides
@@ -141,119 +270,9 @@ enum MenuCategory {
   desserts
 }
 
-// Notification Model
-model Notification {
-  id        String           @id @default(cuid())
-  type      NotificationType
-  title     String
-  message   String
-  orderId   String?
-  read      Boolean          @default(false)
-  createdAt DateTime         @default(now())
-}
-
 enum NotificationType {
   NEW_ORDER
   ORDER_COMPLETED
   LOW_STOCK
   SYSTEM
-}
-
-// Site Customization Settings
-model SiteSettings {
-  id        String   @id @default("default")
-  
-  // Hero Section
-  heroBadgeText       String   @default("Authentic Nepali Mo:Mo")
-  heroHeadingLine1    String   @default("Taste the")
-  heroHighlightText   String   @default("Himalayan")
-  heroHeadingLine2    String   @default("Magic in Every Bite")
-  heroDescription     String   @default("Handcrafted momos made fresh daily using traditional family recipes passed down through generations. Experience the authentic flavors of Nepal.")
-  heroLogo            String   @default("/brandlogo.svg")
-  
-  // Hero Stats
-  stat1Icon           String   @default("Award")
-  stat1Value          String   @default("15+")
-  stat1Label          String   @default("Years Experience")
-  stat2Icon           String   @default("Users")
-  stat2Value          String   @default("50K+")
-  stat2Label          String   @default("Happy Customers")
-  stat3Icon           String   @default("Clock")
-  stat3Value          String   @default("20min")
-  stat3Label          String   @default("Avg. Prep Time")
-  
-  // About/Story Section
-  aboutImage1         String   @default("https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=800&h=500&fit=crop")
-  aboutImage2         String   @default("https://images.unsplash.com/photo-1556910103-1c02745aae4d?w=400&h=400&fit=crop")
-  aboutImage3         String   @default("https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?w=400&h=400&fit=crop")
-  aboutBadgeNumber    String   @default("15+")
-  aboutBadgeText      String   @default("Years of Excellence")
-  aboutSubtitle       String   @default("Our Story")
-  aboutHeadline       String   @default("A Journey of Authentic Flavors")
-  aboutParagraph      String   @default("What started as a small family kitchen in the heart of Nepal has grown into a beloved destination for momo enthusiasts. Our founder, inspired by generations of family recipes, brought the authentic taste of Himalayan momos to share with the world.")
-  
-  // About Stats
-  aboutStat1Value     String   @default("15+")
-  aboutStat1Label     String   @default("Years")
-  aboutStat2Value     String   @default("50K+")
-  aboutStat2Label     String   @default("Customers")
-  aboutStat3Value     String   @default("25+")
-  aboutStat3Label     String   @default("Recipes")
-  aboutStat4Value     String   @default("100%")
-  aboutStat4Label     String   @default("Fresh Daily")
-  
-  // Popular Dishes Section
-  popularDishIds      String[] @default([])
-  
-  // Why Choose Us Section
-  whySubtitle         String   @default("Why Choose Us")
-  whyHeadline         String   @default("What Makes Us")
-  whyHighlightText    String   @default("Special")
-  whyDescription      String   @default("We're not just a restaurant — we're a family dedicated to bringing you the most authentic Nepali dining experience.")
-  whyCtaText          String   @default("Ready to experience the difference?")
-  
-  // Why Choose Us Features (4 features)
-  whyFeature1Icon     String   @default("ChefHat")
-  whyFeature1Title    String   @default("Handmade Fresh Daily")
-  whyFeature1Desc     String   @default("Every momo is handcrafted by our skilled chefs each morning using traditional techniques.")
-  
-  whyFeature2Icon     String   @default("ScrollText")
-  whyFeature2Title    String   @default("Authentic Family Recipes")
-  whyFeature2Desc     String   @default("Recipes passed down through generations, straight from the heart of Nepal.")
-  
-  whyFeature3Icon     String   @default("Leaf")
-  whyFeature3Title    String   @default("Premium Ingredients")
-  whyFeature3Desc     String   @default("We source the freshest local ingredients and authentic Himalayan spices.")
-  
-  whyFeature4Icon     String   @default("Truck")
-  whyFeature4Title    String   @default("Fast Delivery")
-  whyFeature4Desc     String   @default("Hot and fresh momos delivered to your doorstep in 30 minutes or less.")
-  
-  // Testimonials Stats Section
-  testimonialStat1Icon    String   @default("Users")
-  testimonialStat1Value   String   @default("500+")
-  testimonialStat1Label   String   @default("Happy Customers")
-  testimonialStat2Icon    String   @default("Star")
-  testimonialStat2Value   String   @default("4.9")
-  testimonialStat2Label   String   @default("Average Rating")
-  testimonialStat3Icon    String   @default("CheckCircle")
-  testimonialStat3Value   String   @default("100%")
-  testimonialStat3Label   String   @default("Authentic Recipes")
-  
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-// Testimonials
-model Testimonial {
-  id        String   @id @default(cuid())
-  name      String
-  avatar    String
-  rating    Int      @default(5) // 1-5
-  text      String
-  location  String?
-  isActive  Boolean  @default(true)
-  order     Int      @default(0)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
 }

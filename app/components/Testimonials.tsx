@@ -27,6 +27,9 @@ interface Testimonial {
 }
 
 interface SiteSettings {
+  testimonialSubtitle: string;
+  testimonialHeadline: string;
+  testimonialDescription: string;
   testimonialStat1Icon: string;
   testimonialStat1Value: string;
   testimonialStat1Label: string;
@@ -68,6 +71,9 @@ export default function Testimonials() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
   const [settings, setSettings] = useState<SiteSettings>({
+    testimonialSubtitle: 'Testimonials',
+    testimonialHeadline: 'Loved by Momo Enthusiasts',
+    testimonialDescription: "Join thousands of satisfied customers who've made us their favorite spot",
     testimonialStat1Icon: 'Users',
     testimonialStat1Value: '500+',
     testimonialStat1Label: 'Happy Customers',
@@ -107,6 +113,9 @@ export default function Testimonials() {
           if (data) {
             setSettings((prev) => ({
               ...prev,
+              testimonialSubtitle: data.testimonialSubtitle || prev.testimonialSubtitle,
+              testimonialHeadline: data.testimonialHeadline || prev.testimonialHeadline,
+              testimonialDescription: data.testimonialDescription || prev.testimonialDescription,
               testimonialStat1Icon: data.testimonialStat1Icon || prev.testimonialStat1Icon,
               testimonialStat1Value: data.testimonialStat1Value || prev.testimonialStat1Value,
               testimonialStat1Label: data.testimonialStat1Label || prev.testimonialStat1Label,
@@ -227,14 +236,26 @@ export default function Testimonials() {
         >
           <span className="inline-flex items-center gap-2 text-primary font-medium text-sm uppercase tracking-widest">
             <span className="w-8 h-px bg-primary/50" />
-            Testimonials
+            {settings.testimonialSubtitle}
             <span className="w-8 h-px bg-primary/50" />
           </span>
           <h2 className="font-heading text-3xl md:text-4xl lg:text-5xl font-bold text-[#1A1A1A] mt-4">
-            Loved by <span className="text-primary">Momo</span> Enthusiasts
+            {(() => {
+              const words = settings.testimonialHeadline.split(' ');
+              if (words.length >= 3) {
+                return (
+                  <>
+                    {words.slice(0, 2).join(' ')}{' '}
+                    <span className="text-primary">{words[2]}</span>{' '}
+                    {words.slice(3).join(' ')}
+                  </>
+                );
+              }
+              return settings.testimonialHeadline;
+            })()}
           </h2>
           <p className="text-gray-500 mt-4 text-base md:text-lg">
-            Join thousands of satisfied customers who&apos;ve made us their favorite spot
+            {settings.testimonialDescription}
           </p>
         </motion.div>
 

@@ -21,6 +21,7 @@ import {
   Save,
   Loader2,
   Eye,
+  EyeOff,
   RotateCcw,
   AlertCircle,
   Upload,
@@ -56,6 +57,18 @@ import {
   ToggleRight,
   Info,
   Link,
+  Type,
+  Instagram,
+  Facebook,
+  Twitter,
+  Video,
+  Youtube,
+  Linkedin,
+  MessageCircle,
+  PanelBottom,
+  ExternalLink,
+  ChevronRight,
+  Check,
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -182,6 +195,10 @@ interface SiteSettings {
   whyFeature4Icon: string;
   whyFeature4Title: string;
   whyFeature4Desc: string;
+  // Testimonials Section
+  testimonialSubtitle: string;
+  testimonialHeadline: string;
+  testimonialDescription: string;
   // Testimonials Stats
   testimonialStat1Icon: string;
   testimonialStat1Value: string;
@@ -192,6 +209,52 @@ interface SiteSettings {
   testimonialStat3Icon: string;
   testimonialStat3Value: string;
   testimonialStat3Label: string;
+  // Contact Section
+  contactSubtitle: string;
+  contactHeadline: string;
+  contactDescription: string;
+  contactFormTitle: string;
+  contactFormSubtitle: string;
+  // Contact Info
+  contactAddressLabel: string;
+  contactAddressStreet: string;
+  contactAddressCity: string;
+  contactAddressState: string;
+  contactAddressZip: string;
+  contactPhoneLabel: string;
+  contactPhone: string;
+  contactEmailLabel: string;
+  contactEmail: string;
+  contactHoursLabel: string;
+  contactHoursLine1: string;
+  contactHoursLine2: string;
+  // Social Links
+  contactSocial1Url: string;
+  contactSocial1Icon: string;
+  contactSocial2Url: string;
+  contactSocial2Icon: string;
+  contactSocial3Url: string;
+  contactSocial3Icon: string;
+  // Footer Section
+  footerCtaHeadline: string;
+  footerCtaHighlight: string;
+  footerCtaDescription: string;
+  footerCtaButton1Text: string;
+  footerCtaButton1Url: string;
+  footerCtaButton2Text: string;
+  footerCtaButton2Url: string;
+  footerBrandName: string;
+  footerBrandDescription: string;
+  footerQuickLinksTitle: string;
+  footerQuickLinks: { text: string; href: string }[];
+  footerMenuTitle: string;
+  footerMenuItemIds: string[];
+  footerContactTitle: string;
+  footerCopyright: string;
+  footerShowSocials: boolean;
+  footerShowQuickLinks: boolean;
+  footerShowMenuLinks: boolean;
+  footerShowContact: boolean;
 }
 
 // Menu item interface for selection
@@ -287,6 +350,10 @@ const defaultSettings: SiteSettings = {
   whyFeature4Icon: 'Truck',
   whyFeature4Title: 'Fast Delivery',
   whyFeature4Desc: 'Hot and fresh momos delivered to your doorstep in 30 minutes or less.',
+  // Testimonials Section
+  testimonialSubtitle: 'Testimonials',
+  testimonialHeadline: 'Loved by Momo Enthusiasts',
+  testimonialDescription: "Join thousands of satisfied customers who've made us their favorite spot",
   // Testimonials Stats
   testimonialStat1Icon: 'Users',
   testimonialStat1Value: '500+',
@@ -297,6 +364,58 @@ const defaultSettings: SiteSettings = {
   testimonialStat3Icon: 'CheckCircle',
   testimonialStat3Value: '100%',
   testimonialStat3Label: 'Authentic Recipes',
+  // Contact Section
+  contactSubtitle: 'Contact Us',
+  contactHeadline: "Let's Start a Conversation",
+  contactDescription: "Have a question or want to make a reservation? We'd love to hear from you!",
+  contactFormTitle: 'Send us a Message',
+  contactFormSubtitle: "We'll get back to you within 24 hours",
+  // Contact Info
+  contactAddressLabel: 'Visit Us',
+  contactAddressStreet: '123 Momo Street',
+  contactAddressCity: 'San Francisco',
+  contactAddressState: 'CA',
+  contactAddressZip: '94102',
+  contactPhoneLabel: 'Call Us',
+  contactPhone: '(415) 555-MOMO',
+  contactEmailLabel: 'Email Us',
+  contactEmail: 'hello@momostation.com',
+  contactHoursLabel: 'Open Hours',
+  contactHoursLine1: 'Mon-Thu: 11AM-10PM',
+  contactHoursLine2: 'Fri-Sat: 10AM-11PM',
+  // Social Links
+  contactSocial1Url: 'https://instagram.com',
+  contactSocial1Icon: 'Instagram',
+  contactSocial2Url: 'https://facebook.com',
+  contactSocial2Icon: 'Facebook',
+  contactSocial3Url: 'https://tiktok.com',
+  contactSocial3Icon: 'Video',
+  // Footer Section
+  footerCtaHeadline: 'Ready to taste the Himalayas?',
+  footerCtaHighlight: 'Himalayas',
+  footerCtaDescription: 'Order online or visit us today for an authentic momo experience.',
+  footerCtaButton1Text: 'Order Now',
+  footerCtaButton1Url: '/menu',
+  footerCtaButton2Text: 'Contact Us',
+  footerCtaButton2Url: '#contact',
+  footerBrandName: 'MO:MO Station',
+  footerBrandDescription: 'Authentic Nepali Dumplings. Experience the authentic taste of Nepal with our handcrafted momos, made fresh daily with love and tradition.',
+  footerQuickLinksTitle: 'Quick Links',
+  footerQuickLinks: [
+    { text: 'Home', href: '#home' },
+    { text: 'About Us', href: '#about' },
+    { text: 'Our Menu', href: '#menu' },
+    { text: 'Testimonials', href: '#testimonials' },
+    { text: 'Contact', href: '#contact' },
+  ],
+  footerMenuTitle: 'Our Menu',
+  footerMenuItemIds: [],
+  footerContactTitle: 'Get in Touch',
+  footerCopyright: 'All rights reserved. Made with love for momo lovers.',
+  footerShowSocials: true,
+  footerShowQuickLinks: true,
+  footerShowMenuLinks: true,
+  footerShowContact: true,
 };
 
 export default function CustomizePage() {
@@ -626,7 +745,8 @@ export default function CustomizePage() {
     }));
   };
 
-  const updateSetting = (key: keyof SiteSettings, value: string | string[]) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const updateSetting = (key: keyof SiteSettings, value: any) => {
     setSettings(prev => ({ ...prev, [key]: value }));
   };
 
@@ -874,6 +994,20 @@ export default function CustomizePage() {
           >
             <MessageSquare className="w-4 h-4" />
             <span className="hidden sm:inline">Testimonials</span>
+          </TabsTrigger>
+          <TabsTrigger
+            value="contact"
+            className="gap-2 data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:shadow-lg rounded-lg px-4 py-2"
+          >
+            <Phone className="w-4 h-4" />
+            <span className="hidden sm:inline">Contact Us</span>
+          </TabsTrigger>
+          <TabsTrigger
+            value="footer"
+            className="gap-2 data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:shadow-lg rounded-lg px-4 py-2"
+          >
+            <PanelBottom className="w-4 h-4" />
+            <span className="hidden sm:inline">Footer</span>
           </TabsTrigger>
         </TabsList>
 
@@ -2212,7 +2346,7 @@ export default function CustomizePage() {
         </TabsContent>
 
         {/* Why Choose Us Tab */}
-        <TabsContent value="whychoose" className="space-y-6">
+        <TabsContent value="whychoose" className="space-y-6 ">
           {/* Section Header */}
           <Card className="border-gray-100 shadow-sm pb-8">
             <CardHeader>
@@ -2651,6 +2785,113 @@ export default function CustomizePage() {
 
         {/* Testimonials Tab */}
         <TabsContent value="testimonials" className="space-y-6">
+          {/* Section Header Card */}
+          <Card className="border-gray-100 shadow-sm pb-8">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="font-heading text-lg flex items-center gap-2">
+                    <Type className="w-5 h-5 text-primary" />
+                    Section Header
+                  </CardTitle>
+                  <CardDescription>
+                    Customize the testimonials section title and description
+                  </CardDescription>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    updateSetting('testimonialSubtitle', 'Testimonials');
+                    updateSetting('testimonialHeadline', 'Loved by Momo Enthusiasts');
+                    updateSetting('testimonialDescription', "Join thousands of satisfied customers who've made us their favorite spot");
+                  }}
+                  className="gap-2 text-gray-600 hover:text-primary"
+                >
+                  <RotateCcw className="w-4 h-4" />
+                  Reset
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">Subtitle</Label>
+                  <Input
+                    value={settings.testimonialSubtitle}
+                    onChange={(e) => updateSetting('testimonialSubtitle', e.target.value)}
+                    placeholder="e.g., Testimonials"
+                  />
+                  <p className="text-xs text-gray-500">Small text above the headline</p>
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">Headline</Label>
+                  <Input
+                    value={settings.testimonialHeadline}
+                    onChange={(e) => updateSetting('testimonialHeadline', e.target.value)}
+                    placeholder="e.g., Loved by Momo Enthusiasts"
+                  />
+                  <p className="text-xs text-gray-500">Main section heading (first word will be highlighted)</p>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Description</Label>
+                <Textarea
+                  value={settings.testimonialDescription}
+                  onChange={(e) => updateSetting('testimonialDescription', e.target.value)}
+                  placeholder="Brief description about your testimonials..."
+                  className="min-h-20"
+                />
+              </div>
+
+              {/* Preview */}
+              <div className="mt-6">
+                <Label className="text-sm font-medium text-gray-700 mb-3 block">Preview</Label>
+                <div className="p-6 bg-warm-light rounded-xl text-center">
+                  <span className="inline-flex items-center gap-2 text-primary font-medium text-sm uppercase tracking-widest">
+                    <span className="w-8 h-px bg-primary/50" />
+                    {settings.testimonialSubtitle || 'Testimonials'}
+                    <span className="w-8 h-px bg-primary/50" />
+                  </span>
+                  <h3 className="font-heading text-2xl md:text-3xl font-bold text-dark mt-3">
+                    {(() => {
+                      const words = (settings.testimonialHeadline || 'Loved by Momo Enthusiasts').split(' ');
+                      if (words.length >= 3) {
+                        return (
+                          <>
+                            {words.slice(0, 2).join(' ')}{' '}
+                            <span className="text-primary">{words[2]}</span>{' '}
+                            {words.slice(3).join(' ')}
+                          </>
+                        );
+                      }
+                      return settings.testimonialHeadline;
+                    })()}
+                  </h3>
+                  <p className="text-gray-500 mt-3 text-sm md:text-base max-w-lg mx-auto">
+                    {settings.testimonialDescription || "Join thousands of satisfied customers who've made us their favorite spot"}
+                  </p>
+                </div>
+              </div>
+
+              {/* Save Button */}
+              <div className="flex justify-end pt-4 border-t border-gray-100">
+                <Button
+                  onClick={handleSave}
+                  disabled={!hasChanges || isSaving}
+                  className="bg-primary hover:bg-primary/90 gap-2"
+                >
+                  {isSaving ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Save className="w-4 h-4" />
+                  )}
+                  Save Changes
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
           {/* Testimonials Management Card */}
           <Card className="border-gray-100 shadow-sm pb-8">
             <CardHeader>
@@ -3316,6 +3557,1287 @@ export default function CustomizePage() {
             </DialogFooter>
           </DialogContent>
         </Dialog>
+
+        {/* Contact Us Tab */}
+        <TabsContent value="contact" className="space-y-6">
+          {/* Section Header Card */}
+          <Card className="border-gray-100 shadow-sm pb-8">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="font-heading text-lg flex items-center gap-2">
+                    <Type className="w-5 h-5 text-primary" />
+                    Section Header
+                  </CardTitle>
+                  <CardDescription>
+                    Customize the contact section title and description
+                  </CardDescription>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    updateSetting('contactSubtitle', 'Contact Us');
+                    updateSetting('contactHeadline', "Let's Start a Conversation");
+                    updateSetting('contactDescription', "Have a question or want to make a reservation? We'd love to hear from you!");
+                  }}
+                  className="gap-2 text-gray-600 hover:text-primary"
+                >
+                  <RotateCcw className="w-4 h-4" />
+                  Reset
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">Subtitle</Label>
+                  <Input
+                    value={settings.contactSubtitle}
+                    onChange={(e) => updateSetting('contactSubtitle', e.target.value)}
+                    placeholder="e.g., Contact Us"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">Headline</Label>
+                  <Input
+                    value={settings.contactHeadline}
+                    onChange={(e) => updateSetting('contactHeadline', e.target.value)}
+                    placeholder="e.g., Let's Start a Conversation"
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Description</Label>
+                <Textarea
+                  value={settings.contactDescription}
+                  onChange={(e) => updateSetting('contactDescription', e.target.value)}
+                  placeholder="Brief description for the contact section..."
+                  className="min-h-20"
+                />
+              </div>
+
+              {/* Preview */}
+              <div className="mt-6">
+                <Label className="text-sm font-medium text-gray-700 mb-3 block">Preview</Label>
+                <div className="p-6 bg-dark rounded-xl text-center">
+                  <span className="inline-flex items-center gap-2 text-primary font-medium text-sm uppercase tracking-widest">
+                    <span className="w-8 h-px bg-primary/50" />
+                    {settings.contactSubtitle || 'Contact Us'}
+                    <span className="w-8 h-px bg-primary/50" />
+                  </span>
+                  <h3 className="font-heading text-xl md:text-2xl font-bold text-white mt-3">
+                    {(() => {
+                      const headline = settings.contactHeadline || "Let's Start a Conversation";
+                      const words = headline.split(' ');
+                      const lastWord = words.pop();
+                      return (
+                        <>
+                          {words.join(' ')} <span className="text-primary">{lastWord}</span>
+                        </>
+                      );
+                    })()}
+                  </h3>
+                  <p className="text-gray-400 mt-3 text-sm max-w-lg mx-auto">
+                    {settings.contactDescription || "Have a question or want to make a reservation? We'd love to hear from you!"}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex justify-end pt-4 border-t border-gray-100">
+                <Button
+                  onClick={handleSave}
+                  disabled={!hasChanges || isSaving}
+                  className="bg-primary hover:bg-primary/90 gap-2"
+                >
+                  {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                  Save Changes
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Contact Form Settings Card */}
+          <Card className="border-gray-100 shadow-sm pb-8">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="font-heading text-lg flex items-center gap-2">
+                    <MessageSquare className="w-5 h-5 text-primary" />
+                    Contact Form
+                  </CardTitle>
+                  <CardDescription>
+                    Customize the contact form title and subtitle
+                  </CardDescription>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    updateSetting('contactFormTitle', 'Send us a Message');
+                    updateSetting('contactFormSubtitle', "We'll get back to you within 24 hours");
+                  }}
+                  className="gap-2 text-gray-600 hover:text-primary"
+                >
+                  <RotateCcw className="w-4 h-4" />
+                  Reset
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">Form Title</Label>
+                  <Input
+                    value={settings.contactFormTitle}
+                    onChange={(e) => updateSetting('contactFormTitle', e.target.value)}
+                    placeholder="e.g., Send us a Message"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">Form Subtitle</Label>
+                  <Input
+                    value={settings.contactFormSubtitle}
+                    onChange={(e) => updateSetting('contactFormSubtitle', e.target.value)}
+                    placeholder="e.g., We'll get back to you within 24 hours"
+                  />
+                </div>
+              </div>
+
+              {/* Preview */}
+              <div className="mt-4">
+                <Label className="text-sm font-medium text-gray-700 mb-3 block">Preview</Label>
+                <div className="p-4 bg-white rounded-xl border border-gray-200">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                      <MessageSquare className="w-5 h-5 text-primary" />
+                    </div>
+                    <div>
+                      <h4 className="font-heading font-semibold text-dark">
+                        {settings.contactFormTitle || 'Send us a Message'}
+                      </h4>
+                      <p className="text-sm text-gray-500">
+                        {settings.contactFormSubtitle || "We'll get back to you within 24 hours"}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex justify-end pt-4 border-t border-gray-100">
+                <Button
+                  onClick={handleSave}
+                  disabled={!hasChanges || isSaving}
+                  className="bg-primary hover:bg-primary/90 gap-2"
+                >
+                  {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                  Save Changes
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Contact Information Card */}
+          <Card className="border-gray-100 shadow-sm pb-8">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="font-heading text-lg flex items-center gap-2">
+                    <MapPin className="w-5 h-5 text-primary" />
+                    Contact Information
+                  </CardTitle>
+                  <CardDescription>
+                    Update your business address, phone, email, and hours
+                  </CardDescription>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    updateSetting('contactAddressLabel', 'Visit Us');
+                    updateSetting('contactAddressStreet', '123 Momo Street');
+                    updateSetting('contactAddressCity', 'San Francisco');
+                    updateSetting('contactAddressState', 'CA');
+                    updateSetting('contactAddressZip', '94102');
+                    updateSetting('contactPhoneLabel', 'Call Us');
+                    updateSetting('contactPhone', '(415) 555-MOMO');
+                    updateSetting('contactEmailLabel', 'Email Us');
+                    updateSetting('contactEmail', 'hello@momostation.com');
+                    updateSetting('contactHoursLabel', 'Open Hours');
+                    updateSetting('contactHoursLine1', 'Mon-Thu: 11AM-10PM');
+                    updateSetting('contactHoursLine2', 'Fri-Sat: 10AM-11PM');
+                  }}
+                  className="gap-2 text-gray-600 hover:text-primary"
+                >
+                  <RotateCcw className="w-4 h-4" />
+                  Reset All
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-8">
+              {/* Address */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                    <MapPin className="w-4 h-4 text-primary" />
+                  </div>
+                  <h4 className="font-medium text-dark">Address</h4>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 pl-10">
+                  <div className="space-y-1.5">
+                    <Label className="text-xs text-gray-500">Label</Label>
+                    <Input
+                      value={settings.contactAddressLabel}
+                      onChange={(e) => updateSetting('contactAddressLabel', e.target.value)}
+                      placeholder="Visit Us"
+                    />
+                  </div>
+                  <div className="space-y-1.5 lg:col-span-2">
+                    <Label className="text-xs text-gray-500">Street Address</Label>
+                    <Input
+                      value={settings.contactAddressStreet}
+                      onChange={(e) => updateSetting('contactAddressStreet', e.target.value)}
+                      placeholder="123 Momo Street"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-xs text-gray-500">City</Label>
+                    <Input
+                      value={settings.contactAddressCity}
+                      onChange={(e) => updateSetting('contactAddressCity', e.target.value)}
+                      placeholder="San Francisco"
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="space-y-1.5">
+                      <Label className="text-xs text-gray-500">State</Label>
+                      <Input
+                        value={settings.contactAddressState}
+                        onChange={(e) => updateSetting('contactAddressState', e.target.value)}
+                        placeholder="CA"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label className="text-xs text-gray-500">ZIP</Label>
+                      <Input
+                        value={settings.contactAddressZip}
+                        onChange={(e) => updateSetting('contactAddressZip', e.target.value)}
+                        placeholder="94102"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <Separator />
+
+              {/* Phone */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                    <Phone className="w-4 h-4 text-primary" />
+                  </div>
+                  <h4 className="font-medium text-dark">Phone</h4>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pl-10">
+                  <div className="space-y-1.5">
+                    <Label className="text-xs text-gray-500">Label</Label>
+                    <Input
+                      value={settings.contactPhoneLabel}
+                      onChange={(e) => updateSetting('contactPhoneLabel', e.target.value)}
+                      placeholder="Call Us"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-xs text-gray-500">Phone Number</Label>
+                    <Input
+                      value={settings.contactPhone}
+                      onChange={(e) => updateSetting('contactPhone', e.target.value)}
+                      placeholder="(415) 555-MOMO"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <Separator />
+
+              {/* Email */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                    <Mail className="w-4 h-4 text-primary" />
+                  </div>
+                  <h4 className="font-medium text-dark">Email</h4>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pl-10">
+                  <div className="space-y-1.5">
+                    <Label className="text-xs text-gray-500">Label</Label>
+                    <Input
+                      value={settings.contactEmailLabel}
+                      onChange={(e) => updateSetting('contactEmailLabel', e.target.value)}
+                      placeholder="Email Us"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-xs text-gray-500">Email Address</Label>
+                    <Input
+                      value={settings.contactEmail}
+                      onChange={(e) => updateSetting('contactEmail', e.target.value)}
+                      placeholder="hello@momostation.com"
+                      type="email"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <Separator />
+
+              {/* Hours */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                    <Clock className="w-4 h-4 text-primary" />
+                  </div>
+                  <h4 className="font-medium text-dark">Business Hours</h4>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pl-10">
+                  <div className="space-y-1.5">
+                    <Label className="text-xs text-gray-500">Label</Label>
+                    <Input
+                      value={settings.contactHoursLabel}
+                      onChange={(e) => updateSetting('contactHoursLabel', e.target.value)}
+                      placeholder="Open Hours"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-xs text-gray-500">Hours Line 1</Label>
+                    <Input
+                      value={settings.contactHoursLine1}
+                      onChange={(e) => updateSetting('contactHoursLine1', e.target.value)}
+                      placeholder="Mon-Thu: 11AM-10PM"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-xs text-gray-500">Hours Line 2</Label>
+                    <Input
+                      value={settings.contactHoursLine2}
+                      onChange={(e) => updateSetting('contactHoursLine2', e.target.value)}
+                      placeholder="Fri-Sat: 10AM-11PM"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Live Preview */}
+              <div className="mt-6 pt-6 border-t border-gray-100">
+                <Label className="text-sm font-medium text-gray-700 mb-3 block">Preview</Label>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {[
+                    { icon: MapPin, label: settings.contactAddressLabel, value: `${settings.contactAddressStreet}, ${settings.contactAddressCity}, ${settings.contactAddressState} ${settings.contactAddressZip}` },
+                    { icon: Phone, label: settings.contactPhoneLabel, value: settings.contactPhone },
+                    { icon: Mail, label: settings.contactEmailLabel, value: settings.contactEmail },
+                    { icon: Clock, label: settings.contactHoursLabel, value: `${settings.contactHoursLine1}\n${settings.contactHoursLine2}` },
+                  ].map((item, idx) => (
+                    <div key={idx} className="flex items-start gap-3 p-3 bg-dark/95 rounded-xl border border-white/10">
+                      <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center shrink-0">
+                        <item.icon className="w-4 h-4 text-primary" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-[10px] text-gray-500 uppercase tracking-wider">{item.label}</p>
+                        <p className="text-white text-sm font-medium whitespace-pre-line truncate">{item.value}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex justify-end pt-4 border-t border-gray-100">
+                <Button
+                  onClick={handleSave}
+                  disabled={!hasChanges || isSaving}
+                  className="bg-primary hover:bg-primary/90 gap-2"
+                >
+                  {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                  Save Changes
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Social Links Card */}
+          <Card className="border-gray-100 shadow-sm pb-8">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="font-heading text-lg flex items-center gap-2">
+                    <Globe className="w-5 h-5 text-primary" />
+                    Social Media Links
+                  </CardTitle>
+                  <CardDescription>
+                    Configure your social media links with icons
+                  </CardDescription>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    updateSetting('contactSocial1Url', 'https://instagram.com');
+                    updateSetting('contactSocial1Icon', 'Instagram');
+                    updateSetting('contactSocial2Url', 'https://facebook.com');
+                    updateSetting('contactSocial2Icon', 'Facebook');
+                    updateSetting('contactSocial3Url', 'https://tiktok.com');
+                    updateSetting('contactSocial3Icon', 'Video');
+                  }}
+                  className="gap-2 text-gray-600 hover:text-primary"
+                >
+                  <RotateCcw className="w-4 h-4" />
+                  Reset
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {/* Social 1 */}
+                <div className="space-y-4 p-4 rounded-xl border">
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                      <span className="text-primary font-bold text-sm">1</span>
+                    </div>
+                    <span className="font-medium text-gray-700">Social Link 1</span>
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-xs text-gray-500">Icon</Label>
+                    <Select
+                      value={settings.contactSocial1Icon}
+                      onValueChange={(value) => updateSetting('contactSocial1Icon', value)}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {[
+                          { name: 'Instagram', icon: Instagram, label: 'Instagram' },
+                          { name: 'Facebook', icon: Facebook, label: 'Facebook' },
+                          { name: 'Twitter', icon: Twitter, label: 'Twitter/X' },
+                          { name: 'Video', icon: Video, label: 'Video/TikTok' },
+                          { name: 'Youtube', icon: Youtube, label: 'YouTube' },
+                          { name: 'Linkedin', icon: Linkedin, label: 'LinkedIn' },
+                          { name: 'Globe', icon: Globe, label: 'Website' },
+                          { name: 'MessageCircle', icon: MessageCircle, label: 'Chat' },
+                          { name: 'Mail', icon: Mail, label: 'Email' },
+                          { name: 'Phone', icon: Phone, label: 'Phone' },
+                        ].map((item) => (
+                          <SelectItem key={item.name} value={item.name}>
+                            <span className="flex items-center gap-2">
+                              <item.icon className="w-4 h-4" />
+                              {item.label}
+                            </span>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-xs text-gray-500">URL</Label>
+                    <Input
+                      value={settings.contactSocial1Url}
+                      onChange={(e) => updateSetting('contactSocial1Url', e.target.value)}
+                      placeholder="https://instagram.com/..."
+                      type="url"
+                    />
+                  </div>
+                </div>
+
+                {/* Social 2 */}
+                <div className="space-y-4 p-4 rounded-xl border">
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                      <span className="text-primary font-bold text-sm">2</span>
+                    </div>
+                    <span className="font-medium text-gray-700">Social Link 2</span>
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-xs text-gray-500">Icon</Label>
+                    <Select
+                      value={settings.contactSocial2Icon}
+                      onValueChange={(value) => updateSetting('contactSocial2Icon', value)}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {[
+                          { name: 'Instagram', icon: Instagram, label: 'Instagram' },
+                          { name: 'Facebook', icon: Facebook, label: 'Facebook' },
+                          { name: 'Twitter', icon: Twitter, label: 'Twitter/X' },
+                          { name: 'Video', icon: Video, label: 'Video/TikTok' },
+                          { name: 'Youtube', icon: Youtube, label: 'YouTube' },
+                          { name: 'Linkedin', icon: Linkedin, label: 'LinkedIn' },
+                          { name: 'Globe', icon: Globe, label: 'Website' },
+                          { name: 'MessageCircle', icon: MessageCircle, label: 'Chat' },
+                          { name: 'Mail', icon: Mail, label: 'Email' },
+                          { name: 'Phone', icon: Phone, label: 'Phone' },
+                        ].map((item) => (
+                          <SelectItem key={item.name} value={item.name}>
+                            <span className="flex items-center gap-2">
+                              <item.icon className="w-4 h-4" />
+                              {item.label}
+                            </span>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-xs text-gray-500">URL</Label>
+                    <Input
+                      value={settings.contactSocial2Url}
+                      onChange={(e) => updateSetting('contactSocial2Url', e.target.value)}
+                      placeholder="https://facebook.com/..."
+                      type="url"
+                    />
+                  </div>
+                </div>
+
+                {/* Social 3 */}
+                <div className="space-y-4 p-4 rounded-xl border">
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                      <span className="text-primary font-bold text-sm">3</span>
+                    </div>
+                    <span className="font-medium text-gray-700">Social Link 3</span>
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-xs text-gray-500">Icon</Label>
+                    <Select
+                      value={settings.contactSocial3Icon}
+                      onValueChange={(value) => updateSetting('contactSocial3Icon', value)}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {[
+                          { name: 'Instagram', icon: Instagram, label: 'Instagram' },
+                          { name: 'Facebook', icon: Facebook, label: 'Facebook' },
+                          { name: 'Twitter', icon: Twitter, label: 'Twitter/X' },
+                          { name: 'Video', icon: Video, label: 'Video/TikTok' },
+                          { name: 'Youtube', icon: Youtube, label: 'YouTube' },
+                          { name: 'Linkedin', icon: Linkedin, label: 'LinkedIn' },
+                          { name: 'Globe', icon: Globe, label: 'Website' },
+                          { name: 'MessageCircle', icon: MessageCircle, label: 'Chat' },
+                          { name: 'Mail', icon: Mail, label: 'Email' },
+                          { name: 'Phone', icon: Phone, label: 'Phone' },
+                        ].map((item) => (
+                          <SelectItem key={item.name} value={item.name}>
+                            <span className="flex items-center gap-2">
+                              <item.icon className="w-4 h-4" />
+                              {item.label}
+                            </span>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-xs text-gray-500">URL</Label>
+                    <Input
+                      value={settings.contactSocial3Url}
+                      onChange={(e) => updateSetting('contactSocial3Url', e.target.value)}
+                      placeholder="https://tiktok.com/..."
+                      type="url"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Preview */}
+              <div className="mt-6">
+                <Label className="text-sm font-medium text-gray-700 mb-3 block">Preview</Label>
+                <div className="p-4 bg-dark rounded-xl">
+                  <p className="text-gray-500 text-sm mb-3">Follow us on social media</p>
+                  <div className="flex flex-wrap gap-3">
+                    {[
+                      { icon: settings.contactSocial1Icon, url: settings.contactSocial1Url },
+                      { icon: settings.contactSocial2Icon, url: settings.contactSocial2Url },
+                      { icon: settings.contactSocial3Icon, url: settings.contactSocial3Url },
+                    ].filter(s => s.icon && s.url).map((social, idx) => {
+                      const socialIcons: Record<string, React.ComponentType<{ className?: string }>> = {
+                        Instagram, Facebook, Twitter, Video, Youtube, Linkedin, Globe, MessageCircle, Mail, Phone
+                      };
+                      const IconComponent = socialIcons[social.icon] || Globe;
+                      return (
+                        <span
+                          key={idx}
+                          className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-gray-400 hover:bg-primary hover:text-white hover:border-primary transition-all duration-300 cursor-pointer"
+                        >
+                          <IconComponent className="w-5 h-5" />
+                        </span>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex justify-end pt-4 border-t border-gray-100">
+                <Button
+                  onClick={handleSave}
+                  disabled={!hasChanges || isSaving}
+                  className="bg-primary hover:bg-primary/90 gap-2"
+                >
+                  {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                  Save Social Links
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Footer Tab */}
+        <TabsContent value="footer" className="space-y-6">
+          {/* CTA Section Card */}
+          <Card className="border-gray-100 shadow-sm pb-8">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="font-heading text-lg flex items-center gap-2">
+                    <Rocket className="w-5 h-5 text-primary" />
+                    Call to Action Section
+                  </CardTitle>
+                  <CardDescription>
+                    Customize the top banner section of your footer
+                  </CardDescription>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    updateSetting('footerCtaHeadline', 'Ready to taste the Himalayas?');
+                    updateSetting('footerCtaHighlight', 'Himalayas');
+                    updateSetting('footerCtaDescription', 'Order online or visit us today for an authentic momo experience.');
+                    updateSetting('footerCtaButton1Text', 'Order Now');
+                    updateSetting('footerCtaButton1Url', '/menu');
+                    updateSetting('footerCtaButton2Text', 'Contact Us');
+                    updateSetting('footerCtaButton2Url', '#contact');
+                  }}
+                  className="gap-2 text-gray-600 hover:text-primary"
+                >
+                  <RotateCcw className="w-4 h-4" />
+                  Reset
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-4">
+                  <div className="space-y-1.5">
+                    <Label className="text-sm font-medium">Headline</Label>
+                    <Input
+                      value={settings.footerCtaHeadline}
+                      onChange={(e) => updateSetting('footerCtaHeadline', e.target.value)}
+                      placeholder="Ready to taste the Himalayas?"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-sm font-medium">Highlight Word</Label>
+                    <Input
+                      value={settings.footerCtaHighlight}
+                      onChange={(e) => updateSetting('footerCtaHighlight', e.target.value)}
+                      placeholder="Himalayas"
+                    />
+                    <p className="text-xs text-gray-500">This word will be styled with the primary color</p>
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-sm font-medium">Description</Label>
+                    <Textarea
+                      value={settings.footerCtaDescription}
+                      onChange={(e) => updateSetting('footerCtaDescription', e.target.value)}
+                      placeholder="Order online or visit us today..."
+                      rows={2}
+                    />
+                  </div>
+                </div>
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <Label className="text-sm font-medium">Button 1 Text</Label>
+                      <Input
+                        value={settings.footerCtaButton1Text}
+                        onChange={(e) => updateSetting('footerCtaButton1Text', e.target.value)}
+                        placeholder="Order Now"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label className="text-sm font-medium">Button 1 URL</Label>
+                      <Input
+                        value={settings.footerCtaButton1Url}
+                        onChange={(e) => updateSetting('footerCtaButton1Url', e.target.value)}
+                        placeholder="/menu"
+                      />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <Label className="text-sm font-medium">Button 2 Text</Label>
+                      <Input
+                        value={settings.footerCtaButton2Text}
+                        onChange={(e) => updateSetting('footerCtaButton2Text', e.target.value)}
+                        placeholder="Contact Us"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label className="text-sm font-medium">Button 2 URL</Label>
+                      <Input
+                        value={settings.footerCtaButton2Url}
+                        onChange={(e) => updateSetting('footerCtaButton2Url', e.target.value)}
+                        placeholder="#contact"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Preview */}
+              <div className="mt-4">
+                <Label className="text-sm font-medium text-gray-700 mb-3 block">Preview</Label>
+                <div className="p-6 bg-[#111111] rounded-xl border border-white/10">
+                  <div className="flex flex-col lg:flex-row items-center justify-between gap-4">
+                    <div className="text-center lg:text-left">
+                      <h3 className="font-heading text-xl font-bold text-white">
+                        {(settings.footerCtaHeadline || '').split(settings.footerCtaHighlight || '').map((part, i, arr) => (
+                          <span key={i}>
+                            {part}
+                            {i < arr.length - 1 && <span className="text-primary">{settings.footerCtaHighlight}</span>}
+                          </span>
+                        ))}
+                      </h3>
+                      <p className="text-gray-400 mt-1 text-sm">{settings.footerCtaDescription || ''}</p>
+                    </div>
+                    <div className="flex gap-2">
+                      <span className="px-4 py-2 bg-primary text-white text-sm font-medium rounded-full">
+                        {settings.footerCtaButton1Text || 'Order Now'}
+                      </span>
+                      <span className="px-4 py-2 bg-white/10 text-white text-sm font-medium rounded-full border border-white/20">
+                        {settings.footerCtaButton2Text || 'Contact Us'}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex justify-end pt-4 border-t border-gray-100">
+                <Button
+                  onClick={handleSave}
+                  disabled={!hasChanges || isSaving}
+                  className="bg-primary hover:bg-primary/90 gap-2"
+                >
+                  {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                  Save Changes
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Brand Info Card */}
+          <Card className="border-gray-100 shadow-sm pb-8">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="font-heading text-lg flex items-center gap-2">
+                    <Sparkles className="w-5 h-5 text-primary" />
+                    Brand Information
+                  </CardTitle>
+                  <CardDescription>
+                    Customize your brand name and description in the footer
+                  </CardDescription>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    updateSetting('footerBrandName', 'MO:MO Station');
+                    updateSetting('footerBrandDescription', 'Authentic Nepali Dumplings. Experience the authentic taste of Nepal with our handcrafted momos, made fresh daily with love and tradition.');
+                    updateSetting('footerCopyright', 'All rights reserved. Made with love for momo lovers.');
+                  }}
+                  className="gap-2 text-gray-600 hover:text-primary"
+                >
+                  <RotateCcw className="w-4 h-4" />
+                  Reset
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-4">
+                  <div className="space-y-1.5">
+                    <Label className="text-sm font-medium">Brand Name</Label>
+                    <Input
+                      value={settings.footerBrandName}
+                      onChange={(e) => updateSetting('footerBrandName', e.target.value)}
+                      placeholder="MO:MO Station"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-sm font-medium">Brand Description</Label>
+                    <Textarea
+                      value={settings.footerBrandDescription}
+                      onChange={(e) => updateSetting('footerBrandDescription', e.target.value)}
+                      placeholder="Your brand description..."
+                      rows={3}
+                    />
+                  </div>
+                </div>
+                <div className="space-y-4">
+                  <div className="space-y-1.5">
+                    <Label className="text-sm font-medium">Copyright Text</Label>
+                    <Input
+                      value={settings.footerCopyright}
+                      onChange={(e) => updateSetting('footerCopyright', e.target.value)}
+                      placeholder="All rights reserved..."
+                    />
+                    <p className="text-xs text-gray-500">Year and brand name are added automatically</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex justify-end pt-4 border-t border-gray-100">
+                <Button
+                  onClick={handleSave}
+                  disabled={!hasChanges || isSaving}
+                  className="bg-primary hover:bg-primary/90 gap-2"
+                >
+                  {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                  Save Changes
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Footer Sections Visibility */}
+          <Card className="border-gray-100 shadow-sm pb-8">
+            <CardHeader>
+              <CardTitle className="font-heading text-lg flex items-center gap-2">
+                <Eye className="w-5 h-5 text-primary" />
+                Section Visibility
+              </CardTitle>
+              <CardDescription>
+                Toggle which sections appear in your footer
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="flex items-center justify-between p-4 rounded-xl border border-gray-100 bg-gray-50/50">
+                  <div className="flex items-center gap-3">
+                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${settings.footerShowSocials ? 'bg-primary/10' : 'bg-gray-100'}`}>
+                      <Globe className={`w-4 h-4 ${settings.footerShowSocials ? 'text-primary' : 'text-gray-400'}`} />
+                    </div>
+                    <span className="font-medium text-sm">Socials</span>
+                  </div>
+                  <Switch
+                    checked={settings.footerShowSocials}
+                    onCheckedChange={(checked) => updateSetting('footerShowSocials', checked)}
+                  />
+                </div>
+                <div className="flex items-center justify-between p-4 rounded-xl border border-gray-100 bg-gray-50/50">
+                  <div className="flex items-center gap-3">
+                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${settings.footerShowQuickLinks ? 'bg-primary/10' : 'bg-gray-100'}`}>
+                      <Link className={`w-4 h-4 ${settings.footerShowQuickLinks ? 'text-primary' : 'text-gray-400'}`} />
+                    </div>
+                    <span className="font-medium text-sm">Quick Links</span>
+                  </div>
+                  <Switch
+                    checked={settings.footerShowQuickLinks}
+                    onCheckedChange={(checked) => updateSetting('footerShowQuickLinks', checked)}
+                  />
+                </div>
+                <div className="flex items-center justify-between p-4 rounded-xl border border-gray-100 bg-gray-50/50">
+                  <div className="flex items-center gap-3">
+                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${settings.footerShowMenuLinks ? 'bg-primary/10' : 'bg-gray-100'}`}>
+                      <UtensilsCrossed className={`w-4 h-4 ${settings.footerShowMenuLinks ? 'text-primary' : 'text-gray-400'}`} />
+                    </div>
+                    <span className="font-medium text-sm">Menu Links</span>
+                  </div>
+                  <Switch
+                    checked={settings.footerShowMenuLinks}
+                    onCheckedChange={(checked) => updateSetting('footerShowMenuLinks', checked)}
+                  />
+                </div>
+                <div className="flex items-center justify-between p-4 rounded-xl border border-gray-100 bg-gray-50/50">
+                  <div className="flex items-center gap-3">
+                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${settings.footerShowContact ? 'bg-primary/10' : 'bg-gray-100'}`}>
+                      <MapPin className={`w-4 h-4 ${settings.footerShowContact ? 'text-primary' : 'text-gray-400'}`} />
+                    </div>
+                    <span className="font-medium text-sm">Contact</span>
+                  </div>
+                  <Switch
+                    checked={settings.footerShowContact}
+                    onCheckedChange={(checked) => updateSetting('footerShowContact', checked)}
+                  />
+                </div>
+              </div>
+
+              <div className="flex justify-end pt-4 mt-4 border-t border-gray-100">
+                <Button
+                  onClick={handleSave}
+                  disabled={!hasChanges || isSaving}
+                  className="bg-primary hover:bg-primary/90 gap-2"
+                >
+                  {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                  Save Changes
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          
+          
+
+          {/* Menu Links Card */}
+          <Card className="border-gray-100 shadow-sm pb-8">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="font-heading text-lg flex items-center gap-2">
+                    <UtensilsCrossed className="w-5 h-5 text-primary" />
+                    Menu Items
+                  </CardTitle>
+                  <CardDescription>
+                    Select menu items from your database to display in the footer
+                  </CardDescription>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    updateSetting('footerMenuTitle', 'Our Menu');
+                    updateSetting('footerMenuItemIds', []);
+                  }}
+                  className="gap-2 text-gray-600 hover:text-primary"
+                >
+                  <RotateCcw className="w-4 h-4" />
+                  Reset
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="space-y-1.5">
+                <Label className="text-sm font-medium">Section Title</Label>
+                <Input
+                  value={settings.footerMenuTitle || ''}
+                  onChange={(e) => updateSetting('footerMenuTitle', e.target.value)}
+                  placeholder="Our Menu"
+                />
+              </div>
+
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <Label className="text-sm font-medium">Selected Menu Items</Label>
+                  <Badge variant="outline" className="text-xs">
+                    {(settings.footerMenuItemIds || []).length} / 8 selected
+                  </Badge>
+                </div>
+
+                {/* Menu Item Selector Dropdown */}
+                <Select
+                  value=""
+                  onValueChange={(itemId) => {
+                    if (itemId && !(settings.footerMenuItemIds || []).includes(itemId)) {
+                      if ((settings.footerMenuItemIds || []).length < 8) {
+                        updateSetting('footerMenuItemIds', [...(settings.footerMenuItemIds || []), itemId]);
+                      } else {
+                        setSaveMessage({ type: 'error', text: 'Maximum 8 menu items allowed' });
+                        setTimeout(() => setSaveMessage(null), 3000);
+                      }
+                    }
+                  }}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select a menu item to add..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {isLoadingMenu ? (
+                      <div className="p-4 text-center">
+                        <Loader2 className="w-5 h-5 animate-spin mx-auto text-primary mb-2" />
+                        <p className="text-sm text-gray-500">Loading menu items...</p>
+                      </div>
+                    ) : menuItems.length === 0 ? (
+                      <div className="p-4 text-center">
+                        <UtensilsCrossed className="w-5 h-5 mx-auto text-gray-400 mb-2" />
+                        <p className="text-sm text-gray-500">No menu items found</p>
+                        <p className="text-xs text-gray-400 mt-1">Add items in the Menu section first</p>
+                      </div>
+                    ) : (
+                      <>
+                        <div className="p-2 border-b">
+                          <div className="relative">
+                            <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                            <Input placeholder="Search menu items..." className="pl-8 h-8 text-sm" />
+                          </div>
+                        </div>
+                        {menuItems
+                          .filter(item => !(settings.footerMenuItemIds || []).includes(item.id))
+                          .map((item) => (
+                            <SelectItem key={item.id} value={item.id}>
+                              <div className="flex items-center gap-3 py-1">
+                                <div className="w-8 h-8 rounded-lg overflow-hidden bg-gray-100 shrink-0">
+                                  {item.image ? (
+                                    <Image src={item.image} alt={item.name} width={32} height={32} className="w-full h-full object-cover" />
+                                  ) : (
+                                    <div className="w-full h-full flex items-center justify-center">
+                                      <Utensils className="w-4 h-4 text-gray-400" />
+                                    </div>
+                                  )}
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <p className="font-medium text-sm truncate">{item.name}</p>
+                                  <p className="text-xs text-gray-500">{item.category} • ${item.price.toFixed(2)}</p>
+                                </div>
+                                {item.isVegetarian && (
+                                  <Leaf className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                                )}
+                              </div>
+                            </SelectItem>
+                          ))}
+                        {menuItems.filter(item => !(settings.footerMenuItemIds || []).includes(item.id)).length === 0 && (
+                          <div className="p-4 text-center text-sm text-gray-500">
+                            <Check className="w-4 h-4 mx-auto text-emerald-500 mb-1" />
+                            All menu items have been selected
+                          </div>
+                        )}
+                      </>
+                    )}
+                  </SelectContent>
+                </Select>
+
+                {/* Selected Items */}
+                {(settings.footerMenuItemIds || []).length > 0 ? (
+                  <div className="space-y-2">
+                    {(settings.footerMenuItemIds || []).map((itemId, index) => {
+                      const item = menuItems.find(m => m.id === itemId);
+                      if (!item) return null;
+                      return (
+                        <div key={itemId} className="group flex items-center gap-3 p-3 bg-gray-50 rounded-xl border border-gray-100 hover:border-primary/30 transition-all">
+                          <div className="w-6 h-6 rounded bg-primary/10 flex items-center justify-center text-xs font-semibold text-primary">
+                            {index + 1}
+                          </div>
+                          <div className="w-10 h-10 rounded-lg overflow-hidden bg-white border border-gray-100 shrink-0">
+                            {item.image ? (
+                              <Image src={item.image} alt={item.name} width={40} height={40} className="w-full h-full object-cover" />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center">
+                                <Utensils className="w-4 h-4 text-gray-400" />
+                              </div>
+                            )}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="font-medium text-sm truncate">{item.name}</p>
+                            <div className="flex items-center gap-2 text-xs text-gray-500">
+                              <span>{item.category}</span>
+                              <span className="w-1 h-1 rounded-full bg-gray-300" />
+                              <span>${item.price.toFixed(2)}</span>
+                              {item.isVegetarian && (
+                                <>
+                                  <span className="w-1 h-1 rounded-full bg-gray-300" />
+                                  <span className="text-emerald-600 flex items-center gap-1">
+                                    <Leaf className="w-3 h-3" /> Veg
+                                  </span>
+                                </>
+                              )}
+                            </div>
+                          </div>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => {
+                              const newIds = (settings.footerMenuItemIds || []).filter(id => id !== itemId);
+                              updateSetting('footerMenuItemIds', newIds);
+                            }}
+                            className="h-8 w-8 text-gray-400 hover:text-red-500 hover:bg-red-50 opacity-0 group-hover:opacity-100 transition-opacity"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="p-8 border-2 border-dashed border-gray-200 rounded-xl text-center">
+                    <div className="w-12 h-12 mx-auto rounded-xl bg-gray-100 flex items-center justify-center mb-3">
+                      <UtensilsCrossed className="w-6 h-6 text-gray-400" />
+                    </div>
+                    <p className="text-sm text-gray-500">No menu items selected</p>
+                    <p className="text-xs text-gray-400 mt-1">Use the dropdown above to add items</p>
+                  </div>
+                )}
+              </div>
+
+              {/* Preview */}
+              <div className="mt-4 pt-4 border-t border-gray-100">
+                <Label className="text-sm font-medium text-gray-700 mb-3 block">Preview</Label>
+                <div className="p-4 bg-dark rounded-xl">
+                  <h4 className="text-white font-semibold text-sm mb-3">{settings.footerMenuTitle || 'Our Menu'}</h4>
+                  <ul className="space-y-2">
+                    {(settings.footerMenuItemIds || []).map((itemId) => {
+                      const item = menuItems.find(m => m.id === itemId);
+                      return item ? (
+                        <li key={itemId}>
+                          <span className="text-gray-400 text-sm hover:text-white transition-colors flex items-center gap-2">
+                            <ChevronRight className="w-3 h-3 text-primary" />
+                            {item.name}
+                          </span>
+                        </li>
+                      ) : null;
+                    })}
+                    {(settings.footerMenuItemIds || []).length === 0 && (
+                      <li className="text-gray-500 text-sm italic">No items selected</li>
+                    )}
+                  </ul>
+                </div>
+              </div>
+
+              <div className="flex justify-end pt-4 border-t border-gray-100">
+                <Button
+                  onClick={handleSave}
+                  disabled={!hasChanges || isSaving}
+                  className="bg-primary hover:bg-primary/90 gap-2"
+                >
+                  {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                  Save Changes
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Copyright & Contact Section Card */}
+          <Card className="border-gray-100 shadow-sm pb-8">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="font-heading text-lg flex items-center gap-2">
+                    <ScrollText className="w-5 h-5 text-primary" />
+                    Copyright & Contact
+                  </CardTitle>
+                  <CardDescription>
+                    Customize the copyright text and contact section title
+                  </CardDescription>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    updateSetting('footerContactTitle', 'Get in Touch');
+                    updateSetting('footerCopyright', 'All rights reserved. Made with love for momo lovers.');
+                  }}
+                  className="gap-2 text-gray-600 hover:text-primary"
+                >
+                  <RotateCcw className="w-4 h-4" />
+                  Reset
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {/* Contact Section Title */}
+              <div className="space-y-1.5">
+                <Label className="text-sm font-medium flex items-center gap-2">
+                  <MapPin className="w-4 h-4 text-gray-400" />
+                  Contact Section Title
+                </Label>
+                <Input
+                  value={settings.footerContactTitle || ''}
+                  onChange={(e) => updateSetting('footerContactTitle', e.target.value)}
+                  placeholder="Get in Touch"
+                />
+                <p className="text-xs text-gray-500">This appears as the heading for the contact info column in the footer</p>
+              </div>
+
+              <Separator />
+
+              {/* Copyright Text */}
+              <div className="space-y-3">
+                <Label className="text-sm font-medium flex items-center gap-2">
+                  <ScrollText className="w-4 h-4 text-gray-400" />
+                  Copyright Text
+                </Label>
+                <Textarea
+                  value={settings.footerCopyright || ''}
+                  onChange={(e) => updateSetting('footerCopyright', e.target.value)}
+                  placeholder="All rights reserved. Made with love for momo lovers."
+                  className="min-h-[80px] resize-none"
+                />
+                <div className="flex flex-wrap gap-2">
+                  <Badge 
+                    variant="outline" 
+                    className="cursor-pointer hover:bg-primary/10 hover:border-primary transition-colors"
+                    onClick={() => {
+                      const currentText = settings.footerCopyright || '';
+                      if (!currentText.includes('Made with')) {
+                        updateSetting('footerCopyright', currentText + ' Made with love');
+                      }
+                    }}
+                  >
+                    + Made with love
+                  </Badge>
+                  <Badge 
+                    variant="outline" 
+                    className="cursor-pointer hover:bg-primary/10 hover:border-primary transition-colors"
+                    onClick={() => {
+                      const currentText = settings.footerCopyright || '';
+                      if (!currentText.includes('All rights reserved')) {
+                        updateSetting('footerCopyright', 'All rights reserved. ' + currentText);
+                      }
+                    }}
+                  >
+                    + All rights reserved
+                  </Badge>
+                </div>
+              </div>
+
+              
+
+              {/* Preview */}
+              <div className="mt-4 pt-4 border-t border-gray-100">
+                <Label className="text-sm font-medium text-gray-700 mb-3 block">Preview</Label>
+                <div className="p-4 bg-dark rounded-xl space-y-4">
+                  {/* Contact Title Preview */}
+                  <div>
+                    <h4 className="text-white font-semibold text-sm mb-2">{settings.footerContactTitle || 'Get in Touch'}</h4>
+                    <p className="text-gray-500 text-xs">123 Momo Street, San Francisco...</p>
+                  </div>
+                  
+                  <Separator className="bg-white/10" />
+                  
+                  {/* Copyright Preview */}
+                  <div className="flex items-center gap-1 flex-wrap text-gray-500 text-xs">
+                    <span>© {new Date().getFullYear()} {settings.footerBrandName || 'MO:MO Station'}.</span>
+                    {(settings.footerCopyright || '').includes('Made with') ? (
+                      <>
+                        {(settings.footerCopyright || '').split('Made with')[0]}
+                        <span className="flex items-center gap-1">
+                          Made with
+                          <Heart className="w-3 h-3 text-primary fill-primary" />
+                          {(settings.footerCopyright || '').split('Made with')[1]?.replace('love', '').trim()}
+                        </span>
+                      </>
+                    ) : (
+                      <span>{settings.footerCopyright}</span>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex justify-end pt-4 border-t border-gray-100">
+                <Button
+                  onClick={handleSave}
+                  disabled={!hasChanges || isSaving}
+                  className="bg-primary hover:bg-primary/90 gap-2"
+                >
+                  {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                  Save Changes
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
       </Tabs>
     </div>
   );

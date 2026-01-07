@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useInView } from 'framer-motion';
 import { useRef } from 'react';
@@ -14,13 +14,88 @@ import {
   Loader2,
   ArrowRight,
   MessageSquare,
+  Instagram,
+  Facebook,
+  Twitter,
+  Video,
+  Youtube,
+  Linkedin,
+  Globe,
+  MessageCircle,
+  LucideIcon,
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
-import { businessInfo } from '../data/businessInfo';
+
+// Social icon mapping
+const socialIconMap: Record<string, LucideIcon> = {
+  Instagram,
+  Facebook,
+  Twitter,
+  Video,
+  Youtube,
+  Linkedin,
+  Globe,
+  MessageCircle,
+  Mail,
+  Phone,
+};
+
+interface ContactSettings {
+  contactSubtitle: string;
+  contactHeadline: string;
+  contactDescription: string;
+  contactFormTitle: string;
+  contactFormSubtitle: string;
+  contactAddressLabel: string;
+  contactAddressStreet: string;
+  contactAddressCity: string;
+  contactAddressState: string;
+  contactAddressZip: string;
+  contactPhoneLabel: string;
+  contactPhone: string;
+  contactEmailLabel: string;
+  contactEmail: string;
+  contactHoursLabel: string;
+  contactHoursLine1: string;
+  contactHoursLine2: string;
+  contactSocial1Icon: string;
+  contactSocial1Url: string;
+  contactSocial2Icon: string;
+  contactSocial2Url: string;
+  contactSocial3Icon: string;
+  contactSocial3Url: string;
+}
+
+const defaultSettings: ContactSettings = {
+  contactSubtitle: 'Contact Us',
+  contactHeadline: "Let's Start a Conversation",
+  contactDescription: "Have a question or want to make a reservation? We'd love to hear from you!",
+  contactFormTitle: 'Send us a Message',
+  contactFormSubtitle: "We'll get back to you within 24 hours",
+  contactAddressLabel: 'Visit Us',
+  contactAddressStreet: '123 Momo Street',
+  contactAddressCity: 'San Francisco',
+  contactAddressState: 'CA',
+  contactAddressZip: '94102',
+  contactPhoneLabel: 'Call Us',
+  contactPhone: '(415) 555-MOMO',
+  contactEmailLabel: 'Email Us',
+  contactEmail: 'hello@momostation.com',
+  contactHoursLabel: 'Open Hours',
+  contactHoursLine1: 'Mon-Thu: 11AM-10PM',
+  contactHoursLine2: 'Fri-Sat: 10AM-11PM',
+  contactSocial1Icon: 'Instagram',
+  contactSocial1Url: 'https://instagram.com',
+  contactSocial2Icon: 'Facebook',
+  contactSocial2Url: 'https://facebook.com',
+  contactSocial3Icon: 'Video',
+  contactSocial3Url: 'https://tiktok.com',
+};
 
 export default function Contact() {
+  const [settings, setSettings] = useState<ContactSettings>(defaultSettings);
   const [formState, setFormState] = useState({
     name: '',
     email: '',
@@ -32,6 +107,49 @@ export default function Contact() {
 
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-100px' });
+
+  // Fetch settings on mount
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        const res = await fetch('/api/site-settings', { cache: 'no-store' });
+        if (res.ok) {
+          const data = await res.json();
+          if (data) {
+            setSettings(prev => ({
+              ...prev,
+              contactSubtitle: data.contactSubtitle || prev.contactSubtitle,
+              contactHeadline: data.contactHeadline || prev.contactHeadline,
+              contactDescription: data.contactDescription || prev.contactDescription,
+              contactFormTitle: data.contactFormTitle || prev.contactFormTitle,
+              contactFormSubtitle: data.contactFormSubtitle || prev.contactFormSubtitle,
+              contactAddressLabel: data.contactAddressLabel || prev.contactAddressLabel,
+              contactAddressStreet: data.contactAddressStreet || prev.contactAddressStreet,
+              contactAddressCity: data.contactAddressCity || prev.contactAddressCity,
+              contactAddressState: data.contactAddressState || prev.contactAddressState,
+              contactAddressZip: data.contactAddressZip || prev.contactAddressZip,
+              contactPhoneLabel: data.contactPhoneLabel || prev.contactPhoneLabel,
+              contactPhone: data.contactPhone || prev.contactPhone,
+              contactEmailLabel: data.contactEmailLabel || prev.contactEmailLabel,
+              contactEmail: data.contactEmail || prev.contactEmail,
+              contactHoursLabel: data.contactHoursLabel || prev.contactHoursLabel,
+              contactHoursLine1: data.contactHoursLine1 || prev.contactHoursLine1,
+              contactHoursLine2: data.contactHoursLine2 || prev.contactHoursLine2,
+              contactSocial1Icon: data.contactSocial1Icon || prev.contactSocial1Icon,
+              contactSocial1Url: data.contactSocial1Url || prev.contactSocial1Url,
+              contactSocial2Icon: data.contactSocial2Icon || prev.contactSocial2Icon,
+              contactSocial2Url: data.contactSocial2Url || prev.contactSocial2Url,
+              contactSocial3Icon: data.contactSocial3Icon || prev.contactSocial3Icon,
+              contactSocial3Url: data.contactSocial3Url || prev.contactSocial3Url,
+            }));
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching contact settings:', error);
+      }
+    };
+    fetchSettings();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -58,36 +176,41 @@ export default function Contact() {
   };
 
   const formatAddress = () => {
-    const { street, city, state, zip } = businessInfo.contact.address;
-    return `${street}, ${city}, ${state} ${zip}`;
+    return `${settings.contactAddressStreet}, ${settings.contactAddressCity}, ${settings.contactAddressState} ${settings.contactAddressZip}`;
   };
 
   const contactItems = [
     {
       icon: MapPin,
-      label: 'Visit Us',
+      label: settings.contactAddressLabel,
       value: formatAddress(),
       href: `https://maps.google.com/?q=${encodeURIComponent(formatAddress())}`,
     },
     {
       icon: Phone,
-      label: 'Call Us',
-      value: businessInfo.contact.phone,
-      href: `tel:${businessInfo.contact.phone.replace(/\D/g, '')}`,
+      label: settings.contactPhoneLabel,
+      value: settings.contactPhone,
+      href: `tel:${settings.contactPhone.replace(/\D/g, '')}`,
     },
     {
       icon: Mail,
-      label: 'Email Us',
-      value: businessInfo.contact.email,
-      href: `mailto:${businessInfo.contact.email}`,
+      label: settings.contactEmailLabel,
+      value: settings.contactEmail,
+      href: `mailto:${settings.contactEmail}`,
     },
     {
       icon: Clock,
-      label: 'Open Hours',
-      value: 'Mon-Thu: 11AM-10PM\nFri-Sat: 10AM-11PM',
+      label: settings.contactHoursLabel,
+      value: `${settings.contactHoursLine1}\n${settings.contactHoursLine2}`,
       href: null,
     },
   ];
+
+  const socialLinks = [
+    { icon: settings.contactSocial1Icon, href: settings.contactSocial1Url },
+    { icon: settings.contactSocial2Icon, href: settings.contactSocial2Url },
+    { icon: settings.contactSocial3Icon, href: settings.contactSocial3Url },
+  ].filter(s => s.icon && s.href);
 
   return (
     <section id="contact" className="section-padding bg-[#1A1A1A] relative overflow-hidden" ref={ref}>
@@ -123,14 +246,22 @@ export default function Contact() {
         >
           <span className="inline-flex items-center gap-2 text-primary font-medium text-sm uppercase tracking-widest">
             <span className="w-8 h-px bg-primary/50" />
-            Contact Us
+            {settings.contactSubtitle}
             <span className="w-8 h-px bg-primary/50" />
           </span>
           <h2 className="font-heading text-3xl md:text-4xl lg:text-5xl font-bold text-white mt-4">
-            Let&apos;s Start a <span className="text-primary">Conversation</span>
+            {(() => {
+              const words = settings.contactHeadline.split(' ');
+              const lastWord = words.pop();
+              return (
+                <>
+                  {words.join(' ')} <span className="text-primary">{lastWord}</span>
+                </>
+              );
+            })()}
           </h2>
           <p className="text-gray-400 mt-4 text-base md:text-lg">
-            Have a question or want to make a reservation? We&apos;d love to hear from you!
+            {settings.contactDescription}
           </p>
         </motion.div>
 
@@ -194,21 +325,20 @@ export default function Contact() {
             >
               <p className="text-gray-500 text-sm mb-3">Follow us on social media</p>
               <div className="flex gap-3">
-                {[
-                  { name: 'Instagram', href: businessInfo.social.instagram },
-                  { name: 'Facebook', href: businessInfo.social.facebook },
-                  { name: 'TikTok', href: businessInfo.social.tiktok },
-                ].map((social) => (
-                  <a
-                    key={social.name}
-                    href={social.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="px-4 py-2 rounded-full bg-white/5 border border-white/10 text-gray-400 text-sm font-medium hover:bg-primary hover:text-white hover:border-primary transition-all duration-300"
-                  >
-                    {social.name}
-                  </a>
-                ))}
+                {socialLinks.map((social, idx) => {
+                  const IconComponent = socialIconMap[social.icon] || Globe;
+                  return (
+                    <a
+                      key={idx}
+                      href={social.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-gray-400 hover:bg-primary hover:text-white hover:border-primary transition-all duration-300"
+                    >
+                      <IconComponent className="w-5 h-5" />
+                    </a>
+                  );
+                })}
               </div>
             </motion.div>
           </motion.div>
@@ -227,9 +357,9 @@ export default function Contact() {
                 </div>
                 <div>
                   <h3 className="font-heading text-xl font-semibold text-[#1A1A1A]">
-                    Send us a Message
+                    {settings.contactFormTitle}
                   </h3>
-                  <p className="text-sm text-gray-500">We&apos;ll get back to you within 24 hours</p>
+                  <p className="text-sm text-gray-500">{settings.contactFormSubtitle}</p>
                 </div>
               </div>
 
