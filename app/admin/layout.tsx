@@ -22,6 +22,7 @@ import {
   ArrowLeft,
   CheckCircle,
   AlertTriangle,
+  Palette,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -105,6 +106,11 @@ const sidebarLinks = [
     name: 'Customers',
     href: '/admin/customers',
     icon: Users,
+  },
+  {
+    name: 'Customize',
+    href: '/admin/customize',
+    icon: Palette,
   },
   {
     name: 'Settings',

@@ -704,7 +704,7 @@ export default function OrdersPage() {
                   </div>
 
                   {/* Tab Content - Fixed Height Container */}
-                  <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-4 sm:py-5 min-h-0">
+                  <div className="flex-1 overflow-y-auto scrollbar-hide px-4 sm:px-6 py-4 sm:py-5 min-h-0">
                     {/* Order Details Tab */}
                     <TabsContent value="details" className="mt-0 space-y-4 data-[state=inactive]:hidden h-full">
                       {/* Order Items */}

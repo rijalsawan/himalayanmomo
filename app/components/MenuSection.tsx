@@ -214,17 +214,48 @@ export default function MenuSection() {
   const [popularItems, setPopularItems] = useState<MenuItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Fetch popular items from API
+  // Fetch popular items from site settings
   useEffect(() => {
     const fetchPopularItems = async () => {
       try {
-        const response = await fetch('/api/menu?isPopular=true&limit=6');
-        if (response.ok) {
-          const data = await response.json();
-          setPopularItems(data);
+        // First get the site settings to get selected popular dish IDs
+        const settingsRes = await fetch('/api/site-settings');
+        if (!settingsRes.ok) throw new Error('Failed to fetch settings');
+        
+        const settings = await settingsRes.json();
+        const popularDishIds = settings.popularDishIds || [];
+        
+        if (popularDishIds.length > 0) {
+          // Fetch the specific menu items by IDs
+          const menuRes = await fetch('/api/menu');
+          if (menuRes.ok) {
+            const allItems = await menuRes.json();
+            // Filter and order by the selected IDs
+            const selectedItems = popularDishIds
+              .map((id: string) => allItems.find((item: MenuItem) => item.id === id))
+              .filter((item: MenuItem | undefined): item is MenuItem => item !== undefined);
+            setPopularItems(selectedItems);
+          }
+        } else {
+          // Fallback to auto-fetching popular items if no manual selection
+          const response = await fetch('/api/menu?isPopular=true&limit=6');
+          if (response.ok) {
+            const data = await response.json();
+            setPopularItems(data);
+          }
         }
       } catch (error) {
         console.error('Error fetching popular items:', error);
+        // Fallback to auto-fetch on error
+        try {
+          const response = await fetch('/api/menu?isPopular=true&limit=6');
+          if (response.ok) {
+            const data = await response.json();
+            setPopularItems(data);
+          }
+        } catch {
+          console.error('Fallback fetch also failed');
+        }
       } finally {
         setIsLoading(false);
       }

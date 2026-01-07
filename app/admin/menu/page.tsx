@@ -896,7 +896,7 @@ export default function MenuManagementPage() {
             </div>
 
             {/* Tab Content - FIXED HEIGHT Container (constant across all tabs) */}
-            <div className="h-[320px] sm:h-[420px] overflow-y-auto px-4 sm:px-6 py-4 sm:py-5">
+            <div className="h-[320px] sm:h-[420px] overflow-y-auto scrollbar-hide px-4 sm:px-6 py-4 sm:py-5">
               {/* Basic Tab */}
               <TabsContent value="basic" className="mt-0 space-y-4 sm:space-y-5 data-[state=inactive]:hidden">
                 {/* Image Upload */}

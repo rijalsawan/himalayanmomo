@@ -1,11 +1,83 @@
 'use client';
 
-import { ArrowRight, ArrowDown, Sparkles, Clock, Award, Users } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { ArrowRight, ArrowDown, Sparkles, Clock, Award, Users, Timer, Star, Trophy, Heart, Zap, Target, TrendingUp, Shield, ThumbsUp, CheckCircle, LucideIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
 import Link from 'next/link';
 
+// Icon mapping
+const iconMap: Record<string, LucideIcon> = {
+  Award,
+  Users,
+  Clock,
+  Timer,
+  Star,
+  Trophy,
+  Heart,
+  Zap,
+  Target,
+  TrendingUp,
+  Sparkles,
+  Shield,
+  ThumbsUp,
+  CheckCircle,
+};
+
+interface SiteSettings {
+  heroBadgeText: string;
+  heroHeadingLine1: string;
+  heroHighlightText: string;
+  heroHeadingLine2: string;
+  heroDescription: string;
+  heroLogo: string;
+  stat1Icon: string;
+  stat1Value: string;
+  stat1Label: string;
+  stat2Icon: string;
+  stat2Value: string;
+  stat2Label: string;
+  stat3Icon: string;
+  stat3Value: string;
+  stat3Label: string;
+}
+
+const defaultSettings: SiteSettings = {
+  heroBadgeText: 'Authentic Nepali Mo:Mo',
+  heroHeadingLine1: 'Taste the',
+  heroHighlightText: 'Himalayan',
+  heroHeadingLine2: 'Magic in Every Bite',
+  heroDescription: 'Handcrafted momos made fresh daily using traditional family recipes passed down through generations. Experience the authentic flavors of Nepal.',
+  heroLogo: '/brandlogo.svg',
+  stat1Icon: 'Award',
+  stat1Value: '15+',
+  stat1Label: 'Years Experience',
+  stat2Icon: 'Users',
+  stat2Value: '50K+',
+  stat2Label: 'Happy Customers',
+  stat3Icon: 'Clock',
+  stat3Value: '20min',
+  stat3Label: 'Avg. Prep Time',
+};
+
 export default function Hero() {
+  const [settings, setSettings] = useState<SiteSettings>(defaultSettings);
+
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        const res = await fetch('/api/site-settings');
+        if (res.ok) {
+          const data = await res.json();
+          setSettings(data);
+        }
+      } catch (error) {
+        console.error('Error fetching site settings:', error);
+      }
+    };
+    fetchSettings();
+  }, []);
+
   const scrollToSection = (href: string) => {
     const element = document.querySelector(href);
     if (element) {
@@ -16,6 +88,16 @@ export default function Hero() {
       });
     }
   };
+
+  const getIcon = (iconName: string) => {
+    return iconMap[iconName] || Award;
+  };
+
+  const stats = [
+    { icon: getIcon(settings.stat1Icon), value: settings.stat1Value, label: settings.stat1Label },
+    { icon: getIcon(settings.stat2Icon), value: settings.stat2Value, label: settings.stat2Label },
+    { icon: getIcon(settings.stat3Icon), value: settings.stat3Value, label: settings.stat3Label },
+  ];
 
   return (
     <section
@@ -52,25 +134,24 @@ export default function Hero() {
             <div className="animate-fade-up delay-1">
               <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 text-primary text-sm font-medium">
                 <Sparkles className="w-4 h-4" />
-                Authentic Nepali Mo:Mo
+                {settings.heroBadgeText}
               </span>
             </div>
 
             {/* Headline */}
             <h1 className="font-heading text-4xl sm:text-5xl md:text-6xl lg:text-5xl xl:text-6xl font-bold text-[#1A1A1A] mt-6 leading-[1.1] animate-fade-up delay-2">
-              Taste the{' '}
+              {settings.heroHeadingLine1}{' '}
               <span className="relative inline-block">
-                <span className="relative z-10 text-primary">Himalayan</span>
+                <span className="relative z-10 text-primary">{settings.heroHighlightText}</span>
                 <span className="absolute bottom-2 left-0 right-0 h-3 animate-scale-x delay-4" />
               </span>
               <br />
-              <span className="text-[#1A1A1A]">Magic in Every Bite</span>
+              <span className="text-[#1A1A1A]">{settings.heroHeadingLine2}</span>
             </h1>
 
             {/* Description */}
             <p className="text-gray-600 text-lg mt-6 max-w-xl leading-relaxed animate-fade-up delay-3">
-              Handcrafted momos made fresh daily using traditional family recipes 
-              passed down through generations. Experience the authentic flavors of Nepal.
+              {settings.heroDescription}
             </p>
 
             {/* CTAs */}
@@ -89,11 +170,7 @@ export default function Hero() {
 
             {/* Stats Row */}
             <div className="flex flex-wrap gap-6 sm:gap-10 mt-12 animate-fade-up delay-5">
-              {[
-                { icon: Award, value: '15+', label: 'Years Experience' },
-                { icon: Users, value: '50K+', label: 'Happy Customers' },
-                { icon: Clock, value: '20min', label: 'Avg. Prep Time' },
-              ].map((stat, index) => (
+              {stats.map((stat, index) => (
                 <div key={index} className="flex items-center gap-3">
                   <div className="w-12 h-12 rounded-2xl bg-[#1A1A1A]/5 flex items-center justify-center">
                     <stat.icon className="w-5 h-5 text-primary" />
@@ -121,7 +198,7 @@ export default function Hero() {
               <div className="absolute inset-8 rounded-full overflow-hidden shadow-2xl shadow-primary/20 bg-white flex items-center justify-center">
                 <div className="relative w-[95rem] h-[95rem]">
                   <Image
-                    src="/brandlogo.svg"
+                    src={settings.heroLogo || '/brandlogo.svg'}
                     alt="MO:MO Station Logo"
                     fill
                     className="object-contain"
