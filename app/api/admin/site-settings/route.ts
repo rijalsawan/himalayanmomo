@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import prisma from '@/lib/prisma';
+import { revalidatePath } from 'next/cache';
+import { invalidateSiteSettingsCache } from '@/lib/getSiteSettings';
 
 // GET - Fetch site settings
 export async function GET() {
@@ -52,6 +54,10 @@ export async function PUT(request: Request) {
       update: updateData,
       create: { id: 'default', ...updateData },
     });
+
+    // Invalidate cache and revalidate pages to pick up new settings
+    invalidateSiteSettingsCache();
+    revalidatePath('/', 'layout');
 
     return NextResponse.json(settings);
   } catch (error) {

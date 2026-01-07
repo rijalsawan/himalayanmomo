@@ -8,14 +8,54 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
+// Upload configuration presets for different asset types
+const uploadPresets: Record<string, { folder: string; transformation?: object[] }> = {
+  menu: {
+    folder: 'momo-station/menu',
+    transformation: [{ width: 800, height: 600, crop: 'fill', quality: 'auto:best' }],
+  },
+  avatar: {
+    folder: 'momo-station/avatars',
+    transformation: [{ width: 200, height: 200, crop: 'fill', quality: 'auto:best' }],
+  },
+  logo: {
+    folder: 'momo-station/branding',
+    transformation: [{ width: 400, quality: 'auto:best' }],
+  },
+  favicon: {
+    folder: 'momo-station/seo/favicons',
+    // No transformation for favicons - keep original quality
+  },
+  faviconSvg: {
+    folder: 'momo-station/seo/favicons',
+    // No transformation for SVG
+  },
+  appleTouchIcon: {
+    folder: 'momo-station/seo/icons',
+    transformation: [{ width: 180, height: 180, crop: 'fill', quality: 'auto:best' }],
+  },
+  ogImage: {
+    folder: 'momo-station/seo/social',
+    transformation: [{ width: 1200, height: 630, crop: 'fill', quality: 'auto:best' }],
+  },
+  twitterImage: {
+    folder: 'momo-station/seo/social',
+    transformation: [{ width: 1200, height: 600, crop: 'fill', quality: 'auto:best' }],
+  },
+};
+
 export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData();
     const file = formData.get('file') as File | null;
+    const type = (formData.get('type') as string) || 'menu';
 
     if (!file) {
       return NextResponse.json({ error: 'No file provided' }, { status: 400 });
     }
+
+    // Get preset configuration or default to menu
+    const preset = uploadPresets[type] || uploadPresets.menu;
 
     // Convert file to buffer
     const bytes = await file.arrayBuffer();
@@ -25,11 +65,9 @@ export async function POST(request: NextRequest) {
     const result = await new Promise<UploadApiResponse>((resolve, reject) => {
       cloudinary.uploader.upload_stream(
         {
-          folder: 'momo-station/menu',
+          folder: preset.folder,
           resource_type: 'image',
-          transformation: [
-            { width: 800, height: 600, crop: 'fill', quality: 'auto:best' },
-          ],
+          ...(preset.transformation && { transformation: preset.transformation }),
         },
         (error: UploadApiErrorResponse | undefined, result: UploadApiResponse | undefined) => {
           if (error) reject(error);

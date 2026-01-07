@@ -231,6 +231,20 @@ model SiteSettings {
   footerShowQuickLinks   Boolean  @default(true)
   footerShowMenuLinks    Boolean  @default(true)
   footerShowContact      Boolean  @default(true)
+  // SEO & Metadata
+  siteUrl                String   @default("https://momostation.com")
+  siteTitle              String   @default("MO:MO Station | Authentic Nepali Dumplings")
+  siteDescription        String   @default("Experience authentic Nepali momos made fresh daily. Handcrafted dumplings with traditional recipes passed down through generations. Order online or visit us today!")
+  siteKeywords           String   @default("momo, nepali food, dumplings, authentic nepali, himalayan food, nepali restaurant, momo station")
+  favicon                String   @default("/favicon-32.svg")
+  faviconSvg             String   @default("/favicon.svg")
+  appleTouchIcon         String   @default("/apple-touch-icon.svg")
+  ogImage                String   @default("/og-image.svg")
+  ogImageAlt             String   @default("MO:MO Station - Authentic Nepali Dumplings")
+  twitterImage           String   @default("/twitter-image.svg")
+  twitterHandle          String   @default("@momostation")
+  themeColor             String   @default("#E85D04")
+  backgroundColor        String   @default("#FFFFFF")
   createdAt              DateTime @default(now())
   updatedAt              DateTime @updatedAt
 }

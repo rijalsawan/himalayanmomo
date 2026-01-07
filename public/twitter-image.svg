@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1A1A1A"/>
+      <stop offset="100%" style="stop-color:#2D2D2D"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#E85D04"/>
+      <stop offset="100%" style="stop-color:#FF7A2F"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="1200" height="600" fill="url(#bg)"/>
+  
+  <!-- Decorative circles -->
+  <circle cx="200" cy="500" r="300" fill="#E85D04" opacity="0.08"/>
+  <circle cx="1000" cy="100" r="250" fill="#E85D04" opacity="0.06"/>
+  
+  <!-- Left accent line -->
+  <rect x="0" y="0" width="8" height="600" fill="url(#accent)"/>
+  
+  <!-- Content container -->
+  <g transform="translate(100, 0)">
+    <!-- Momo icon -->
+    <g transform="translate(150, 300)">
+      <circle cx="0" cy="0" r="100" fill="url(#accent)"/>
+      <ellipse cx="0" cy="6" rx="55" ry="35" fill="#FFF5E6"/>
+      <path d="M-38,-10 Q-28,-26 -18,-14 Q-8,-26 2,-14 Q12,-26 22,-14 Q32,-26 42,-10" 
+            fill="none" stroke="#E8D5C4" stroke-width="4" stroke-linecap="round"/>
+      <g fill="none" stroke="#FFF" stroke-width="3" stroke-linecap="round" opacity="0.9">
+        <path d="M-18,-28 Q-15,-40 -20,-52"/>
+        <path d="M0,-32 Q3,-44 -3,-56"/>
+        <path d="M18,-28 Q21,-40 16,-52"/>
+      </g>
+    </g>
+    
+    <!-- Text content -->
+    <g transform="translate(320, 220)">
+      <text x="0" y="0" 
+            font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" 
+            font-size="64" 
+            font-weight="800" 
+            fill="#FFFFFF">MO:MO Station</text>
+      
+      <text x="0" y="60" 
+            font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" 
+            font-size="26" 
+            fill="#E85D04" 
+            font-weight="600">Authentic Nepali Dumplings</text>
+      
+      <text x="0" y="120" 
+            font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" 
+            font-size="22" 
+            fill="#888888">Handcrafted momos made fresh daily</text>
+      <text x="0" y="150" 
+            font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" 
+            font-size="22" 
+            fill="#888888">using traditional family recipes</text>
+    </g>
+  </g>
+  
+  <!-- Bottom bar -->
+  <rect x="0" y="580" width="1200" height="20" fill="url(#accent)" opacity="0.3"/>
+</svg>

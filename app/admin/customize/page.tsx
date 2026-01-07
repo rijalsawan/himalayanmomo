@@ -69,6 +69,7 @@ import {
   ExternalLink,
   ChevronRight,
   Check,
+  AtSign,
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -255,6 +256,20 @@ interface SiteSettings {
   footerShowQuickLinks: boolean;
   footerShowMenuLinks: boolean;
   footerShowContact: boolean;
+  // SEO & Metadata
+  siteUrl: string;
+  siteTitle: string;
+  siteDescription: string;
+  siteKeywords: string;
+  favicon: string;
+  faviconSvg: string;
+  appleTouchIcon: string;
+  ogImage: string;
+  ogImageAlt: string;
+  twitterImage: string;
+  twitterHandle: string;
+  themeColor: string;
+  backgroundColor: string;
 }
 
 // Menu item interface for selection
@@ -416,6 +431,20 @@ const defaultSettings: SiteSettings = {
   footerShowQuickLinks: true,
   footerShowMenuLinks: true,
   footerShowContact: true,
+  // SEO & Metadata
+  siteUrl: 'https://momostation.com',
+  siteTitle: 'MO:MO Station | Authentic Nepali Dumplings',
+  siteDescription: 'Experience authentic Nepali momos made fresh daily. Handcrafted dumplings with traditional recipes passed down through generations. Order online or visit us today!',
+  siteKeywords: 'momo, nepali food, dumplings, authentic nepali, himalayan food, nepali restaurant, momo station',
+  favicon: '/favicon-32.svg',
+  faviconSvg: '/favicon.svg',
+  appleTouchIcon: '/apple-touch-icon.svg',
+  ogImage: '/og-image.svg',
+  ogImageAlt: 'MO:MO Station - Authentic Nepali Dumplings',
+  twitterImage: '/twitter-image.svg',
+  twitterHandle: '@momostation',
+  themeColor: '#E85D04',
+  backgroundColor: '#FFFFFF',
 };
 
 export default function CustomizePage() {
@@ -455,6 +484,23 @@ export default function CustomizePage() {
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
   const [avatarInputMode, setAvatarInputMode] = useState<'upload' | 'url'>('upload');
   const avatarFileInputRef = useRef<HTMLInputElement>(null);
+
+  // SEO & Metadata upload states
+  const [isUploadingFavicon, setIsUploadingFavicon] = useState(false);
+  const [isUploadingFaviconSvg, setIsUploadingFaviconSvg] = useState(false);
+  const [isUploadingAppleTouchIcon, setIsUploadingAppleTouchIcon] = useState(false);
+  const [isUploadingOgImage, setIsUploadingOgImage] = useState(false);
+  const [isUploadingTwitterImage, setIsUploadingTwitterImage] = useState(false);
+  const [faviconMode, setFaviconMode] = useState<'upload' | 'url'>('upload');
+  const [faviconSvgMode, setFaviconSvgMode] = useState<'upload' | 'url'>('upload');
+  const [appleTouchIconMode, setAppleTouchIconMode] = useState<'upload' | 'url'>('upload');
+  const [ogImageMode, setOgImageMode] = useState<'upload' | 'url'>('upload');
+  const [twitterImageMode, setTwitterImageMode] = useState<'upload' | 'url'>('upload');
+  const faviconRef = useRef<HTMLInputElement>(null);
+  const faviconSvgRef = useRef<HTMLInputElement>(null);
+  const appleTouchIconRef = useRef<HTMLInputElement>(null);
+  const ogImageRef = useRef<HTMLInputElement>(null);
+  const twitterImageRef = useRef<HTMLInputElement>(null);
 
   // Fetch settings on mount
   useEffect(() => {
@@ -658,6 +704,69 @@ export default function CustomizePage() {
       setIsUploadingAvatar(false);
       if (avatarFileInputRef.current) {
         avatarFileInputRef.current.value = '';
+      }
+    }
+  };
+
+  // Generic SEO asset upload handler
+  const handleSeoAssetUpload = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+    settingKey: 'favicon' | 'faviconSvg' | 'appleTouchIcon' | 'ogImage' | 'twitterImage',
+    setUploading: (val: boolean) => void,
+    ref: React.RefObject<HTMLInputElement | null>
+  ) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type based on setting
+    const allowedTypes: Record<string, string[]> = {
+      favicon: ['image/x-icon', 'image/ico', 'image/vnd.microsoft.icon', 'image/png', 'image/svg+xml'],
+      faviconSvg: ['image/svg+xml'],
+      appleTouchIcon: ['image/png', 'image/svg+xml', 'image/jpeg'],
+      ogImage: ['image/png', 'image/jpeg', 'image/webp', 'image/svg+xml'],
+      twitterImage: ['image/png', 'image/jpeg', 'image/webp', 'image/svg+xml'],
+    };
+
+    if (!allowedTypes[settingKey].includes(file.type) && !file.name.endsWith('.ico') && !file.name.endsWith('.svg')) {
+      setSaveMessage({ type: 'error', text: `Invalid file type for ${settingKey}` });
+      setTimeout(() => setSaveMessage(null), 3000);
+      return;
+    }
+
+    // Validate file size (max 2MB for icons, 5MB for social images)
+    const maxSize = ['ogImage', 'twitterImage'].includes(settingKey) ? 5 * 1024 * 1024 : 2 * 1024 * 1024;
+    if (file.size > maxSize) {
+      setSaveMessage({ type: 'error', text: `File size should be less than ${maxSize / (1024 * 1024)}MB` });
+      setTimeout(() => setSaveMessage(null), 3000);
+      return;
+    }
+
+    setUploading(true);
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('type', settingKey); // Pass asset type for proper folder and transformation
+
+    try {
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        updateSetting(settingKey, data.url);
+        setSaveMessage({ type: 'success', text: 'Asset uploaded successfully!' });
+        setTimeout(() => setSaveMessage(null), 3000);
+      } else {
+        throw new Error('Upload failed');
+      }
+    } catch {
+      setSaveMessage({ type: 'error', text: 'Failed to upload asset' });
+      setTimeout(() => setSaveMessage(null), 3000);
+    } finally {
+      setUploading(false);
+      if (ref.current) {
+        ref.current.value = '';
       }
     }
   };
@@ -1008,6 +1117,13 @@ export default function CustomizePage() {
           >
             <PanelBottom className="w-4 h-4" />
             <span className="hidden sm:inline">Footer</span>
+          </TabsTrigger>
+          <TabsTrigger
+            value="seo"
+            className="gap-2 data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:shadow-lg rounded-lg px-4 py-2"
+          >
+            <Globe className="w-4 h-4" />
+            <span className="hidden sm:inline">SEO & Meta</span>
           </TabsTrigger>
         </TabsList>
 
@@ -4837,6 +4953,800 @@ export default function CustomizePage() {
               </div>
             </CardContent>
           </Card>
+        </TabsContent>
+
+        {/* SEO & Metadata Tab */}
+        <TabsContent value="seo" className="space-y-6">
+          {/* Site Title & Description */}
+          <Card className="border-gray-100 shadow-sm pb-8">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="font-heading text-lg flex items-center gap-2">
+                    <Globe className="w-5 h-5 text-primary" />
+                    Site Identity
+                  </CardTitle>
+                  <CardDescription>
+                    Define how your site appears in search engines and browser tabs
+                  </CardDescription>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    updateSetting('siteUrl', 'https://momostation.com');
+                    updateSetting('siteTitle', 'MO:MO Station | Authentic Nepali Dumplings');
+                    updateSetting('siteDescription', 'Experience authentic Nepali momos made fresh daily. Handcrafted dumplings with traditional recipes passed down through generations. Order online or visit us today!');
+                    updateSetting('siteKeywords', 'momo, nepali food, dumplings, authentic nepali, himalayan food, nepali restaurant, momo station');
+                  }}
+                  className="gap-2 text-gray-600 hover:text-primary"
+                >
+                  <RotateCcw className="w-4 h-4" />
+                  Reset
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {/* Site URL */}
+              <div className="space-y-1.5">
+                <Label className="text-sm font-medium flex items-center gap-2">
+                  <Link className="w-4 h-4 text-gray-400" />
+                  Site URL
+                </Label>
+                <Input
+                  value={settings.siteUrl || ''}
+                  onChange={(e) => updateSetting('siteUrl', e.target.value)}
+                  placeholder="https://momostation.com"
+                />
+                <p className="text-xs text-gray-500">Your website&apos;s canonical URL (used for SEO and social sharing)</p>
+              </div>
+
+              {/* Site Title */}
+              <div className="space-y-1.5">
+                <Label className="text-sm font-medium flex items-center gap-2">
+                  <Type className="w-4 h-4 text-gray-400" />
+                  Site Title
+                </Label>
+                <Input
+                  value={settings.siteTitle || ''}
+                  onChange={(e) => updateSetting('siteTitle', e.target.value)}
+                  placeholder="MO:MO Station | Authentic Nepali Dumplings"
+                />
+                <p className="text-xs text-gray-500">Appears in browser tabs and search engine results (50-60 characters recommended)</p>
+                <div className="flex items-center gap-2 text-xs">
+                  <span className={`${(settings.siteTitle || '').length > 60 ? 'text-red-500' : 'text-gray-400'}`}>
+                    {(settings.siteTitle || '').length}/60 characters
+                  </span>
+                  {(settings.siteTitle || '').length >= 50 && (settings.siteTitle || '').length <= 60 && (
+                    <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-200 text-xs">Optimal</Badge>
+                  )}
+                </div>
+              </div>
+
+              {/* Site Description */}
+              <div className="space-y-1.5">
+                <Label className="text-sm font-medium flex items-center gap-2">
+                  <ScrollText className="w-4 h-4 text-gray-400" />
+                  Meta Description
+                </Label>
+                <Textarea
+                  value={settings.siteDescription || ''}
+                  onChange={(e) => updateSetting('siteDescription', e.target.value)}
+                  placeholder="Experience authentic Nepali momos..."
+                  className="min-h-[100px] resize-none"
+                />
+                <p className="text-xs text-gray-500">Brief description for search engines (150-160 characters recommended)</p>
+                <div className="flex items-center gap-2 text-xs">
+                  <span className={`${(settings.siteDescription || '').length > 160 ? 'text-red-500' : 'text-gray-400'}`}>
+                    {(settings.siteDescription || '').length}/160 characters
+                  </span>
+                  {(settings.siteDescription || '').length >= 150 && (settings.siteDescription || '').length <= 160 && (
+                    <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-200 text-xs">Optimal</Badge>
+                  )}
+                </div>
+              </div>
+
+              {/* Keywords */}
+              <div className="space-y-1.5">
+                <Label className="text-sm font-medium flex items-center gap-2">
+                  <Target className="w-4 h-4 text-gray-400" />
+                  Keywords
+                </Label>
+                <Input
+                  value={settings.siteKeywords || ''}
+                  onChange={(e) => updateSetting('siteKeywords', e.target.value)}
+                  placeholder="momo, nepali food, dumplings..."
+                />
+                <p className="text-xs text-gray-500">Comma-separated keywords for search optimization</p>
+              </div>
+
+              {/* Search Engine Preview */}
+              <div className="mt-4 pt-4 border-t border-gray-100">
+                <Label className="text-sm font-medium text-gray-700 mb-3 flex items-center gap-2">
+                  <Search className="w-4 h-4" />
+                  Google Search Preview
+                </Label>
+                <div className="p-4 bg-white rounded-xl border border-gray-200">
+                  <div className="space-y-1">
+                    <p className="text-blue-700 text-lg hover:underline cursor-pointer truncate">
+                      {settings.siteTitle || 'MO:MO Station | Authentic Nepali Dumplings'}
+                    </p>
+                    <p className="text-emerald-700 text-sm">
+                      {(settings.siteUrl || 'https://momostation.com').replace(/^https?:\/\//, '')}
+                    </p>
+                    <p className="text-gray-600 text-sm line-clamp-2">
+                      {settings.siteDescription || 'Experience authentic Nepali momos made fresh daily...'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex justify-end pt-4 border-t border-gray-100">
+                <Button
+                  onClick={handleSave}
+                  disabled={!hasChanges || isSaving}
+                  className="bg-primary hover:bg-primary/90 gap-2"
+                >
+                  {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                  Save Changes
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Favicon & Icons */}
+          <Card className="border-gray-100 shadow-sm pb-8">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="font-heading text-lg flex items-center gap-2">
+                    <Sparkles className="w-5 h-5 text-primary" />
+                    Favicon & App Icons
+                  </CardTitle>
+                  <CardDescription>
+                    Customize icons for browsers, bookmarks, and mobile devices
+                  </CardDescription>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    updateSetting('favicon', '/favicon-32.svg');
+                    updateSetting('faviconSvg', '/favicon.svg');
+                    updateSetting('appleTouchIcon', '/apple-touch-icon.svg');
+                    updateSetting('themeColor', '#E85D04');
+                    updateSetting('backgroundColor', '#FFFFFF');
+                  }}
+                  className="gap-2 text-gray-600 hover:text-primary"
+                >
+                  <RotateCcw className="w-4 h-4" />
+                  Reset
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {/* Favicon ICO */}
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <Label className="text-sm font-medium flex items-center gap-2">
+                      <ImageIcon className="w-4 h-4 text-gray-400" />
+                      Favicon (ICO/PNG)
+                    </Label>
+                    <div className="flex gap-1">
+                      <Button
+                        variant={faviconMode === 'upload' ? 'default' : 'ghost'}
+                        size="sm"
+                        className="h-6 px-2 text-xs"
+                        onClick={() => setFaviconMode('upload')}
+                      >
+                        <Upload className="w-3 h-3" />
+                      </Button>
+                      <Button
+                        variant={faviconMode === 'url' ? 'default' : 'ghost'}
+                        size="sm"
+                        className="h-6 px-2 text-xs"
+                        onClick={() => setFaviconMode('url')}
+                      >
+                        <LinkIcon className="w-3 h-3" />
+                      </Button>
+                    </div>
+                  </div>
+                  <div className="p-4 rounded-xl border border-gray-100 text-center">
+                    <div className="w-10 h-10 mx-auto mb-3 rounded-lg bg-white border shadow-sm flex items-center justify-center overflow-hidden">
+                      {settings.favicon ? (
+                        <Image src={settings.favicon} alt="Favicon" width={40} height={40} className="w-full h-full object-contain" />
+                      ) : (
+                        <Globe className="w-5 h-5 text-gray-400" />
+                      )}
+                    </div>
+                    <p className="text-xs text-gray-500 mb-3">16x16 or 32x32px</p>
+                    {faviconMode === 'upload' ? (
+                      <>
+                        <input
+                          ref={faviconRef}
+                          type="file"
+                          accept=".ico,.png,.svg,image/x-icon,image/png,image/svg+xml"
+                          className="hidden"
+                          onChange={(e) => handleSeoAssetUpload(e, 'favicon', setIsUploadingFavicon, faviconRef)}
+                        />
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="w-full gap-2"
+                          disabled={isUploadingFavicon}
+                          onClick={() => faviconRef.current?.click()}
+                        >
+                          {isUploadingFavicon ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+                          {isUploadingFavicon ? 'Uploading...' : 'Upload'}
+                        </Button>
+                      </>
+                    ) : (
+                      <Input
+                        value={settings.favicon || ''}
+                        onChange={(e) => updateSetting('favicon', e.target.value)}
+                        placeholder="/favicon.ico"
+                        className="text-xs"
+                      />
+                    )}
+                    {settings.favicon && settings.favicon !== '/favicon-32.svg' && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="w-full mt-2 text-xs text-gray-500 hover:text-red-500"
+                        onClick={() => updateSetting('favicon', '/favicon-32.svg')}
+                      >
+                        Reset to default
+                      </Button>
+                    )}
+                  </div>
+                </div>
+
+                {/* Favicon SVG */}
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <Label className="text-sm font-medium flex items-center gap-2">
+                      <Sparkles className="w-4 h-4 text-gray-400" />
+                      Favicon (SVG)
+                    </Label>
+                    <div className="flex gap-1">
+                      <Button
+                        variant={faviconSvgMode === 'upload' ? 'default' : 'ghost'}
+                        size="sm"
+                        className="h-6 px-2 text-xs"
+                        onClick={() => setFaviconSvgMode('upload')}
+                      >
+                        <Upload className="w-3 h-3" />
+                      </Button>
+                      <Button
+                        variant={faviconSvgMode === 'url' ? 'default' : 'ghost'}
+                        size="sm"
+                        className="h-6 px-2 text-xs"
+                        onClick={() => setFaviconSvgMode('url')}
+                      >
+                        <LinkIcon className="w-3 h-3" />
+                      </Button>
+                    </div>
+                  </div>
+                  <div className="p-4 rounded-xl border border-gray-100 text-center">
+                    <div className="w-10 h-10 mx-auto mb-3 rounded-lg bg-white border shadow-sm flex items-center justify-center overflow-hidden">
+                      {settings.faviconSvg ? (
+                        <Image src={settings.faviconSvg} alt="Favicon SVG" width={40} height={40} className="w-full h-full object-contain" />
+                      ) : (
+                        <Sparkles className="w-5 h-5 text-gray-400" />
+                      )}
+                    </div>
+                    <p className="text-xs text-gray-500 mb-3">Scalable vector</p>
+                    {faviconSvgMode === 'upload' ? (
+                      <>
+                        <input
+                          ref={faviconSvgRef}
+                          type="file"
+                          accept=".svg,image/svg+xml"
+                          className="hidden"
+                          onChange={(e) => handleSeoAssetUpload(e, 'faviconSvg', setIsUploadingFaviconSvg, faviconSvgRef)}
+                        />
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="w-full gap-2"
+                          disabled={isUploadingFaviconSvg}
+                          onClick={() => faviconSvgRef.current?.click()}
+                        >
+                          {isUploadingFaviconSvg ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+                          {isUploadingFaviconSvg ? 'Uploading...' : 'Upload SVG'}
+                        </Button>
+                      </>
+                    ) : (
+                      <Input
+                        value={settings.faviconSvg || ''}
+                        onChange={(e) => updateSetting('faviconSvg', e.target.value)}
+                        placeholder="/favicon.svg"
+                        className="text-xs"
+                      />
+                    )}
+                    {settings.faviconSvg && settings.faviconSvg !== '/favicon.svg' && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="w-full mt-2 text-xs text-gray-500 hover:text-red-500"
+                        onClick={() => updateSetting('faviconSvg', '/favicon.svg')}
+                      >
+                        Reset to default
+                      </Button>
+                    )}
+                  </div>
+                </div>
+
+                {/* Apple Touch Icon */}
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <Label className="text-sm font-medium flex items-center gap-2">
+                      <Phone className="w-4 h-4 text-gray-400" />
+                      Apple Touch Icon
+                    </Label>
+                    <div className="flex gap-1">
+                      <Button
+                        variant={appleTouchIconMode === 'upload' ? 'default' : 'ghost'}
+                        size="sm"
+                        className="h-6 px-2 text-xs"
+                        onClick={() => setAppleTouchIconMode('upload')}
+                      >
+                        <Upload className="w-3 h-3" />
+                      </Button>
+                      <Button
+                        variant={appleTouchIconMode === 'url' ? 'default' : 'ghost'}
+                        size="sm"
+                        className="h-6 px-2 text-xs"
+                        onClick={() => setAppleTouchIconMode('url')}
+                      >
+                        <LinkIcon className="w-3 h-3" />
+                      </Button>
+                    </div>
+                  </div>
+                  <div className="p-4  rounded-xl border border-gray-100 text-center">
+                    <div className="w-14 h-14 mx-auto mb-3 rounded-2xl bg-white border shadow-sm flex items-center justify-center overflow-hidden">
+                      {settings.appleTouchIcon ? (
+                        <Image src={settings.appleTouchIcon} alt="Apple Touch Icon" width={56} height={56} className="w-full h-full object-cover" />
+                      ) : (
+                        <Phone className="w-6 h-6 text-gray-400" />
+                      )}
+                    </div>
+                    <p className="text-xs text-gray-500 mb-3">180x180px</p>
+                    {appleTouchIconMode === 'upload' ? (
+                      <>
+                        <input
+                          ref={appleTouchIconRef}
+                          type="file"
+                          accept=".png,.svg,.jpg,.jpeg,image/png,image/svg+xml,image/jpeg"
+                          className="hidden"
+                          onChange={(e) => handleSeoAssetUpload(e, 'appleTouchIcon', setIsUploadingAppleTouchIcon, appleTouchIconRef)}
+                        />
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="w-full gap-2"
+                          disabled={isUploadingAppleTouchIcon}
+                          onClick={() => appleTouchIconRef.current?.click()}
+                        >
+                          {isUploadingAppleTouchIcon ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+                          {isUploadingAppleTouchIcon ? 'Uploading...' : 'Upload'}
+                        </Button>
+                      </>
+                    ) : (
+                      <Input
+                        value={settings.appleTouchIcon || ''}
+                        onChange={(e) => updateSetting('appleTouchIcon', e.target.value)}
+                        placeholder="/apple-touch-icon.png"
+                        className="text-xs"
+                      />
+                    )}
+                    {settings.appleTouchIcon && settings.appleTouchIcon !== '/apple-touch-icon.svg' && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="w-full mt-2 text-xs text-gray-500 hover:text-red-500"
+                        onClick={() => updateSetting('appleTouchIcon', '/apple-touch-icon.svg')}
+                      >
+                        Reset to default
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Theme & Background Colors */}
+              <Separator />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-3">
+                  <Label className="text-sm font-medium flex items-center gap-2">
+                    <div className="w-4 h-4 rounded" style={{ backgroundColor: settings.themeColor || '#E85D04' }} />
+                    Theme Color
+                  </Label>
+                  <p className="text-xs text-gray-500">Used for browser chrome on mobile devices</p>
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="color"
+                      value={settings.themeColor || '#E85D04'}
+                      onChange={(e) => updateSetting('themeColor', e.target.value)}
+                      className="w-10 h-10 cursor-pointer"
+                    />
+                    <Input
+                      value={settings.themeColor || ''}
+                      onChange={(e) => updateSetting('themeColor', e.target.value)}
+                      placeholder="#E85D04"
+                      className="font-mono text-sm flex-1"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <Label className="text-sm font-medium flex items-center gap-2">
+                    <div className="w-4 h-4 rounded border" style={{ backgroundColor: settings.backgroundColor || '#FFFFFF' }} />
+                    Background Color
+                  </Label>
+                  <p className="text-xs text-gray-500">Background for splash screens</p>
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="color"
+                      value={settings.backgroundColor || '#FFFFFF'}
+                      onChange={(e) => updateSetting('backgroundColor', e.target.value)}
+                      className="w-10 h-10 cursor-pointer"
+                    />
+                    <Input
+                      value={settings.backgroundColor || ''}
+                      onChange={(e) => updateSetting('backgroundColor', e.target.value)}
+                      placeholder="#FFFFFF"
+                      className="font-mono text-sm flex-1"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Browser Tab Preview */}
+              <div className="mt-4 pt-4 border-t border-gray-100">
+                <Label className="text-sm font-medium text-gray-700 mb-3 block">Browser Tab Preview</Label>
+                <div className="bg-gray-100 rounded-t-xl p-2">
+                  <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1.5 px-3 py-2 bg-white rounded-t-lg border-t border-x border-gray-200 shadow-sm max-w-[200px]">
+                      <div className="w-4 h-4 rounded shrink-0 overflow-hidden">
+                        {settings.faviconSvg || settings.favicon ? (
+                          <Image 
+                            src={settings.faviconSvg || settings.favicon} 
+                            alt="Tab icon" 
+                            width={16} 
+                            height={16} 
+                            className="w-full h-full object-contain" 
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-primary rounded flex items-center justify-center">
+                            <span className="text-[8px] text-white font-bold">M</span>
+                          </div>
+                        )}
+                      </div>
+                      <span className="text-xs text-gray-700 truncate">
+                        {(settings.siteTitle || 'MO:MO Station').split('|')[0].trim()}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-1.5 px-3 py-2 bg-gray-200/50 rounded-t-lg max-w-[150px]">
+                      <div className="w-4 h-4 bg-gray-300 rounded" />
+                      <span className="text-xs text-gray-400 truncate">New Tab</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex justify-end pt-4 border-t border-gray-100">
+                <Button
+                  onClick={handleSave}
+                  disabled={!hasChanges || isSaving}
+                  className="bg-primary hover:bg-primary/90 gap-2"
+                >
+                  {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                  Save Changes
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Social Sharing Images */}
+          <Card className="border-gray-100 shadow-sm pb-8">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="font-heading text-lg flex items-center gap-2">
+                    <ExternalLink className="w-5 h-5 text-primary" />
+                    Social Sharing Images
+                  </CardTitle>
+                  <CardDescription>
+                    Images shown when your site is shared on social media
+                  </CardDescription>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    updateSetting('ogImage', '/og-image.svg');
+                    updateSetting('ogImageAlt', 'MO:MO Station - Authentic Nepali Dumplings');
+                    updateSetting('twitterImage', '/twitter-image.svg');
+                    updateSetting('twitterHandle', '@momostation');
+                  }}
+                  className="gap-2 text-gray-600 hover:text-primary"
+                >
+                  <RotateCcw className="w-4 h-4" />
+                  Reset
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Open Graph Image */}
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <Label className="text-sm font-medium flex items-center gap-2">
+                      <Facebook className="w-4 h-4 text-blue-600" />
+                      Open Graph Image (Facebook, LinkedIn)
+                    </Label>
+                    <div className="flex gap-1">
+                      <Button
+                        variant={ogImageMode === 'upload' ? 'default' : 'ghost'}
+                        size="sm"
+                        className="h-6 px-2 text-xs"
+                        onClick={() => setOgImageMode('upload')}
+                      >
+                        <Upload className="w-3 h-3" />
+                      </Button>
+                      <Button
+                        variant={ogImageMode === 'url' ? 'default' : 'ghost'}
+                        size="sm"
+                        className="h-6 px-2 text-xs"
+                        onClick={() => setOgImageMode('url')}
+                      >
+                        <LinkIcon className="w-3 h-3" />
+                      </Button>
+                    </div>
+                  </div>
+                  <div className="p-4 bg-gray-50 rounded-xl border border-gray-100">
+                    <div className="aspect-[1200/630] rounded-lg bg-white border border-gray-200 overflow-hidden mb-3 relative group">
+                      {settings.ogImage ? (
+                        <>
+                          <Image 
+                            src={settings.ogImage} 
+                            alt="OG Image Preview" 
+                            width={400} 
+                            height={210} 
+                            className="w-full h-full object-cover" 
+                          />
+                          <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                            <Button
+                              variant="secondary"
+                              size="sm"
+                              className="gap-1"
+                              onClick={() => ogImageRef.current?.click()}
+                              disabled={isUploadingOgImage}
+                            >
+                              {isUploadingOgImage ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+                              Replace
+                            </Button>
+                            <Button
+                              variant="destructive"
+                              size="sm"
+                              onClick={() => updateSetting('ogImage', '/og-image.svg')}
+                            >
+                              Reset
+                            </Button>
+                          </div>
+                        </>
+                      ) : (
+                        <div className="w-full h-full flex flex-col items-center justify-center text-gray-400">
+                          <ImageIcon className="w-12 h-12 mb-2" />
+                          <span className="text-sm">1200 x 630px recommended</span>
+                        </div>
+                      )}
+                    </div>
+                    {ogImageMode === 'upload' ? (
+                      <>
+                        <input
+                          ref={ogImageRef}
+                          type="file"
+                          accept=".png,.jpg,.jpeg,.webp,.svg,image/png,image/jpeg,image/webp,image/svg+xml"
+                          className="hidden"
+                          onChange={(e) => handleSeoAssetUpload(e, 'ogImage', setIsUploadingOgImage, ogImageRef)}
+                        />
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="w-full gap-2 mb-2"
+                          disabled={isUploadingOgImage}
+                          onClick={() => ogImageRef.current?.click()}
+                        >
+                          {isUploadingOgImage ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+                          {isUploadingOgImage ? 'Uploading...' : 'Upload Image'}
+                        </Button>
+                      </>
+                    ) : (
+                      <Input
+                        value={settings.ogImage || ''}
+                        onChange={(e) => updateSetting('ogImage', e.target.value)}
+                        placeholder="/og-image.svg"
+                        className="mb-2"
+                      />
+                    )}
+                    <Input
+                      value={settings.ogImageAlt || ''}
+                      onChange={(e) => updateSetting('ogImageAlt', e.target.value)}
+                      placeholder="Image alt text for accessibility..."
+                      className="text-sm"
+                    />
+                    <p className="text-xs text-gray-500 mt-2 flex items-center gap-1">
+                      <Eye className="w-3 h-3" />
+                      Alt text improves accessibility and SEO
+                    </p>
+                  </div>
+                </div>
+
+                {/* Twitter Image */}
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <Label className="text-sm font-medium flex items-center gap-2">
+                      <Twitter className="w-4 h-4 text-sky-500" />
+                      Twitter Card Image
+                    </Label>
+                    <div className="flex gap-1">
+                      <Button
+                        variant={twitterImageMode === 'upload' ? 'default' : 'ghost'}
+                        size="sm"
+                        className="h-6 px-2 text-xs"
+                        onClick={() => setTwitterImageMode('upload')}
+                      >
+                        <Upload className="w-3 h-3" />
+                      </Button>
+                      <Button
+                        variant={twitterImageMode === 'url' ? 'default' : 'ghost'}
+                        size="sm"
+                        className="h-6 px-2 text-xs"
+                        onClick={() => setTwitterImageMode('url')}
+                      >
+                        <LinkIcon className="w-3 h-3" />
+                      </Button>
+                    </div>
+                  </div>
+                  <div className="p-4 bg-gray-50 rounded-xl border border-gray-100">
+                    <div className="aspect-[1200/600] rounded-lg bg-white border border-gray-200 overflow-hidden mb-3 relative group">
+                      {settings.twitterImage ? (
+                        <>
+                          <Image 
+                            src={settings.twitterImage} 
+                            alt="Twitter Image Preview" 
+                            width={400} 
+                            height={200} 
+                            className="w-full h-full object-cover" 
+                          />
+                          <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                            <Button
+                              variant="secondary"
+                              size="sm"
+                              className="gap-1"
+                              onClick={() => twitterImageRef.current?.click()}
+                              disabled={isUploadingTwitterImage}
+                            >
+                              {isUploadingTwitterImage ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+                              Replace
+                            </Button>
+                            <Button
+                              variant="destructive"
+                              size="sm"
+                              onClick={() => updateSetting('twitterImage', '/twitter-image.svg')}
+                            >
+                              Reset
+                            </Button>
+                          </div>
+                        </>
+                      ) : (
+                        <div className="w-full h-full flex flex-col items-center justify-center text-gray-400">
+                          <ImageIcon className="w-12 h-12 mb-2" />
+                          <span className="text-sm">1200 x 600px recommended</span>
+                        </div>
+                      )}
+                    </div>
+                    {twitterImageMode === 'upload' ? (
+                      <>
+                        <input
+                          ref={twitterImageRef}
+                          type="file"
+                          accept=".png,.jpg,.jpeg,.webp,.svg,image/png,image/jpeg,image/webp,image/svg+xml"
+                          className="hidden"
+                          onChange={(e) => handleSeoAssetUpload(e, 'twitterImage', setIsUploadingTwitterImage, twitterImageRef)}
+                        />
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="w-full gap-2 mb-2"
+                          disabled={isUploadingTwitterImage}
+                          onClick={() => twitterImageRef.current?.click()}
+                        >
+                          {isUploadingTwitterImage ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+                          {isUploadingTwitterImage ? 'Uploading...' : 'Upload Image'}
+                        </Button>
+                      </>
+                    ) : (
+                      <Input
+                        value={settings.twitterImage || ''}
+                        onChange={(e) => updateSetting('twitterImage', e.target.value)}
+                        placeholder="/twitter-image.svg"
+                        className="mb-2"
+                      />
+                    )}
+                    <div className="flex items-center gap-2">
+                      <span className="text-gray-400 font-medium">@</span>
+                      <Input
+                        value={(settings.twitterHandle || '').replace('@', '')}
+                        onChange={(e) => updateSetting('twitterHandle', '@' + e.target.value.replace('@', ''))}
+                        placeholder="momostation"
+                        className="flex-1"
+                      />
+                    </div>
+                    <p className="text-xs text-gray-500 mt-2 flex items-center gap-1">
+                      <AtSign className="w-3 h-3" />
+                      Twitter handle for card attribution
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Social Preview */}
+              <div className="mt-4 pt-4 border-t border-gray-100">
+                <Label className="text-sm font-medium text-gray-700 mb-3 block">Facebook Share Preview</Label>
+                <div className="max-w-md mx-auto">
+                  <div className="bg-white rounded-lg border border-gray-200 overflow-hidden shadow-sm">
+                    <div className="aspect-[1200/630] bg-gray-100">
+                      {settings.ogImage ? (
+                        <Image 
+                          src={settings.ogImage} 
+                          alt="OG Preview" 
+                          width={400} 
+                          height={210} 
+                          className="w-full h-full object-cover" 
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/20 to-orange-100">
+                          <div className="text-center">
+                            <Utensils className="w-16 h-16 text-primary/50 mx-auto mb-2" />
+                            <span className="text-primary/70 font-heading text-xl">MO:MO Station</span>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                    <div className="p-3">
+                      <p className="text-xs text-gray-500 uppercase tracking-wide">
+                        {(settings.siteUrl || 'https://momostation.com').replace(/^https?:\/\//, '')}
+                      </p>
+                      <p className="font-semibold text-sm text-gray-900 mt-1 line-clamp-2">
+                        {settings.siteTitle || 'MO:MO Station | Authentic Nepali Dumplings'}
+                      </p>
+                      <p className="text-xs text-gray-500 mt-1 line-clamp-2">
+                        {settings.siteDescription || 'Experience authentic Nepali momos made fresh daily...'}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex justify-end pt-4 border-t border-gray-100">
+                <Button
+                  onClick={handleSave}
+                  disabled={!hasChanges || isSaving}
+                  className="bg-primary hover:bg-primary/90 gap-2"
+                >
+                  {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                  Save Changes
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          
+          
         </TabsContent>
       </Tabs>
     </div>

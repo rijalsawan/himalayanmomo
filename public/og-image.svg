@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630">
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FDF8F3"/>
+      <stop offset="50%" style="stop-color:#FFF5E6"/>
+      <stop offset="100%" style="stop-color:#FFE8D6"/>
+    </linearGradient>
+    <linearGradient id="accentGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#E85D04"/>
+      <stop offset="100%" style="stop-color:#D94F04"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="1200" height="630" fill="url(#bgGradient)"/>
+  
+  <!-- Decorative pattern -->
+  <g opacity="0.05">
+    <circle cx="100" cy="100" r="200" fill="#E85D04"/>
+    <circle cx="1100" cy="530" r="250" fill="#E85D04"/>
+  </g>
+  
+  <!-- Top accent bar -->
+  <rect x="0" y="0" width="1200" height="8" fill="url(#accentGradient)"/>
+  
+  <!-- Logo area -->
+  <g transform="translate(600, 200)">
+    <!-- Momo icon large -->
+    <circle cx="0" cy="0" r="80" fill="url(#accentGradient)"/>
+    <ellipse cx="0" cy="5" rx="45" ry="28" fill="#FFF5E6"/>
+    <path d="M-30,-8 Q-22,-20 -14,-10 Q-6,-20 2,-10 Q10,-20 18,-10 Q26,-20 34,-8" 
+          fill="none" stroke="#E8D5C4" stroke-width="3" stroke-linecap="round"/>
+    <g fill="none" stroke="#FFF" stroke-width="2.5" stroke-linecap="round" opacity="0.9">
+      <path d="M-14,-22 Q-12,-32 -16,-42"/>
+      <path d="M0,-26 Q2,-36 -2,-46"/>
+      <path d="M14,-22 Q16,-32 12,-42"/>
+    </g>
+  </g>
+  
+  <!-- Brand name -->
+  <text x="600" y="340" 
+        font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" 
+        font-size="72" 
+        font-weight="800" 
+        fill="#1A1A1A" 
+        text-anchor="middle">MO:MO Station</text>
+  
+  <!-- Tagline -->
+  <text x="600" y="400" 
+        font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" 
+        font-size="28" 
+        font-weight="500" 
+        fill="#666666" 
+        text-anchor="middle">Authentic Nepali Dumplings</text>
+  
+  <!-- CTA style decoration -->
+  <g transform="translate(600, 480)">
+    <rect x="-140" y="-25" width="280" height="50" rx="25" fill="url(#accentGradient)"/>
+    <text x="0" y="8" 
+          font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" 
+          font-size="20" 
+          font-weight="600" 
+          fill="#FFFFFF" 
+          text-anchor="middle">Order Online Today</text>
+  </g>
+  
+  <!-- Corner accents -->
+  <g fill="#E85D04" opacity="0.1">
+    <path d="M0,0 L0,150 Q0,0 150,0 Z"/>
+    <path d="M1200,630 L1200,480 Q1200,630 1050,630 Z"/>
+  </g>
+</svg>
