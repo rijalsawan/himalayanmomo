@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useState, useCallback, ReactNode } from 'react';
+import { createContext, useContext, useState, useCallback, useEffect, ReactNode } from 'react';
 import { useSession } from 'next-auth/react';
 
 // Define a minimal MenuItem interface that works with both static and DB items
@@ -40,11 +40,41 @@ interface CartContextType {
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
+const CART_STORAGE_KEY = 'momo-cart';
+
 export function CartProvider({ children }: { children: ReactNode }) {
   const { data: session, status } = useSession();
   const [items, setItems] = useState<CartItem[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const [isAuthPromptOpen, setIsAuthPromptOpen] = useState(false);
+  const [isHydrated, setIsHydrated] = useState(false);
+
+  // Load cart from localStorage on mount
+  useEffect(() => {
+    try {
+      const savedCart = localStorage.getItem(CART_STORAGE_KEY);
+      if (savedCart) {
+        const parsedCart = JSON.parse(savedCart);
+        if (Array.isArray(parsedCart)) {
+          setItems(parsedCart);
+        }
+      }
+    } catch (error) {
+      console.error('Error loading cart from localStorage:', error);
+    }
+    setIsHydrated(true);
+  }, []);
+
+  // Save cart to localStorage whenever items change
+  useEffect(() => {
+    if (isHydrated) {
+      try {
+        localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(items));
+      } catch (error) {
+        console.error('Error saving cart to localStorage:', error);
+      }
+    }
+  }, [items, isHydrated]);
 
   const openCart = useCallback(() => setIsOpen(true), []);
   const closeCart = useCallback(() => setIsOpen(false), []);
@@ -67,7 +97,6 @@ export function CartProvider({ children }: { children: ReactNode }) {
       }
       return [...prev, { ...item, quantity: 1 }];
     });
-    setIsOpen(true);
   }, [session, status]);
 
   const removeItem = useCallback((itemId: string) => {
@@ -86,6 +115,11 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const clearCart = useCallback(() => {
     setItems([]);
+    try {
+      localStorage.removeItem(CART_STORAGE_KEY);
+    } catch (error) {
+      console.error('Error clearing cart from localStorage:', error);
+    }
   }, []);
 
   const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);

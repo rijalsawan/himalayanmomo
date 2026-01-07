@@ -22,15 +22,15 @@ import {
   Plus,
   Trash2,
   AlertCircle,
-  CheckCircle2,
   Lock,
   Shield,
   Loader2,
+  ChevronRight,
+  Package,
 } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { useCart } from '../context/CartContext';
 import Navbar from '../components/Navbar';
@@ -64,22 +64,89 @@ const steps = [
   { id: 2, title: 'Review & Pay', icon: CreditCard },
 ];
 
+// Loading skeleton component
+const LoadingSkeleton = () => (
+  <div className="min-h-screen bg-[#FDF8F3]">
+    <Navbar />
+    <main className="pt-20">
+      <div className="bg-white border-b border-gray-100">
+        <div className="container-custom py-4">
+          <div className="h-4 w-32 bg-gray-200 rounded animate-pulse" />
+        </div>
+      </div>
+      <div className="container-custom py-6 sm:py-8 lg:py-12">
+        <div className="grid lg:grid-cols-3 gap-6 lg:gap-8">
+          <div className="lg:col-span-2 space-y-6">
+            <div className="h-8 w-48 bg-gray-200 rounded animate-pulse" />
+            <div className="bg-white rounded-xl p-6 space-y-4">
+              <div className="h-6 w-40 bg-gray-200 rounded animate-pulse" />
+              <div className="grid grid-cols-2 gap-4">
+                <div className="h-12 bg-gray-200 rounded animate-pulse" />
+                <div className="h-12 bg-gray-200 rounded animate-pulse" />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="h-12 bg-gray-200 rounded animate-pulse" />
+                <div className="h-12 bg-gray-200 rounded animate-pulse" />
+              </div>
+            </div>
+          </div>
+          <div className="bg-white rounded-xl p-6 h-fit">
+            <div className="space-y-4">
+              <div className="h-6 w-32 bg-gray-200 rounded animate-pulse" />
+              <div className="h-20 bg-gray-100 rounded animate-pulse" />
+              <div className="h-20 bg-gray-100 rounded animate-pulse" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+    <Footer />
+  </div>
+);
+
+// Empty cart component
+const EmptyCart = () => (
+  <div className="min-h-screen bg-[#FDF8F3]">
+    <Navbar />
+    <main className="pt-20">
+      <div className="container-custom py-12 sm:py-16 lg:py-20">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-center max-w-md mx-auto"
+        >
+          <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-6">
+            <ShoppingBag className="w-10 h-10 sm:w-12 sm:h-12 text-gray-300" />
+          </div>
+          <h1 className="font-heading text-2xl sm:text-3xl font-bold text-gray-900 mb-3">
+            Your cart is empty
+          </h1>
+          <p className="text-gray-500 mb-8">
+            Add some delicious momos to your cart before checking out!
+          </p>
+          <Button asChild size="lg" className="bg-primary hover:bg-primary/90">
+            <Link href="/menu">
+              Browse Menu
+              <ArrowRight className="w-4 h-4 ml-2" />
+            </Link>
+          </Button>
+        </motion.div>
+      </div>
+    </main>
+    <Footer />
+  </div>
+);
+
 export default function CheckoutPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const {
-    items,
-    totalItems,
-    subtotal,
-    updateQuantity,
-    removeItem,
-  } = useCart();
+  const { items, totalItems, subtotal, updateQuantity, removeItem } = useCart();
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
   const [touched, setTouched] = useState<Record<string, boolean>>({});
+  const [submitAttempted, setSubmitAttempted] = useState(false);
 
-  // Redirect to login if not authenticated
   useEffect(() => {
     if (status === 'unauthenticated') {
       router.push('/login?callbackUrl=/checkout');
@@ -103,37 +170,26 @@ export default function CheckoutPage() {
   const tax = subtotal * 0.08;
   const total = subtotal + deliveryFee + tax;
 
-  // Validation functions
-  const validateEmail = (email: string) => {
-    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return regex.test(email);
-  };
+  const validateEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  const validatePhone = (phone: string) => /^[\d\s\-\+\(\)]{10,}$/.test(phone);
 
-  const validatePhone = (phone: string) => {
-    const regex = /^[\d\s\-\+\(\)]{10,}$/;
-    return regex.test(phone);
-  };
-
-  const validateStep = (step: number): boolean => {
+  const validateStep = (): boolean => {
     const newErrors: FormErrors = {};
-
-    if (step === 1) {
-      if (!formData.firstName.trim()) newErrors.firstName = 'First name is required';
-      if (!formData.lastName.trim()) newErrors.lastName = 'Last name is required';
-      if (!formData.email.trim()) {
-        newErrors.email = 'Email is required';
-      } else if (!validateEmail(formData.email)) {
-        newErrors.email = 'Please enter a valid email';
-      }
-      if (!formData.phone.trim()) {
-        newErrors.phone = 'Phone number is required';
-      } else if (!validatePhone(formData.phone)) {
-        newErrors.phone = 'Please enter a valid phone number';
-      }
-      if (!formData.address.trim()) newErrors.address = 'Address is required';
-      if (!formData.city.trim()) newErrors.city = 'City is required';
-      if (!formData.zipCode.trim()) newErrors.zipCode = 'ZIP code is required';
+    if (!formData.firstName.trim()) newErrors.firstName = 'First name is required';
+    if (!formData.lastName.trim()) newErrors.lastName = 'Last name is required';
+    if (!formData.email.trim()) {
+      newErrors.email = 'Email is required';
+    } else if (!validateEmail(formData.email)) {
+      newErrors.email = 'Please enter a valid email';
     }
+    if (!formData.phone.trim()) {
+      newErrors.phone = 'Phone number is required';
+    } else if (!validatePhone(formData.phone)) {
+      newErrors.phone = 'Please enter a valid phone number';
+    }
+    if (!formData.address.trim()) newErrors.address = 'Address is required';
+    if (!formData.city.trim()) newErrors.city = 'City is required';
+    if (!formData.zipCode.trim()) newErrors.zipCode = 'ZIP code is required';
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -141,8 +197,6 @@ export default function CheckoutPage() {
 
   const handleInputChange = (field: keyof FormData, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
-    
-    // Clear error when user starts typing
     if (errors[field as keyof FormErrors]) {
       setErrors((prev) => ({ ...prev, [field]: undefined }));
     }
@@ -152,19 +206,44 @@ export default function CheckoutPage() {
     setTouched((prev) => ({ ...prev, [field]: true }));
   };
 
-  const nextStep = () => {
-    if (validateStep(currentStep)) {
-      setCurrentStep((prev) => Math.min(prev + 1, 2));
+  const handleFocus = (field: keyof FormErrors) => {
+    if (errors[field]) {
+      setErrors((prev) => ({ ...prev, [field]: undefined }));
     }
   };
 
-  const prevStep = () => {
-    setCurrentStep((prev) => Math.max(prev - 1, 1));
+  const nextStep = () => {
+    setSubmitAttempted(true);
+    setTouched({
+      firstName: true,
+      lastName: true,
+      email: true,
+      phone: true,
+      address: true,
+      city: true,
+      zipCode: true,
+    });
+
+    if (validateStep()) {
+      setSubmitAttempted(false);
+      setCurrentStep(2);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+      const firstErrorField = Object.keys(errors)[0];
+      if (firstErrorField) {
+        setTimeout(() => {
+          const element = document.querySelector(`[name="${firstErrorField}"]`) as HTMLInputElement;
+          element?.focus();
+          element?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 100);
+      }
+    }
   };
 
-  const handleStripeCheckout = async () => {
-    if (!validateStep(1)) return;
+  const prevStep = () => setCurrentStep(1);
 
+  const handleStripeCheckout = async () => {
+    if (!validateStep()) return;
     setIsSubmitting(true);
 
     try {
@@ -172,7 +251,7 @@ export default function CheckoutPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          items: items.map(item => ({
+          items: items.map((item) => ({
             name: item.name,
             price: item.price,
             quantity: item.quantity,
@@ -190,16 +269,9 @@ export default function CheckoutPage() {
         }),
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to create checkout session');
-      }
-
+      if (!response.ok) throw new Error('Failed to create checkout session');
       const { url } = await response.json();
-      
-      // Redirect to Stripe Checkout
-      if (url) {
-        window.location.href = url;
-      }
+      if (url) window.location.href = url;
     } catch (error) {
       console.error('Error creating checkout session:', error);
       alert('Failed to initiate payment. Please try again.');
@@ -208,200 +280,137 @@ export default function CheckoutPage() {
     }
   };
 
-  // Loading state while checking authentication
-  if (status === 'loading') {
-    return (
-      <>
-        <Navbar />
-        <main className="min-h-screen bg-[#FDF8F3] pt-20 flex items-center justify-center">
-          <div className="text-center">
-            <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-            <p className="text-gray-500">Loading...</p>
-          </div>
-        </main>
-        <Footer />
-      </>
-    );
-  }
+  if (status === 'loading') return <LoadingSkeleton />;
+  if (items.length === 0) return <EmptyCart />;
 
-  // Empty cart check
-  if (items.length === 0) {
-    return (
-      <>
-        <Navbar />
-        <main className="min-h-screen bg-[#FDF8F3] pt-20">
-          <div className="container-custom py-20">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="text-center max-w-md mx-auto"
-            >
-              <div className="w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-6">
-                <ShoppingBag className="w-12 h-12 text-primary/40" />
-              </div>
-              <h1 className="font-playfair text-2xl font-bold text-gray-800 mb-4">
-                Your cart is empty
-              </h1>
-              <p className="text-gray-500 mb-8">
-                Add some delicious momos to your cart before checking out!
-              </p>
-              <Button
-                asChild
-                className="bg-primary hover:bg-[#B8420A] text-white"
-              >
-                <Link href="/menu">
-                  Browse Menu
-                  <ArrowRight className="w-4 h-4 ml-2" />
-                </Link>
-              </Button>
-            </motion.div>
-          </div>
-        </main>
-        <Footer />
-      </>
-    );
-  }
+  const showError = (field: keyof FormErrors) =>
+    errors[field] && (touched[field] || submitAttempted);
 
   return (
-    <>
+    <div className="min-h-screen bg-[#FDF8F3]">
       <Navbar />
 
-      <main className="min-h-screen bg-[#FDF8F3] pt-20">
-        {/* Header */}
-        <section className="bg-white border-b border-gray-100">
-          <div className="container-custom py-8">
-            <Link
-              href="/menu"
-              className="inline-flex items-center text-gray-600 hover:text-primary transition-colors mb-6"
-            >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Menu
-            </Link>
+      <main className="pt-20">
+        {/* Breadcrumb */}
+        <div className="bg-white border-b border-gray-100">
+          <div className="container-custom py-3 sm:py-4">
+            <nav className="flex items-center gap-2 text-sm text-gray-500">
+              <Link href="/menu" className="hover:text-primary transition-colors">
+                Menu
+              </Link>
+              <ChevronRight className="w-4 h-4" />
+              <span className="text-gray-900 font-medium">Checkout</span>
+            </nav>
+          </div>
+        </div>
 
-            <h1 className="font-playfair text-3xl md:text-4xl font-bold text-gray-800">
+        <div className="container-custom py-6 sm:py-8 lg:py-12">
+          {/* Page Header */}
+          <div className="mb-6 sm:mb-8">
+            <h1 className="font-heading text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-2">
               Checkout
             </h1>
-
-            {/* Progress Steps */}
-            <div className="flex items-center justify-center mt-8">
+            {/* Progress Steps - Pill Style */}
+            <div className="flex items-center gap-2 mt-4 sm:mt-6">
               {steps.map((step, index) => {
-                const Icon = step.icon;
                 const isActive = currentStep === step.id;
                 const isComplete = currentStep > step.id;
 
                 return (
-                  <div key={step.id} className="flex items-center">
-                    <motion.div
-                      animate={{
-                        scale: isActive ? 1.1 : 1,
-                      }}
-                      className={`flex items-center justify-center w-12 h-12 rounded-full border-2 transition-colors ${
+                  <div key={step.id} className="flex items-center gap-2">
+                    <button
+                      onClick={() => isComplete && setCurrentStep(step.id)}
+                      disabled={!isComplete}
+                      className={`flex items-center gap-2 px-3 sm:px-4 py-2 rounded-full text-sm font-medium transition-all ${
                         isComplete
-                          ? 'bg-[#2D6A4F] border-[#2D6A4F] text-white'
+                          ? 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200 cursor-pointer'
                           : isActive
-                          ? 'bg-primary border-primary text-white'
-                          : 'bg-white border-gray-200 text-gray-400'
+                          ? 'bg-primary text-white'
+                          : 'bg-gray-100 text-gray-400'
                       }`}
                     >
                       {isComplete ? (
-                        <Check className="w-5 h-5" />
+                        <Check className="w-4 h-4" />
                       ) : (
-                        <Icon className="w-5 h-5" />
+                        <step.icon className="w-4 h-4" />
                       )}
-                    </motion.div>
-                    <span
-                      className={`ml-3 font-medium hidden sm:block ${
-                        isActive ? 'text-gray-800' : 'text-gray-400'
-                      }`}
-                    >
-                      {step.title}
-                    </span>
+                      <span className="hidden sm:inline">{step.title}</span>
+                      <span className="sm:hidden">{step.id}</span>
+                    </button>
                     {index < steps.length - 1 && (
-                      <div
-                        className={`w-12 md:w-24 h-0.5 mx-4 transition-colors ${
-                          isComplete ? 'bg-[#2D6A4F]' : 'bg-gray-200'
-                        }`}
-                      />
+                      <div className={`w-8 sm:w-12 h-0.5 ${isComplete ? 'bg-emerald-300' : 'bg-gray-200'}`} />
                     )}
                   </div>
                 );
               })}
             </div>
           </div>
-        </section>
 
-        {/* Main Content */}
-        <section className="section-padding">
-          <div className="container-custom">
-            <div className="grid lg:grid-cols-3 gap-8">
-              {/* Form Section */}
-              <div className="lg:col-span-2">
-                <AnimatePresence mode="wait">
-                  {/* Step 1: Delivery Information */}
-                  {currentStep === 1 && (
-                    <motion.div
-                      key="step1"
-                      initial={{ opacity: 0, x: 20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: -20 }}
-                      transition={{ duration: 0.3 }}
-                    >
-                      <Card className="border-0 shadow-lg">
-                        <CardHeader>
-                          <CardTitle className="font-playfair flex items-center gap-2">
-                            <MapPin className="w-5 h-5 text-primary" />
+          <div className="grid lg:grid-cols-3 gap-6 lg:gap-8">
+            {/* Main Content */}
+            <div className="lg:col-span-2">
+              <AnimatePresence mode="wait">
+                {/* Step 1: Delivery Information */}
+                {currentStep === 1 && (
+                  <motion.div
+                    key="step1"
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    transition={{ duration: 0.2 }}
+                    className="space-y-4 sm:space-y-6"
+                  >
+                    {/* Delivery Form Card */}
+                    <Card className="border border-gray-200 shadow-sm">
+                      <CardContent className="p-4 sm:p-6">
+                        <div className="flex items-center gap-2 mb-5">
+                          <MapPin className="w-5 h-5 text-primary" />
+                          <h2 className="font-heading text-lg font-semibold text-gray-900">
                             Delivery Information
-                          </CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-6">
-                          {/* Name */}
+                          </h2>
+                        </div>
+
+                        <div className="space-y-4">
+                          {/* Name Fields */}
                           <div className="grid sm:grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                              <label className="text-sm font-medium text-gray-700">
-                                First Name *
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                                First Name <span className="text-red-500">*</span>
                               </label>
                               <div className="relative">
                                 <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                                 <Input
+                                  name="firstName"
                                   placeholder="John"
                                   value={formData.firstName}
-                                  onChange={(e) =>
-                                    handleInputChange('firstName', e.target.value)
-                                  }
+                                  onChange={(e) => handleInputChange('firstName', e.target.value)}
+                                  onFocus={() => handleFocus('firstName')}
                                   onBlur={() => handleBlur('firstName')}
-                                  className={`pl-10 ${
-                                    errors.firstName && touched.firstName
-                                      ? 'border-red-500 focus:border-red-500 focus:ring-red-500'
-                                      : ''
-                                  }`}
+                                  className={`pl-10 h-11 ${showError('firstName') ? 'border-red-400 bg-red-50/50' : 'border-gray-200'}`}
                                 />
                               </div>
-                              {errors.firstName && touched.firstName && (
-                                <p className="text-red-500 text-xs flex items-center gap-1">
+                              {showError('firstName') && (
+                                <p className="text-red-500 text-xs mt-1 flex items-center gap-1">
                                   <AlertCircle className="w-3 h-3" />
                                   {errors.firstName}
                                 </p>
                               )}
                             </div>
-                            <div className="space-y-2">
-                              <label className="text-sm font-medium text-gray-700">
-                                Last Name *
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                                Last Name <span className="text-red-500">*</span>
                               </label>
                               <Input
+                                name="lastName"
                                 placeholder="Doe"
                                 value={formData.lastName}
-                                onChange={(e) =>
-                                  handleInputChange('lastName', e.target.value)
-                                }
+                                onChange={(e) => handleInputChange('lastName', e.target.value)}
+                                onFocus={() => handleFocus('lastName')}
                                 onBlur={() => handleBlur('lastName')}
-                                className={
-                                  errors.lastName && touched.lastName
-                                    ? 'border-red-500'
-                                    : ''
-                                }
+                                className={`h-11 ${showError('lastName') ? 'border-red-400 bg-red-50/50' : 'border-gray-200'}`}
                               />
-                              {errors.lastName && touched.lastName && (
-                                <p className="text-red-500 text-xs flex items-center gap-1">
+                              {showError('lastName') && (
+                                <p className="text-red-500 text-xs mt-1 flex items-center gap-1">
                                   <AlertCircle className="w-3 h-3" />
                                   {errors.lastName}
                                 </p>
@@ -409,59 +418,51 @@ export default function CheckoutPage() {
                             </div>
                           </div>
 
-                          {/* Contact */}
+                          {/* Contact Fields */}
                           <div className="grid sm:grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                              <label className="text-sm font-medium text-gray-700">
-                                Email *
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                                Email <span className="text-red-500">*</span>
                               </label>
                               <div className="relative">
                                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                                 <Input
+                                  name="email"
                                   type="email"
                                   placeholder="john@example.com"
                                   value={formData.email}
-                                  onChange={(e) =>
-                                    handleInputChange('email', e.target.value)
-                                  }
+                                  onChange={(e) => handleInputChange('email', e.target.value)}
+                                  onFocus={() => handleFocus('email')}
                                   onBlur={() => handleBlur('email')}
-                                  className={`pl-10 ${
-                                    errors.email && touched.email
-                                      ? 'border-red-500'
-                                      : ''
-                                  }`}
+                                  className={`pl-10 h-11 ${showError('email') ? 'border-red-400 bg-red-50/50' : 'border-gray-200'}`}
                                 />
                               </div>
-                              {errors.email && touched.email && (
-                                <p className="text-red-500 text-xs flex items-center gap-1">
+                              {showError('email') && (
+                                <p className="text-red-500 text-xs mt-1 flex items-center gap-1">
                                   <AlertCircle className="w-3 h-3" />
                                   {errors.email}
                                 </p>
                               )}
                             </div>
-                            <div className="space-y-2">
-                              <label className="text-sm font-medium text-gray-700">
-                                Phone *
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                                Phone <span className="text-red-500">*</span>
                               </label>
                               <div className="relative">
                                 <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                                 <Input
+                                  name="phone"
                                   type="tel"
                                   placeholder="(555) 123-4567"
                                   value={formData.phone}
-                                  onChange={(e) =>
-                                    handleInputChange('phone', e.target.value)
-                                  }
+                                  onChange={(e) => handleInputChange('phone', e.target.value)}
+                                  onFocus={() => handleFocus('phone')}
                                   onBlur={() => handleBlur('phone')}
-                                  className={`pl-10 ${
-                                    errors.phone && touched.phone
-                                      ? 'border-red-500'
-                                      : ''
-                                  }`}
+                                  className={`pl-10 h-11 ${showError('phone') ? 'border-red-400 bg-red-50/50' : 'border-gray-200'}`}
                                 />
                               </div>
-                              {errors.phone && touched.phone && (
-                                <p className="text-red-500 text-xs flex items-center gap-1">
+                              {showError('phone') && (
+                                <p className="text-red-500 text-xs mt-1 flex items-center gap-1">
                                   <AlertCircle className="w-3 h-3" />
                                   {errors.phone}
                                 </p>
@@ -470,98 +471,86 @@ export default function CheckoutPage() {
                           </div>
 
                           {/* Address */}
-                          <div className="space-y-2">
-                            <label className="text-sm font-medium text-gray-700">
-                              Street Address *
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                              Street Address <span className="text-red-500">*</span>
                             </label>
                             <div className="relative">
                               <Home className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                               <Input
+                                name="address"
                                 placeholder="123 Main Street"
                                 value={formData.address}
-                                onChange={(e) =>
-                                  handleInputChange('address', e.target.value)
-                                }
+                                onChange={(e) => handleInputChange('address', e.target.value)}
+                                onFocus={() => handleFocus('address')}
                                 onBlur={() => handleBlur('address')}
-                                className={`pl-10 ${
-                                  errors.address && touched.address
-                                    ? 'border-red-500'
-                                    : ''
-                                }`}
+                                className={`pl-10 h-11 ${showError('address') ? 'border-red-400 bg-red-50/50' : 'border-gray-200'}`}
                               />
                             </div>
-                            {errors.address && touched.address && (
-                              <p className="text-red-500 text-xs flex items-center gap-1">
+                            {showError('address') && (
+                              <p className="text-red-500 text-xs mt-1 flex items-center gap-1">
                                 <AlertCircle className="w-3 h-3" />
                                 {errors.address}
                               </p>
                             )}
                           </div>
 
+                          {/* Apartment */}
                           <Input
                             placeholder="Apartment, suite, etc. (optional)"
                             value={formData.apartment}
-                            onChange={(e) =>
-                              handleInputChange('apartment', e.target.value)
-                            }
+                            onChange={(e) => handleInputChange('apartment', e.target.value)}
+                            className="h-11 border-gray-200"
                           />
 
-                          <div className="grid sm:grid-cols-3 gap-4">
-                            <div className="space-y-2">
-                              <label className="text-sm font-medium text-gray-700">
-                                City *
+                          {/* City, State, ZIP */}
+                          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                            <div className="col-span-2 sm:col-span-1">
+                              <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                                City <span className="text-red-500">*</span>
                               </label>
                               <Input
+                                name="city"
                                 placeholder="New York"
                                 value={formData.city}
-                                onChange={(e) =>
-                                  handleInputChange('city', e.target.value)
-                                }
+                                onChange={(e) => handleInputChange('city', e.target.value)}
+                                onFocus={() => handleFocus('city')}
                                 onBlur={() => handleBlur('city')}
-                                className={
-                                  errors.city && touched.city
-                                    ? 'border-red-500'
-                                    : ''
-                                }
+                                className={`h-11 ${showError('city') ? 'border-red-400 bg-red-50/50' : 'border-gray-200'}`}
                               />
-                              {errors.city && touched.city && (
-                                <p className="text-red-500 text-xs flex items-center gap-1">
+                              {showError('city') && (
+                                <p className="text-red-500 text-xs mt-1 flex items-center gap-1">
                                   <AlertCircle className="w-3 h-3" />
                                   {errors.city}
                                 </p>
                               )}
                             </div>
-                            <div className="space-y-2">
-                              <label className="text-sm font-medium text-gray-700">
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-1.5">
                                 State
                               </label>
                               <Input
                                 placeholder="NY"
                                 value={formData.state}
-                                onChange={(e) =>
-                                  handleInputChange('state', e.target.value)
-                                }
+                                onChange={(e) => handleInputChange('state', e.target.value)}
+                                className="h-11 border-gray-200"
                               />
                             </div>
-                            <div className="space-y-2">
-                              <label className="text-sm font-medium text-gray-700">
-                                ZIP Code *
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                                ZIP <span className="text-red-500">*</span>
                               </label>
                               <Input
+                                name="zipCode"
                                 placeholder="10001"
                                 value={formData.zipCode}
-                                onChange={(e) =>
-                                  handleInputChange('zipCode', e.target.value)
-                                }
+                                onChange={(e) => handleInputChange('zipCode', e.target.value)}
+                                onFocus={() => handleFocus('zipCode')}
                                 onBlur={() => handleBlur('zipCode')}
-                                className={
-                                  errors.zipCode && touched.zipCode
-                                    ? 'border-red-500'
-                                    : ''
-                                }
+                                className={`h-11 ${showError('zipCode') ? 'border-red-400 bg-red-50/50' : 'border-gray-200'}`}
                               />
-                              {errors.zipCode && touched.zipCode && (
-                                <p className="text-red-500 text-xs flex items-center gap-1">
+                              {showError('zipCode') && (
+                                <p className="text-red-500 text-xs mt-1 flex items-center gap-1">
                                   <AlertCircle className="w-3 h-3" />
                                   {errors.zipCode}
                                 </p>
@@ -570,182 +559,200 @@ export default function CheckoutPage() {
                           </div>
 
                           {/* Delivery Instructions */}
-                          <div className="space-y-2">
-                            <label className="text-sm font-medium text-gray-700">
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1.5">
                               Delivery Instructions (optional)
                             </label>
                             <textarea
                               placeholder="Ring doorbell, leave at door, etc."
                               value={formData.deliveryInstructions}
-                              onChange={(e) =>
-                                handleInputChange(
-                                  'deliveryInstructions',
-                                  e.target.value
-                                )
-                              }
-                              className="w-full min-h-[80px] rounded-md border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary resize-none"
+                              onChange={(e) => handleInputChange('deliveryInstructions', e.target.value)}
+                              rows={3}
+                              className="w-full rounded-md border border-gray-200 px-3 py-2.5 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary resize-none"
                             />
                           </div>
-                        </CardContent>
-                      </Card>
-                    </motion.div>
-                  )}
+                        </div>
+                      </CardContent>
+                    </Card>
 
-                  {/* Step 2: Review & Pay */}
-                  {currentStep === 2 && (
-                    <motion.div
-                      key="step2"
-                      initial={{ opacity: 0, x: 20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: -20 }}
-                      transition={{ duration: 0.3 }}
-                      className="space-y-6"
-                    >
-                      {/* Order Review Card */}
-                      <Card className="border-0 shadow-lg">
-                        <CardHeader>
-                          <CardTitle className="font-playfair flex items-center gap-2">
-                            <Check className="w-5 h-5 text-primary" />
-                            Order Review
-                          </CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-6">
-                          {/* Delivery Address */}
-                          <div className="bg-gray-50 rounded-lg p-4">
-                            <div className="flex items-start gap-3">
-                              <MapPin className="w-5 h-5 text-primary shrink-0 mt-0.5" />
-                              <div>
-                                <p className="font-medium text-gray-800">
-                                  Delivery Address
-                                </p>
-                                <p className="text-sm text-gray-600 mt-1">
-                                  {formData.firstName} {formData.lastName}
-                                  <br />
-                                  {formData.address}
-                                  {formData.apartment && `, ${formData.apartment}`}
-                                  <br />
-                                  {formData.city}, {formData.state}{' '}
-                                  {formData.zipCode}
-                                </p>
-                              </div>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => setCurrentStep(1)}
-                                className="ml-auto text-primary hover:text-primary/80"
-                              >
-                                Edit
-                              </Button>
+                    {/* Error Summary */}
+                    <AnimatePresence>
+                      {submitAttempted && Object.keys(errors).length > 0 && (
+                        <motion.div
+                          initial={{ opacity: 0, y: -10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -10 }}
+                          className="bg-red-50 border border-red-200 rounded-xl p-4"
+                        >
+                          <div className="flex items-start gap-3">
+                            <AlertCircle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
+                            <div>
+                              <p className="font-medium text-red-700 text-sm">
+                                Please fix the following errors:
+                              </p>
+                              <ul className="mt-2 space-y-1">
+                                {Object.values(errors).map((error, index) => (
+                                  <li key={index} className="text-red-600 text-xs flex items-center gap-1">
+                                    <span className="w-1 h-1 bg-red-400 rounded-full" />
+                                    {error}
+                                  </li>
+                                ))}
+                              </ul>
                             </div>
                           </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
 
-                          {/* Contact */}
-                          <div className="bg-gray-50 rounded-lg p-4">
-                            <div className="flex items-start gap-3">
-                              <Phone className="w-5 h-5 text-primary shrink-0 mt-0.5" />
-                              <div>
-                                <p className="font-medium text-gray-800">
-                                  Contact Information
-                                </p>
-                                <p className="text-sm text-gray-600 mt-1">
-                                  {formData.email}
-                                  <br />
-                                  {formData.phone}
-                                </p>
-                              </div>
+                    {/* Navigation */}
+                    <div className="flex justify-between pt-2">
+                      <Button asChild variant="outline" className="border-gray-200">
+                        <Link href="/menu">
+                          <ArrowLeft className="w-4 h-4 mr-2" />
+                          Continue Shopping
+                        </Link>
+                      </Button>
+                      <Button onClick={nextStep} className="bg-primary hover:bg-primary/90">
+                        Review Order
+                        <ArrowRight className="w-4 h-4 ml-2" />
+                      </Button>
+                    </div>
+                  </motion.div>
+                )}
+
+                {/* Step 2: Review & Pay */}
+                {currentStep === 2 && (
+                  <motion.div
+                    key="step2"
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    transition={{ duration: 0.2 }}
+                    className="space-y-4 sm:space-y-6"
+                  >
+                    {/* Order Review Card */}
+                    <Card className="border border-gray-200 shadow-sm">
+                      <CardContent className="p-4 sm:p-6">
+                        <div className="flex items-center gap-2 mb-5">
+                          <Check className="w-5 h-5 text-emerald-600" />
+                          <h2 className="font-heading text-lg font-semibold text-gray-900">
+                            Order Review
+                          </h2>
+                        </div>
+
+                        <div className="space-y-4">
+                          {/* Delivery Address */}
+                          <div className="flex items-start gap-3 p-4 bg-gray-50 rounded-xl">
+                            <MapPin className="w-5 h-5 text-primary shrink-0 mt-0.5" />
+                            <div className="flex-1 min-w-0">
+                              <p className="font-medium text-gray-900 text-sm">Delivery Address</p>
+                              <p className="text-sm text-gray-600 mt-1">
+                                {formData.firstName} {formData.lastName}
+                                <br />
+                                {formData.address}
+                                {formData.apartment && `, ${formData.apartment}`}
+                                <br />
+                                {formData.city}, {formData.state} {formData.zipCode}
+                              </p>
+                            </div>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={prevStep}
+                              className="text-primary hover:text-primary/80 hover:bg-primary/10"
+                            >
+                              Edit
+                            </Button>
+                          </div>
+
+                          {/* Contact Info */}
+                          <div className="flex items-start gap-3 p-4 bg-gray-50 rounded-xl">
+                            <Phone className="w-5 h-5 text-primary shrink-0 mt-0.5" />
+                            <div className="flex-1 min-w-0">
+                              <p className="font-medium text-gray-900 text-sm">Contact Information</p>
+                              <p className="text-sm text-gray-600 mt-1">
+                                {formData.email}
+                                <br />
+                                {formData.phone}
+                              </p>
                             </div>
                           </div>
 
                           {/* Delivery Instructions */}
                           {formData.deliveryInstructions && (
-                            <div className="bg-gray-50 rounded-lg p-4">
-                              <div className="flex items-start gap-3">
-                                <Home className="w-5 h-5 text-primary shrink-0 mt-0.5" />
-                                <div>
-                                  <p className="font-medium text-gray-800">
-                                    Delivery Instructions
-                                  </p>
-                                  <p className="text-sm text-gray-600 mt-1">
-                                    {formData.deliveryInstructions}
-                                  </p>
-                                </div>
+                            <div className="flex items-start gap-3 p-4 bg-gray-50 rounded-xl">
+                              <Home className="w-5 h-5 text-primary shrink-0 mt-0.5" />
+                              <div className="flex-1 min-w-0">
+                                <p className="font-medium text-gray-900 text-sm">Delivery Instructions</p>
+                                <p className="text-sm text-gray-600 mt-1">{formData.deliveryInstructions}</p>
                               </div>
                             </div>
                           )}
 
                           {/* Estimated Time */}
-                          <div className="bg-primary/10 rounded-lg p-4">
-                            <div className="flex items-center gap-3">
-                              <Clock className="w-5 h-5 text-primary" />
-                              <div>
-                                <p className="font-medium text-gray-800">
-                                  Estimated Delivery Time
-                                </p>
-                                <p className="text-sm text-primary font-semibold">
-                                  30-45 minutes
-                                </p>
-                              </div>
+                          <div className="flex items-center gap-3 p-4 bg-emerald-50 border border-emerald-100 rounded-xl">
+                            <Clock className="w-5 h-5 text-emerald-600" />
+                            <div>
+                              <p className="font-medium text-gray-900 text-sm">Estimated Delivery</p>
+                              <p className="text-sm font-semibold text-emerald-700">30-45 minutes</p>
                             </div>
                           </div>
-                        </CardContent>
-                      </Card>
+                        </div>
+                      </CardContent>
+                    </Card>
 
-                      {/* Payment Card */}
-                      <Card className="border-0 shadow-lg overflow-hidden">
-                        <CardHeader className="bg-gradient-to-r from-[#1A1A1A] to-[#2D2D2D] text-white">
-                          <CardTitle className="font-playfair flex items-center gap-2">
-                            <Lock className="w-5 h-5" />
-                            Secure Payment
-                          </CardTitle>
-                        </CardHeader>
-                        <CardContent className="p-6 space-y-6">
+                    {/* Payment Card */}
+                    <Card className="border border-gray-200 shadow-sm overflow-hidden">
+                      <div className="bg-gray-900 px-4 sm:px-6 py-4">
+                        <div className="flex items-center gap-2 text-white">
+                          <Lock className="w-5 h-5" />
+                          <h2 className="font-heading text-lg font-semibold">Secure Payment</h2>
+                        </div>
+                      </div>
+                      <CardContent className="p-4 sm:p-6">
+                        <div className="space-y-5">
                           {/* Stripe Branding */}
-                          <div className="flex items-center justify-center gap-4 py-4">
-                            <div className="flex items-center gap-2 text-gray-600">
-                              <Shield className="w-5 h-5 text-[#2D6A4F]" />
-                              <span className="text-sm font-medium">Powered by</span>
-                            </div>
-                            <div className="flex items-center gap-1 text-[#635BFF] font-bold text-xl">
-                              <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                                <path d="M13.976 9.15c-2.172-.806-3.356-1.426-3.356-2.409 0-.831.683-1.305 1.901-1.305 2.227 0 4.515.858 6.09 1.631l.89-5.494C18.252.975 15.697 0 12.165 0 9.667 0 7.589.654 6.104 1.872 4.56 3.147 3.757 4.992 3.757 7.218c0 4.039 2.467 5.76 6.476 7.219 2.585.92 3.445 1.574 3.445 2.583 0 .98-.84 1.545-2.354 1.545-1.875 0-4.965-.921-6.99-2.109l-.9 5.555C5.175 22.99 8.385 24 11.714 24c2.641 0 4.843-.624 6.328-1.813 1.664-1.305 2.525-3.236 2.525-5.732 0-4.128-2.524-5.851-6.591-7.305z"/>
+                          <div className="flex items-center justify-center gap-3 py-3">
+                            <span className="text-sm text-gray-500">Powered by</span>
+                            <div className="flex items-center gap-1 text-[#635BFF] font-bold text-lg">
+                              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M13.976 9.15c-2.172-.806-3.356-1.426-3.356-2.409 0-.831.683-1.305 1.901-1.305 2.227 0 4.515.858 6.09 1.631l.89-5.494C18.252.975 15.697 0 12.165 0 9.667 0 7.589.654 6.104 1.872 4.56 3.147 3.757 4.992 3.757 7.218c0 4.039 2.467 5.76 6.476 7.219 2.585.92 3.445 1.574 3.445 2.583 0 .98-.84 1.545-2.354 1.545-1.875 0-4.965-.921-6.99-2.109l-.9 5.555C5.175 22.99 8.385 24 11.714 24c2.641 0 4.843-.624 6.328-1.813 1.664-1.305 2.525-3.236 2.525-5.732 0-4.128-2.524-5.851-6.591-7.305z" />
                               </svg>
                               <span>stripe</span>
                             </div>
                           </div>
 
                           {/* Card Icons */}
-                          <div className="flex items-center justify-center gap-3 py-2">
-                            <div className="bg-white border border-gray-200 rounded px-3 py-1.5">
-                              <svg width="40" height="24" viewBox="0 0 40 24" fill="none">
-                                <rect width="40" height="24" rx="4" fill="#1A1F71"/>
-                                <path d="M17 16.5l2.5-9h2l-2.5 9h-2zm10.5-9l-3.5 9h-2l1.75-4.25-2.25-4.75h2.25l1.25 3.25 1.5-3.25h2l-1 1zm-14.25 9l-.75-1h-3l-.5 1h-2l3.5-9h2l3 9h-2.25zm-2-3h2l-1-3-1 3z" fill="white"/>
+                          <div className="flex items-center justify-center gap-2">
+                            <div className="bg-white border border-gray-200 rounded px-2.5 py-1.5">
+                              <svg width="32" height="20" viewBox="0 0 40 24" fill="none">
+                                <rect width="40" height="24" rx="4" fill="#1A1F71" />
+                                <path d="M17 16.5l2.5-9h2l-2.5 9h-2zm10.5-9l-3.5 9h-2l1.75-4.25-2.25-4.75h2.25l1.25 3.25 1.5-3.25h2l-1 1zm-14.25 9l-.75-1h-3l-.5 1h-2l3.5-9h2l3 9h-2.25zm-2-3h2l-1-3-1 3z" fill="white" />
                               </svg>
                             </div>
-                            <div className="bg-white border border-gray-200 rounded px-3 py-1.5">
-                              <svg width="40" height="24" viewBox="0 0 40 24" fill="none">
-                                <rect width="40" height="24" rx="4" fill="#fff"/>
-                                <circle cx="15" cy="12" r="7" fill="#EB001B"/>
-                                <circle cx="25" cy="12" r="7" fill="#F79E1B"/>
-                                <path d="M20 6.5a6.98 6.98 0 012.5 5.5 6.98 6.98 0 01-2.5 5.5 6.98 6.98 0 01-2.5-5.5 6.98 6.98 0 012.5-5.5z" fill="#FF5F00"/>
+                            <div className="bg-white border border-gray-200 rounded px-2.5 py-1.5">
+                              <svg width="32" height="20" viewBox="0 0 40 24" fill="none">
+                                <rect width="40" height="24" rx="4" fill="#fff" />
+                                <circle cx="15" cy="12" r="7" fill="#EB001B" />
+                                <circle cx="25" cy="12" r="7" fill="#F79E1B" />
+                                <path d="M20 6.5a6.98 6.98 0 012.5 5.5 6.98 6.98 0 01-2.5 5.5 6.98 6.98 0 01-2.5-5.5 6.98 6.98 0 012.5-5.5z" fill="#FF5F00" />
                               </svg>
                             </div>
-                            <div className="bg-white border border-gray-200 rounded px-3 py-1.5">
-                              <svg width="40" height="24" viewBox="0 0 40 24" fill="none">
-                                <rect width="40" height="24" rx="4" fill="#006FCF"/>
-                                <path d="M20 5l7 7-7 7-7-7 7-7z" fill="#fff"/>
+                            <div className="bg-white border border-gray-200 rounded px-2.5 py-1.5">
+                              <svg width="32" height="20" viewBox="0 0 40 24" fill="none">
+                                <rect width="40" height="24" rx="4" fill="#006FCF" />
+                                <path d="M20 5l7 7-7 7-7-7 7-7z" fill="#fff" />
                               </svg>
                             </div>
                           </div>
 
-                          <Separator />
+                          <div className="h-px bg-gray-200" />
 
                           {/* Total */}
                           <div className="bg-gray-50 rounded-xl p-4">
                             <div className="flex justify-between items-center">
                               <span className="text-gray-600">Total to pay</span>
-                              <span className="text-2xl font-bold text-primary">
-                                ${total.toFixed(2)}
-                              </span>
+                              <span className="text-2xl font-bold text-primary">${total.toFixed(2)}</span>
                             </div>
                           </div>
 
@@ -753,176 +760,146 @@ export default function CheckoutPage() {
                           <Button
                             onClick={handleStripeCheckout}
                             disabled={isSubmitting}
-                            className="w-full bg-[#635BFF] hover:bg-[#5851DB] text-white py-6 text-lg font-semibold rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl"
+                            className="w-full h-12 sm:h-14 bg-[#635BFF] hover:bg-[#5851DB] text-white text-base sm:text-lg font-semibold rounded-xl"
                           >
                             {isSubmitting ? (
                               <div className="flex items-center gap-2">
                                 <Loader2 className="w-5 h-5 animate-spin" />
-                                <span>Processing...</span>
+                                Processing...
                               </div>
                             ) : (
                               <div className="flex items-center gap-2">
                                 <Lock className="w-5 h-5" />
-                                <span>Pay ${total.toFixed(2)} with Stripe</span>
+                                Pay ${total.toFixed(2)} with Stripe
                               </div>
                             )}
                           </Button>
 
                           {/* Security Note */}
                           <div className="flex items-center justify-center gap-2 text-xs text-gray-500">
-                            <Shield className="w-4 h-4 text-[#2D6A4F]" />
-                            <span>
-                              Your payment is secured with 256-bit SSL encryption
-                            </span>
+                            <Shield className="w-4 h-4 text-emerald-600" />
+                            <span>Your payment is secured with 256-bit SSL encryption</span>
                           </div>
-                        </CardContent>
-                      </Card>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
+                        </div>
+                      </CardContent>
+                    </Card>
 
-                {/* Navigation Buttons */}
-                <div className="flex justify-between mt-6">
-                  {currentStep > 1 ? (
-                    <Button
-                      variant="outline"
-                      onClick={prevStep}
-                      className="border-gray-200"
-                    >
-                      <ArrowLeft className="w-4 h-4 mr-2" />
-                      Back
-                    </Button>
-                  ) : (
-                    <Button
-                      asChild
-                      variant="outline"
-                      className="border-gray-200"
-                    >
-                      <Link href="/menu">
+                    {/* Back Button */}
+                    <div className="pt-2">
+                      <Button variant="outline" onClick={prevStep} className="border-gray-200">
                         <ArrowLeft className="w-4 h-4 mr-2" />
-                        Continue Shopping
-                      </Link>
-                    </Button>
-                  )}
-
-                  {currentStep === 1 && (
-                    <Button
-                      onClick={nextStep}
-                      className="bg-primary hover:bg-[#B8420A] text-white"
-                    >
-                      Review Order
-                      <ArrowRight className="w-4 h-4 ml-2" />
-                    </Button>
-                  )}
-                </div>
-              </div>
-
-              {/* Order Summary Sidebar */}
-              <div className="lg:col-span-1">
-                <Card className="border-0 shadow-lg sticky top-36">
-                  <CardHeader>
-                    <CardTitle className="font-playfair flex items-center justify-between">
-                      <span>Order Summary</span>
-                      <Badge variant="secondary">{totalItems} items</Badge>
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    {/* Items */}
-                    <div className="space-y-3 max-h-60 overflow-y-auto">
-                      {items.map((item) => (
-                        <motion.div
-                          key={item.id}
-                          layout
-                          className="flex gap-3 bg-gray-50 rounded-lg p-3"
-                        >
-                          <div className="relative w-14 h-14 rounded-lg overflow-hidden flex-shrink-0">
-                            <Image
-                              src={item.image}
-                              alt={item.name}
-                              fill
-                              className="object-cover"
-                            />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <h4 className="text-sm font-medium text-gray-800 truncate">
-                              {item.name}
-                            </h4>
-                            <p className="text-sm text-primary font-semibold">
-                              ${item.price.toFixed(2)}
-                            </p>
-                            <div className="flex items-center gap-2 mt-1">
-                              <button
-                                onClick={() =>
-                                  updateQuantity(item.id, item.quantity - 1)
-                                }
-                                className="w-6 h-6 rounded-full bg-white flex items-center justify-center hover:bg-gray-100"
-                              >
-                                <Minus className="w-3 h-3" />
-                              </button>
-                              <span className="text-sm font-medium w-4 text-center">
-                                {item.quantity}
-                              </span>
-                              <button
-                                onClick={() =>
-                                  updateQuantity(item.id, item.quantity + 1)
-                                }
-                                className="w-6 h-6 rounded-full bg-white flex items-center justify-center hover:bg-gray-100"
-                              >
-                                <Plus className="w-3 h-3" />
-                              </button>
-                              <button
-                                onClick={() => removeItem(item.id)}
-                                className="ml-auto text-gray-400 hover:text-red-500"
-                              >
-                                <Trash2 className="w-4 h-4" />
-                              </button>
-                            </div>
-                          </div>
-                        </motion.div>
-                      ))}
+                        Back to Delivery
+                      </Button>
                     </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
 
-                    <Separator />
+            {/* Order Summary Sidebar */}
+            <div className="lg:col-span-1">
+              <Card className="border border-gray-200 shadow-sm sticky top-28">
+                <CardContent className="p-4 sm:p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <h2 className="font-heading text-lg font-semibold text-gray-900">Order Summary</h2>
+                    <Badge variant="secondary" className="bg-gray-100 text-gray-700">
+                      {totalItems} {totalItems === 1 ? 'item' : 'items'}
+                    </Badge>
+                  </div>
 
-                    {/* Totals */}
-                    <div className="space-y-2">
-                      <div className="flex justify-between text-sm">
-                        <span className="text-gray-600">Subtotal</span>
-                        <span className="font-medium">${subtotal.toFixed(2)}</span>
-                      </div>
-                      <div className="flex justify-between text-sm">
-                        <span className="text-gray-600">Delivery</span>
-                        <span className="font-medium">
-                          {deliveryFee === 0 ? (
-                            <span className="text-[#2D6A4F]">FREE</span>
-                          ) : (
-                            `$${deliveryFee.toFixed(2)}`
-                          )}
-                        </span>
-                      </div>
-                      <div className="flex justify-between text-sm">
-                        <span className="text-gray-600">Tax</span>
-                        <span className="font-medium">${tax.toFixed(2)}</span>
-                      </div>
+                  {/* Items List */}
+                  <div className="space-y-3 max-h-60 overflow-y-auto mb-4">
+                    {items.map((item) => (
+                      <motion.div
+                        key={item.id}
+                        layout
+                        className="flex gap-3 p-3 bg-gray-50 rounded-xl"
+                      >
+                        <div className="relative w-14 h-14 rounded-lg overflow-hidden flex-shrink-0 bg-gray-200">
+                          <Image
+                            src={item.image}
+                            alt={item.name}
+                            fill
+                            className="object-cover"
+                          />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h4 className="text-sm font-medium text-gray-900 truncate">{item.name}</h4>
+                          <p className="text-sm font-semibold text-primary">${item.price.toFixed(2)}</p>
+                          <div className="flex items-center gap-2 mt-1.5">
+                            <button
+                              onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                              className="w-6 h-6 rounded-full bg-white border border-gray-200 flex items-center justify-center hover:bg-gray-100 transition-colors"
+                            >
+                              <Minus className="w-3 h-3" />
+                            </button>
+                            <span className="text-sm font-medium w-4 text-center">{item.quantity}</span>
+                            <button
+                              onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                              className="w-6 h-6 rounded-full bg-white border border-gray-200 flex items-center justify-center hover:bg-gray-100 transition-colors"
+                            >
+                              <Plus className="w-3 h-3" />
+                            </button>
+                            <button
+                              onClick={() => removeItem(item.id)}
+                              className="ml-auto text-gray-400 hover:text-red-500 transition-colors"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </div>
+                      </motion.div>
+                    ))}
+                  </div>
+
+                  <div className="h-px bg-gray-200 my-4" />
+
+                  {/* Totals */}
+                  <div className="space-y-2.5 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Subtotal</span>
+                      <span className="font-medium text-gray-900">${subtotal.toFixed(2)}</span>
                     </div>
-
-                    <Separator />
-
-                    <div className="flex justify-between items-center">
-                      <span className="font-semibold text-gray-800">Total</span>
-                      <span className="text-2xl font-bold text-primary">
-                        ${total.toFixed(2)}
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Delivery</span>
+                      <span className="font-medium">
+                        {deliveryFee === 0 ? (
+                          <span className="text-emerald-600">FREE</span>
+                        ) : (
+                          <span className="text-gray-900">${deliveryFee.toFixed(2)}</span>
+                        )}
                       </span>
                     </div>
-                  </CardContent>
-                </Card>
-              </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Tax</span>
+                      <span className="font-medium text-gray-900">${tax.toFixed(2)}</span>
+                    </div>
+                  </div>
+
+                  <div className="h-px bg-gray-200 my-4" />
+
+                  <div className="flex justify-between items-center">
+                    <span className="font-semibold text-gray-900">Total</span>
+                    <span className="text-xl sm:text-2xl font-bold text-primary">${total.toFixed(2)}</span>
+                  </div>
+
+                  {/* Free Delivery Notice */}
+                  {subtotal < 30 && (
+                    <div className="mt-4 p-3 bg-amber-50 border border-amber-100 rounded-xl">
+                      <p className="text-xs text-amber-700">
+                        <Package className="w-4 h-4 inline mr-1.5" />
+                        Add ${(30 - subtotal).toFixed(2)} more for free delivery!
+                      </p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
             </div>
           </div>
-        </section>
+        </div>
       </main>
 
       <Footer />
-    </>
+    </div>
   );
 }

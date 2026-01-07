@@ -1,7 +1,6 @@
 'use client';
 
-import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface PaginationProps {
@@ -34,11 +33,11 @@ export default function Pagination({
       }
     } else {
       if (currentPage <= 3) {
-        pages.push(1, 2, 3, 4, '...', totalPages);
+        pages.push(1, 2, 3, '...', totalPages);
       } else if (currentPage >= totalPages - 2) {
-        pages.push(1, '...', totalPages - 3, totalPages - 2, totalPages - 1, totalPages);
+        pages.push(1, '...', totalPages - 2, totalPages - 1, totalPages);
       } else {
-        pages.push(1, '...', currentPage - 1, currentPage, currentPage + 1, '...', totalPages);
+        pages.push(1, '...', currentPage, '...', totalPages);
       }
     }
     
@@ -46,61 +45,98 @@ export default function Pagination({
   };
 
   return (
-    <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-4 py-3 border-t border-gray-100">
-      {/* Items info */}
-      {totalItems !== undefined && (
-        <p className="text-xs sm:text-sm text-gray-500 order-2 sm:order-1">
-          Showing <span className="font-medium text-gray-700">{startItem}</span> to{' '}
-          <span className="font-medium text-gray-700">{endItem}</span> of{' '}
-          <span className="font-medium text-gray-700">{totalItems}</span>
-        </p>
-      )}
+    <div className="flex items-center justify-center px-6 py-4 border-t border-gray-100">
+      {/* Pill-style pagination controls */}
+      <div className="inline-flex items-center bg-gray-100/80 rounded-full p-1 gap-0.5">
+          {/* First page button */}
+          <button
+            onClick={() => onPageChange(1)}
+            disabled={currentPage === 1}
+            className={cn(
+              'flex items-center justify-center w-8 h-8 rounded-full transition-all duration-200',
+              'text-gray-500 hover:text-primary hover:bg-white hover:shadow-sm',
+              'disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-gray-500 disabled:hover:shadow-none',
+              'active:scale-95'
+            )}
+            title="First page"
+          >
+            <ChevronsLeft className="w-4 h-4" />
+          </button>
 
-      {/* Page controls */}
-      <div className="flex items-center gap-1 order-1 sm:order-2">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => onPageChange(currentPage - 1)}
-          disabled={currentPage === 1}
-          className="h-8 w-8 p-0 text-gray-500 hover:text-primary disabled:opacity-40"
-        >
-          <ChevronLeft className="h-4 w-4" />
-        </Button>
+          {/* Previous button */}
+          <button
+            onClick={() => onPageChange(currentPage - 1)}
+            disabled={currentPage === 1}
+            className={cn(
+              'flex items-center justify-center w-8 h-8 rounded-full transition-all duration-200',
+              'text-gray-500 hover:text-primary hover:bg-white hover:shadow-sm',
+              'disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-gray-500 disabled:hover:shadow-none',
+              'active:scale-95'
+            )}
+            title="Previous page"
+          >
+            <ChevronLeft className="w-4 h-4" />
+          </button>
 
-        {getPageNumbers().map((page, index) => (
-          typeof page === 'number' ? (
-            <Button
-              key={index}
-              variant="ghost"
-              size="sm"
-              onClick={() => onPageChange(page)}
-              className={cn(
-                'h-8 w-8 p-0 text-sm font-medium',
-                currentPage === page
-                  ? 'bg-primary text-white hover:bg-primary/90 hover:text-white'
-                  : 'text-gray-600 hover:text-primary hover:bg-primary/5'
-              )}
-            >
-              {page}
-            </Button>
-          ) : (
-            <span key={index} className="px-1 text-gray-400">
-              ···
-            </span>
-          )
-        ))}
+          {/* Divider */}
+          <div className="w-px h-4 bg-gray-300/60 mx-1" />
 
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => onPageChange(currentPage + 1)}
-          disabled={currentPage === totalPages}
-          className="h-8 w-8 p-0 text-gray-500 hover:text-primary disabled:opacity-40"
-        >
-          <ChevronRight className="h-4 w-4" />
-        </Button>
-      </div>
+          {/* Page numbers */}
+          {getPageNumbers().map((page, index) => (
+            typeof page === 'number' ? (
+              <button
+                key={index}
+                onClick={() => onPageChange(page)}
+                className={cn(
+                  'flex items-center justify-center min-w-[32px] h-8 px-2 rounded-full text-sm font-medium transition-all duration-200',
+                  currentPage === page
+                    ? 'bg-primary text-white shadow-md shadow-primary/30'
+                    : 'text-gray-600 hover:text-primary hover:bg-white hover:shadow-sm',
+                  'active:scale-95'
+                )}
+              >
+                {page}
+              </button>
+            ) : (
+              <span key={index} className="flex items-center justify-center w-6 h-8 text-gray-400 text-sm">
+                •••
+              </span>
+            )
+          ))}
+
+          {/* Divider */}
+          <div className="w-px h-4 bg-gray-300/60 mx-1" />
+
+          {/* Next button */}
+          <button
+            onClick={() => onPageChange(currentPage + 1)}
+            disabled={currentPage === totalPages}
+            className={cn(
+              'flex items-center justify-center w-8 h-8 rounded-full transition-all duration-200',
+              'text-gray-500 hover:text-primary hover:bg-white hover:shadow-sm',
+              'disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-gray-500 disabled:hover:shadow-none',
+              'active:scale-95'
+            )}
+            title="Next page"
+          >
+            <ChevronRight className="w-4 h-4" />
+          </button>
+
+          {/* Last page button */}
+          <button
+            onClick={() => onPageChange(totalPages)}
+            disabled={currentPage === totalPages}
+            className={cn(
+              'flex items-center justify-center w-8 h-8 rounded-full transition-all duration-200',
+              'text-gray-500 hover:text-primary hover:bg-white hover:shadow-sm',
+              'disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-gray-500 disabled:hover:shadow-none',
+              'active:scale-95'
+            )}
+            title="Last page"
+          >
+            <ChevronsRight className="w-4 h-4" />
+          </button>
+        </div>
     </div>
   );
 }

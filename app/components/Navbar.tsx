@@ -78,18 +78,18 @@ export default function Navbar() {
           <Link href="/" className="flex items-center gap-2 group">
             <div className="flex flex-col">
               <span
-                className={`font-playfair text-2xl font-bold transition-colors ${
-                  useDarkText ? 'text-foreground' : 'text-white'
-                }`}
-              >
-                Himalayan
-              </span>
-              <span
-                className={`font-dancing text-lg -mt-2 transition-colors ${
+                className={`font-dancing text-2xl -mt-2 transition-colors ${
                   useDarkText ? 'text-primary' : 'text-[#F4A261]'
                 }`}
               >
-                Momo
+                Himalayan Express
+              </span>
+              <span
+                className={`font-playfair text-lg font-bold transition-colors ${
+                  useDarkText ? 'text-foreground' : 'text-white'
+                }`}
+              >
+                MO:MO Station
               </span>
             </div>
           </Link>

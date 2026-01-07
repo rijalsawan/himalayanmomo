@@ -52,7 +52,7 @@ export default function Hero() {
             <div className="animate-fade-up delay-1">
               <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 text-primary text-sm font-medium">
                 <Sparkles className="w-4 h-4" />
-                Authentic Nepali Cuisine
+                Authentic Nepali Mo:Mo
               </span>
             </div>
 
@@ -61,7 +61,7 @@ export default function Hero() {
               Taste the{' '}
               <span className="relative inline-block">
                 <span className="relative z-10 text-primary">Himalayan</span>
-                <span className="absolute bottom-2 left-0 right-0 h-3 bg-[#F4A261]/30 -z-0 animate-scale-x delay-4" />
+                <span className="absolute bottom-2 left-0 right-0 h-3 animate-scale-x delay-4" />
               </span>
               <br />
               <span className="text-[#1A1A1A]">Magic in Every Bite</span>
@@ -117,49 +117,16 @@ export default function Hero() {
               <div className="absolute inset-0 rounded-full border-2 border-dashed border-primary/20 animate-spin-slow" />
               <div className="absolute inset-4 rounded-full border-2 border-dashed border-[#F4A261]/20 animate-spin-slow-reverse" />
               
-              {/* Main image - with clip-path to ensure perfect circle */}
-              <div className="absolute inset-8 rounded-full overflow-hidden shadow-2xl shadow-primary/20">
-                <div className="absolute inset-[-10%] w-[120%] h-[120%]">
+              {/* Main logo container */}
+              <div className="absolute inset-8 rounded-full overflow-hidden shadow-2xl shadow-primary/20 bg-white flex items-center justify-center">
+                <div className="relative w-[95rem] h-[95rem]">
                   <Image
-                    src="/momo.webp"
-                    alt="Delicious Momos"
+                    src="/brandlogo.svg"
+                    alt="MO:MO Station Logo"
                     fill
-                    className="object-cover object-center"
+                    className="object-contain"
                     priority
                   />
-                </div>
-                <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
-              </div>
-
-              {/* Floating badge cards */}
-              <div className="absolute left-0 sm:-left-8 top-1/4 bg-white rounded-xl sm:rounded-2xl p-2 sm:p-4 shadow-lg sm:shadow-xl shadow-black/10 animate-fade-in-left delay-5 animate-float-card-1 max-w-[120px] sm:max-w-none">
-                <div className="flex items-center gap-1.5 sm:gap-3">
-                  <div className="w-8 h-8 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl bg-[#2D6A4F]/10 flex items-center justify-center flex-shrink-0">
-                    <span className="text-base sm:text-2xl">🥟</span>
-                  </div>
-                  <div className="min-w-0">
-                    <div className="text-[10px] sm:text-sm font-semibold text-[#1A1A1A]">Fresh Daily</div>
-                    <div className="text-[9px] sm:text-xs text-gray-500">Handcrafted</div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="absolute right-0 sm:-right-8 bottom-1/4 bg-white rounded-xl sm:rounded-2xl p-2 sm:p-4 shadow-lg sm:shadow-xl shadow-black/10 animate-fade-in-right delay-6 animate-float-card-2 max-w-[120px] sm:max-w-none">
-                <div className="flex items-center gap-1.5 sm:gap-3">
-                  <div className="w-8 h-8 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
-                    <span className="text-base sm:text-2xl">🌶️</span>
-                  </div>
-                  <div className="min-w-0">
-                    <div className="text-[10px] sm:text-sm font-semibold text-[#1A1A1A]">Spicy</div>
-                    <div className="text-[9px] sm:text-xs text-gray-500">Mild to Hot</div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="absolute left-1/2 -translate-x-1/2 -bottom-3 sm:-bottom-6 bg-gradient-to-r from-primary to-[#B8420A] rounded-full px-3 sm:px-6 py-1.5 sm:py-3 shadow-lg sm:shadow-xl shadow-primary/30 animate-fade-up delay-7">
-                <div className="flex items-center gap-1.5 sm:gap-2">
-                  <span className="text-white font-semibold text-[10px] sm:text-sm">⭐ 4.9</span>
-                  <span className="text-white/70 text-[10px] sm:text-sm">2K+ Reviews</span>
                 </div>
               </div>
             </div>

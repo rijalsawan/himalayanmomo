@@ -14,6 +14,7 @@ import {
   Menu,
   X,
   ChevronLeft,
+  ChevronRight,
   Bell,
   Search,
   ShieldX,
@@ -35,6 +36,21 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
+
+// Tooltip component for collapsed sidebar
+function SidebarTooltip({ children, label, show }: { children: React.ReactNode; label: string; show: boolean }) {
+  if (!show) return <>{children}</>;
+  
+  return (
+    <div className="relative group/tooltip">
+      {children}
+      <div className="absolute left-full ml-2 top-1/2 -translate-y-1/2 px-2.5 py-1.5 bg-[#1A1A1A] text-white text-sm font-medium rounded-lg opacity-0 invisible group-hover/tooltip:opacity-100 group-hover/tooltip:visible transition-all duration-200 whitespace-nowrap z-50 shadow-lg">
+        {label}
+        <div className="absolute right-full top-1/2 -translate-y-1/2 border-4 border-transparent border-r-[#1A1A1A]" />
+      </div>
+    </div>
+  );
+}
 
 interface Notification {
   id: string;
@@ -256,104 +272,124 @@ export default function AdminLayout({
       {/* Sidebar */}
       <aside
         className={cn(
-          'fixed top-0 left-0 z-50 h-full bg-white border-r border-gray-200 transition-all duration-300 ease-in-out',
-          sidebarOpen ? 'w-64' : 'w-20',
+          'fixed top-0 left-0 z-50 h-full bg-white border-r border-gray-200 transition-all duration-300 ease-in-out flex flex-col',
+          sidebarOpen ? 'w-64' : 'w-[72px]',
           mobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
         )}
       >
         {/* Logo Section */}
-        <div className="h-16 flex items-center justify-between px-4 border-b border-gray-100">
-          <Link href="/admin" className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-[#B8420A] flex items-center justify-center text-white font-bold text-lg shadow-lg">
+        <div className="h-16 flex items-center px-4 border-b border-gray-100">
+          <Link href="/admin" className={cn(
+            "flex items-center gap-3 flex-1 min-w-0",
+            !sidebarOpen && "justify-center"
+          )}>
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-[#B8420A] flex items-center justify-center text-white font-bold text-lg shadow-lg flex-shrink-0">
               HM
             </div>
-            {sidebarOpen && (
-              <span className="font-heading font-bold text-lg text-[#1A1A1A]">
-                Admin
-              </span>
-            )}
+            <span className={cn(
+              "font-heading font-bold text-lg text-[#1A1A1A] transition-all duration-300 overflow-hidden whitespace-nowrap",
+              sidebarOpen ? "opacity-100 w-auto" : "opacity-0 w-0"
+            )}>
+              Admin
+            </span>
           </Link>
           <Button
             variant="ghost"
             size="icon"
-            className="hidden lg:flex text-gray-500 hover:text-primary"
-            onClick={() => setSidebarOpen(!sidebarOpen)}
-          >
-            <ChevronLeft
-              className={cn(
-                'w-5 h-5 transition-transform',
-                !sidebarOpen && 'rotate-180'
-              )}
-            />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="lg:hidden text-gray-500"
+            className="lg:hidden text-gray-500 flex-shrink-0"
             onClick={() => setMobileMenuOpen(false)}
           >
             <X className="w-5 h-5" />
           </Button>
         </div>
 
+        {/* Expand/Collapse Toggle - Better positioned */}
+        <button
+          onClick={() => setSidebarOpen(!sidebarOpen)}
+          className={cn(
+            "hidden lg:flex absolute top-[70px] -right-3 w-6 h-6 bg-white border border-gray-200 rounded-full items-center justify-center text-gray-400 hover:text-primary hover:border-primary shadow-sm transition-all duration-200 hover:scale-110 z-10",
+          )}
+          title={sidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
+        >
+          {sidebarOpen ? (
+            <ChevronLeft className="w-3.5 h-3.5" />
+          ) : (
+            <ChevronRight className="w-3.5 h-3.5" />
+          )}
+        </button>
+
         {/* Navigation */}
-        <nav className="p-4 space-y-2">
+        <nav className="flex-1 p-3 space-y-1 overflow-y-auto overflow-x-hidden">
           {sidebarLinks.map((link) => {
             const isActive = pathname === link.href || 
               (link.href !== '/admin' && pathname.startsWith(link.href));
             const badgeCount = link.badgeKey === 'pendingOrders' ? pendingOrdersCount : 0;
             
             return (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={cn(
-                  'flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group relative',
-                  isActive
-                    ? 'bg-primary text-white shadow-lg shadow-primary/30'
-                    : 'text-gray-600 hover:bg-[#FDF8F3] hover:text-primary'
-                )}
-              >
-                <link.icon className={cn('w-5 h-5 flex-shrink-0', isActive && 'text-white')} />
-                {sidebarOpen && (
-                  <>
-                    <span className="font-medium">{link.name}</span>
-                    {badgeCount > 0 && (
-                      <Badge
-                        className={cn(
-                          'ml-auto',
-                          isActive
-                            ? 'bg-white text-primary'
-                            : 'bg-primary text-white'
-                        )}
-                      >
-                        {badgeCount}
-                      </Badge>
-                    )}
-                  </>
-                )}
-                {!sidebarOpen && badgeCount > 0 && (
-                  <div className="absolute -top-1 -right-1 w-5 h-5 bg-primary text-white text-xs rounded-full flex items-center justify-center">
-                    {badgeCount}
-                  </div>
-                )}
-              </Link>
+              <SidebarTooltip key={link.href} label={link.name} show={!sidebarOpen}>
+                <Link
+                  href={link.href}
+                  className={cn(
+                    'flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group relative',
+                    isActive
+                      ? 'bg-primary text-white shadow-lg shadow-primary/30'
+                      : 'text-gray-600 hover:bg-[#FDF8F3] hover:text-primary',
+                    !sidebarOpen && 'justify-center px-2'
+                  )}
+                >
+                  <link.icon className={cn(
+                    'w-5 h-5 flex-shrink-0 transition-transform duration-200',
+                    isActive && 'text-white',
+                    !isActive && 'group-hover:scale-110'
+                  )} />
+                  <span className={cn(
+                    "font-medium transition-all duration-300 overflow-hidden whitespace-nowrap",
+                    sidebarOpen ? "opacity-100 w-auto" : "opacity-0 w-0 absolute"
+                  )}>
+                    {link.name}
+                  </span>
+                  {sidebarOpen && badgeCount > 0 && (
+                    <Badge
+                      className={cn(
+                        'ml-auto flex-shrink-0',
+                        isActive
+                          ? 'bg-white text-primary'
+                          : 'bg-primary text-white'
+                      )}
+                    >
+                      {badgeCount}
+                    </Badge>
+                  )}
+                  {!sidebarOpen && badgeCount > 0 && (
+                    <div className="absolute -top-1 -right-1 w-4 h-4 bg-primary text-white text-[10px] rounded-full flex items-center justify-center font-medium">
+                      {badgeCount > 9 ? '9+' : badgeCount}
+                    </div>
+                  )}
+                </Link>
+              </SidebarTooltip>
             );
           })}
         </nav>
 
         {/* Sidebar Footer */}
-        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-100">
-          <Link
-            href="/"
-            className={cn(
-              'flex items-center gap-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-red-50 hover:text-red-600 transition-all duration-200',
-              !sidebarOpen && 'justify-center'
-            )}
-          >
-            <LogOut className="w-5 h-5 flex-shrink-0" />
-            {sidebarOpen && <span className="font-medium">Back to Site</span>}
-          </Link>
+        <div className="p-3 border-t border-gray-100">
+          <SidebarTooltip label="Back to Site" show={!sidebarOpen}>
+            <Link
+              href="/"
+              className={cn(
+                'flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-red-50 hover:text-red-600 transition-all duration-200 group',
+                !sidebarOpen && 'justify-center px-2'
+              )}
+            >
+              <LogOut className="w-5 h-5 flex-shrink-0 transition-transform duration-200 group-hover:scale-110" />
+              <span className={cn(
+                "font-medium transition-all duration-300 overflow-hidden whitespace-nowrap",
+                sidebarOpen ? "opacity-100 w-auto" : "opacity-0 w-0 absolute"
+              )}>
+                Back to Site
+              </span>
+            </Link>
+          </SidebarTooltip>
         </div>
       </aside>
 
@@ -361,7 +397,7 @@ export default function AdminLayout({
       <div
         className={cn(
           'transition-all duration-300',
-          sidebarOpen ? 'lg:ml-64' : 'lg:ml-20'
+          sidebarOpen ? 'lg:ml-64' : 'lg:ml-[72px]'
         )}
       >
         {/* Top Header */}

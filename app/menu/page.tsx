@@ -19,6 +19,8 @@ import {
   Clock,
   DollarSign,
   Filter,
+  MoreHorizontal,
+  Eye,
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -39,6 +41,7 @@ import { useCart } from '../context/CartContext';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import CartQuantityButton from '../components/CartQuantityButton';
+import Pagination from '../admin/components/Pagination';
 
 // Define MenuItem type for database items
 interface MenuItem {
@@ -78,6 +81,37 @@ const sortOptions: { value: SortOption; label: string; icon: React.ReactNode }[]
   { value: 'name-az', label: 'Name: A to Z', icon: <span className="text-xs font-bold">AZ</span> },
   { value: 'name-za', label: 'Name: Z to A', icon: <span className="text-xs font-bold">ZA</span> },
 ];
+
+// Mobile List Item Skeleton - Matches Admin UI
+const SkeletonListItem = () => {
+  return (
+    <div className="p-4 border-b border-gray-100">
+      <div className="flex gap-3">
+        {/* Image Skeleton */}
+        <div className="relative w-16 h-16 rounded-lg overflow-hidden bg-gray-200 flex-shrink-0">
+          <motion.div
+            className="absolute inset-0 bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200"
+            animate={{ x: ['-100%', '100%'] }}
+            transition={{ duration: 1.5, repeat: Infinity, ease: 'linear' }}
+          />
+        </div>
+        {/* Content Skeleton */}
+        <div className="flex-1 min-w-0 space-y-2">
+          <div className="h-4 w-3/4 bg-gray-200 rounded" />
+          <div className="h-3 w-1/3 bg-gray-200 rounded" />
+          <div className="flex items-center justify-between mt-2">
+            <div className="h-4 w-16 bg-gray-200 rounded" />
+            <div className="h-4 w-12 bg-gray-200 rounded" />
+          </div>
+          <div className="flex items-center justify-between mt-2 pt-2 border-t border-gray-100">
+            <div className="h-4 w-12 bg-gray-200 rounded" />
+            <div className="h-8 w-8 bg-gray-200 rounded" />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 // Skeleton Card Component
 const SkeletonCard = ({ index }: { index: number }) => {
@@ -309,6 +343,75 @@ const MenuCard = ({ item, index }: { item: MenuItem; index: number }) => {
   );
 };
 
+// Mobile List Item Component - Matches Admin Menu UI
+const MobileMenuListItem = ({ item }: { item: MenuItem }) => {
+  return (
+    <div className="p-4 border-b border-gray-100">
+      <div className="flex gap-3">
+        {/* Image */}
+        <div className="relative w-16 h-16 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
+          <Image src={item.image} alt={item.name} fill className="object-cover" />
+        </div>
+        
+        {/* Content */}
+        <div className="flex-1 min-w-0">
+          <div className="flex items-start justify-between gap-2">
+            <div className="min-w-0">
+              <div className="flex items-center gap-1.5">
+                <h3 className="font-medium text-[#1A1A1A] truncate">{item.name}</h3>
+                {item.isVegetarian && <Leaf className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" />}
+              </div>
+              <p className="text-sm text-gray-500 capitalize">{item.category}</p>
+            </div>
+            {/* Actions Dropdown */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="w-8 h-8 flex-shrink-0">
+                  <MoreHorizontal className="w-4 h-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem className="cursor-pointer" asChild>
+                  <Link href={`/menu/${item.slug}`}>
+                    <Eye className="w-4 h-4 mr-2" />
+                    View Details
+                  </Link>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+          
+          {/* Price and badges */}
+          <div className="flex items-center justify-between mt-2">
+            <span className="font-semibold text-[#1A1A1A]">${item.price.toFixed(2)}</span>
+            <div className="flex items-center gap-1.5">
+              {item.isPopular && (
+                <Badge className="bg-primary/10 text-primary text-[10px] px-1.5 py-0 h-4">Popular</Badge>
+              )}
+              {item.isNew && (
+                <Badge className="bg-amber-100 text-amber-700 text-[10px] px-1.5 py-0 h-4">New</Badge>
+              )}
+            </div>
+          </div>
+
+          {/* Bottom row - Spice & Cart */}
+          <div className="flex items-center justify-between mt-2 pt-2 border-t border-gray-100">
+            <Badge variant="outline" className={`font-normal gap-1 text-[10px] ${
+              item.spiceLevel === 0 ? 'text-gray-600' :
+              item.spiceLevel === 1 ? 'text-yellow-600' :
+              item.spiceLevel === 2 ? 'text-orange-600' : 'text-red-600'
+            }`}>
+              {item.spiceLevel > 0 && <Flame className="w-2.5 h-2.5" />}
+              {item.spiceLevel === 0 ? 'Mild' : item.spiceLevel === 1 ? 'Light' : item.spiceLevel === 2 ? 'Medium' : 'Spicy'}
+            </Badge>
+            <CartQuantityButton item={item} size="sm" />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 export default function MenuPage() {
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [activeCategory, setActiveCategory] = useState<string>('all');
@@ -319,6 +422,8 @@ export default function MenuPage() {
   const [showFilters, setShowFilters] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isFiltering, setIsFiltering] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
   const { totalItems, openCart } = useCart();
   
   // Track previous filter values to detect actual changes
@@ -440,6 +545,18 @@ export default function MenuPage() {
 
     return items;
   }, [menuItems, activeCategory, searchQuery, sortBy, dietaryFilter, spiceFilter]);
+
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [activeCategory, searchQuery, sortBy, dietaryFilter, spiceFilter]);
+
+  // Paginated items for mobile view
+  const totalPages = Math.ceil(filteredItems.length / itemsPerPage);
+  const paginatedItems = useMemo(() => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    return filteredItems.slice(startIndex, startIndex + itemsPerPage);
+  }, [filteredItems, currentPage, itemsPerPage]);
 
   const clearAllFilters = () => {
     setSortBy('default');
@@ -678,7 +795,7 @@ export default function MenuPage() {
         </section>
 
         {/* Menu Content */}
-        <section className="section-padding">
+        <section className="py-8 md:py-12">
           <div className="container-custom">
             {/* Category Tabs */}
             <motion.div
@@ -691,87 +808,87 @@ export default function MenuPage() {
                 onValueChange={setActiveCategory}
                 className="w-full"
               >
-                <TabsList className="flex flex-wrap justify-center gap-2 bg-transparent h-auto p-0 mb-10">
-                  <TabsTrigger
-                    value="all"
-                    className="px-6 py-3 rounded-full data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-primary/30 bg-white text-foreground/70 hover:bg-gray-100 transition-all border border-gray-200 data-[state=active]:border-transparent"
-                  >
-                    🍽️ All Items
-                  </TabsTrigger>
-                  {categories.map((category) => (
-                    <TabsTrigger
-                      key={category.id}
-                      value={category.id}
-                      className="px-6 py-3 rounded-full data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-primary/30 bg-white text-foreground/70 hover:bg-gray-100 transition-all border border-gray-200 data-[state=active]:border-transparent"
-                    >
-                      <span className="mr-2">{category.icon}</span>
-                      {category.name}
-                    </TabsTrigger>
-                  ))}
-                </TabsList>
+                
 
-                {/* Results Count */}
-                <div className="mb-6 text-center">
-                  {showSkeleton ? (
-                    <div className="h-5 w-32 bg-gray-200 rounded mx-auto overflow-hidden relative">
-                      <motion.div
-                        className="absolute inset-0 bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200"
-                        animate={{
-                          x: ['-100%', '100%'],
-                        }}
-                        transition={{
-                          duration: 1.5,
-                          repeat: Infinity,
-                          ease: 'linear',
-                        }}
-                      />
-                    </div>
-                  ) : (
-                    <p className="text-muted-foreground">
-                      Showing{' '}
-                      <span className="font-semibold text-foreground">
-                        {filteredItems.length}
-                      </span>{' '}
-                      {filteredItems.length === 1 ? 'item' : 'items'}
-                      {searchQuery && (
-                        <span>
-                          {' '}
-                          for &quot;{searchQuery}&quot;
-                        </span>
-                      )}
-                    </p>
-                  )}
-                </div>
+                
+
+                
 
                 {/* Menu Grid */}
                 <TabsContent value={activeCategory} className="mt-0">
                   <AnimatePresence mode="wait">
                     {showSkeleton ? (
-                      <motion.div
-                        key="skeleton-grid"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        transition={{ duration: 0.3 }}
-                        className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
-                      >
-                        {Array.from({ length: 8 }).map((_, index) => (
-                          <SkeletonCard key={index} index={index} />
-                        ))}
-                      </motion.div>
+                      <>
+                        {/* Mobile Skeleton List */}
+                        <Card className="sm:hidden overflow-hidden">
+                          <div className="divide-y divide-gray-100">
+                            {Array.from({ length: 6 }).map((_, index) => (
+                              <SkeletonListItem key={index} />
+                            ))}
+                          </div>
+                        </Card>
+                        {/* Desktop Skeleton Grid */}
+                        <motion.div
+                          key="skeleton-grid-desktop"
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          exit={{ opacity: 0 }}
+                          transition={{ duration: 0.3 }}
+                          className="hidden sm:grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+                        >
+                          {Array.from({ length: 8 }).map((_, index) => (
+                            <SkeletonCard key={index} index={index} />
+                          ))}
+                        </motion.div>
+                      </>
                     ) : filteredItems.length > 0 ? (
-                      <motion.div
-                        key={`${activeCategory}-${searchQuery}-${sortBy}-${dietaryFilter}-${spiceFilter}`}
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        transition={{ duration: 0.3 }}
-                        className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
-                      >
-                        {filteredItems.map((item, index) => (
-                          <MenuCard key={item.id} item={item} index={index} />
-                        ))}
-                      </motion.div>
+                      <>
+                        {/* Mobile List View */}
+                        <Card className="sm:hidden overflow-hidden">
+                          <div className="divide-y divide-gray-100">
+                            {paginatedItems.map((item) => (
+                              <MobileMenuListItem key={item.id} item={item} />
+                            ))}
+                          </div>
+                          {/* Mobile Pagination */}
+                          {totalPages > 1 && (
+                            <Pagination
+                              currentPage={currentPage}
+                              totalPages={totalPages}
+                              onPageChange={setCurrentPage}
+                              totalItems={filteredItems.length}
+                              itemsPerPage={itemsPerPage}
+                            />
+                          )}
+                        </Card>
+                        {/* Desktop Card Grid */}
+                        <div className="hidden sm:block">
+                          <motion.div
+                            key={`desktop-grid-${activeCategory}-${searchQuery}-${sortBy}-${dietaryFilter}-${spiceFilter}`}
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.3 }}
+                            className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+                          >
+                            {paginatedItems.map((item, index) => (
+                              <MenuCard key={item.id} item={item} index={index} />
+                            ))}
+                          </motion.div>
+                          {/* Desktop Pagination */}
+                          {totalPages > 1 && (
+                            <Card className="mt-6 overflow-hidden">
+                              <Pagination
+                                currentPage={currentPage}
+                                totalPages={totalPages}
+                                onPageChange={setCurrentPage}
+                                totalItems={filteredItems.length}
+                                itemsPerPage={itemsPerPage}
+                              />
+                            </Card>
+                          )}
+                        </div>
+                      </>
                     ) : (
                       <motion.div
                         initial={{ opacity: 0, y: 20 }}

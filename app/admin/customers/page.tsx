@@ -124,17 +124,13 @@ export default function CustomersPage() {
     }
   };
 
-  useEffect(() => {
-    fetchCustomers();
-  }, [statusFilter]);
-
-  // Debounced search
+  // Combined debounced fetch for all filter changes
   useEffect(() => {
     const timer = setTimeout(() => {
       fetchCustomers();
-    }, 300);
+    }, searchQuery ? 300 : 0); // Only debounce for search queries
     return () => clearTimeout(timer);
-  }, [searchQuery]);
+  }, [searchQuery, statusFilter]);
 
   const handleViewCustomer = (customer: Customer) => {
     setSelectedCustomer(customer);
@@ -182,56 +178,11 @@ export default function CustomersPage() {
         </div>
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card className="border-gray-100 shadow-sm">
-          <CardContent className="p-4 flex items-center gap-4">
-            <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
-              <User className="w-6 h-6 text-primary" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-[#1A1A1A]">{stats?.totalCustomers ?? 0}</p>
-              <p className="text-sm text-gray-500">Total Customers</p>
-            </div>
-          </CardContent>
-        </Card>
-        <Card className="border-gray-100 shadow-sm">
-          <CardContent className="p-4 flex items-center gap-4">
-            <div className="w-12 h-12 rounded-xl bg-green-100 flex items-center justify-center">
-              <User className="w-6 h-6 text-green-600" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-[#1A1A1A]">{stats?.activeCustomers ?? 0}</p>
-              <p className="text-sm text-gray-500">Active</p>
-            </div>
-          </CardContent>
-        </Card>
-        <Card className="border-gray-100 shadow-sm">
-          <CardContent className="p-4 flex items-center gap-4">
-            <div className="w-12 h-12 rounded-xl bg-[#F4A261]/20 flex items-center justify-center">
-              <DollarSign className="w-6 h-6 text-[#F4A261]" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-[#1A1A1A]">${(stats?.totalRevenue ?? 0).toFixed(0)}</p>
-              <p className="text-sm text-gray-500">Total Revenue</p>
-            </div>
-          </CardContent>
-        </Card>
-        <Card className="border-gray-100 shadow-sm">
-          <CardContent className="p-4 flex items-center gap-4">
-            <div className="w-12 h-12 rounded-xl bg-[#2D6A4F]/10 flex items-center justify-center">
-              <ShoppingBag className="w-6 h-6 text-[#2D6A4F]" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-[#1A1A1A]">${(stats?.avgOrderValue ?? 0).toFixed(2)}</p>
-              <p className="text-sm text-gray-500">Avg. Order</p>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      
+      
 
       {/* Filters */}
-      <Card className="border-gray-100 shadow-sm">
+      <Card className="">
         <CardContent className="p-4">
           <div className="flex flex-col md:flex-row gap-4">
             {/* Search */}
@@ -271,25 +222,25 @@ export default function CustomersPage() {
             </div>
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full">
+              <table className="w-full table-fixed">
                 <thead>
                   <tr className="bg-gray-50 border-b border-gray-100">
-                    <th className="text-left py-4 px-6 text-sm font-medium text-gray-500">
+                    <th className="text-left py-4 px-6 text-sm font-medium text-gray-500 w-[220px]">
                       Customer
                     </th>
-                    <th className="text-left py-4 px-6 text-sm font-medium text-gray-500 hidden md:table-cell">
+                    <th className="text-left py-4 px-6 text-sm font-medium text-gray-500 hidden md:table-cell w-[200px]">
                       Contact
                     </th>
-                    <th className="text-left py-4 px-6 text-sm font-medium text-gray-500 hidden lg:table-cell">
+                    <th className="text-left py-4 px-6 text-sm font-medium text-gray-500 hidden lg:table-cell w-[150px]">
                       Orders
                     </th>
-                    <th className="text-left py-4 px-6 text-sm font-medium text-gray-500">
+                    <th className="text-left py-4 px-6 text-sm font-medium text-gray-500 w-[120px]">
                       Total Spent
                     </th>
-                    <th className="text-left py-4 px-6 text-sm font-medium text-gray-500 hidden md:table-cell">
+                    <th className="text-left py-4 px-6 text-sm font-medium text-gray-500 hidden md:table-cell w-[100px]">
                       Status
                     </th>
-                    <th className="py-4 px-4"></th>
+                    <th className="py-4 px-4 w-[60px]"></th>
                   </tr>
                 </thead>
                 <tbody>
@@ -304,8 +255,9 @@ export default function CustomersPage() {
                       <tr
                         key={customer.id}
                         className="border-b border-gray-50 hover:bg-gray-50/50 transition-colors"
+                        style={{ height: '60px' }}
                       >
-                        <td className="py-4 px-6">
+                        <td className="py-3 px-6">
                           <div className="flex items-center gap-3">
                             <Avatar className="w-10 h-10">
                               <AvatarImage src={customer.avatar} />
@@ -322,7 +274,7 @@ export default function CustomersPage() {
                             </div>
                           </div>
                         </td>
-                        <td className="py-4 px-6 hidden md:table-cell">
+                        <td className="py-3 px-6 hidden md:table-cell">
                           <div className="space-y-1">
                             <p className="text-sm text-gray-600 flex items-center gap-2">
                               <Mail className="w-3 h-3" />
@@ -334,7 +286,7 @@ export default function CustomersPage() {
                             </p>
                           </div>
                         </td>
-                        <td className="py-4 px-6 hidden lg:table-cell">
+                        <td className="py-3 px-6 hidden lg:table-cell">
                           <div className="flex items-center gap-2">
                             <ShoppingBag className="w-4 h-4 text-gray-400" />
                             <span className="font-medium text-[#1A1A1A]">{customer.totalOrders}</span>
@@ -346,12 +298,12 @@ export default function CustomersPage() {
                             </p>
                           )}
                         </td>
-                        <td className="py-4 px-6">
+                        <td className="py-3 px-6">
                           <span className="font-semibold text-[#1A1A1A]">
                             ${customer.totalSpent.toFixed(2)}
                           </span>
                         </td>
-                        <td className="py-4 px-6 hidden md:table-cell">
+                        <td className="py-3 px-6 hidden md:table-cell">
                           <Badge
                             variant="outline"
                             className={cn(
@@ -363,7 +315,7 @@ export default function CustomersPage() {
                             {customer.status.charAt(0).toUpperCase() + customer.status.slice(1)}
                           </Badge>
                         </td>
-                        <td className="py-4 px-4">
+                        <td className="py-3 px-4">
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                               <Button variant="ghost" size="icon" className="w-8 h-8">
@@ -393,17 +345,26 @@ export default function CustomersPage() {
                       </tr>
                     ))
                   )}
+                  {/* Empty rows to maintain consistent height */}
+                  {Array.from({ length: Math.max(0, ITEMS_PER_PAGE - paginatedCustomers.length) }).map((_, index) => (
+                    <tr key={`empty-${index}`} className="border-b border-gray-50" style={{ height: '60px' }}>
+                      <td colSpan={6} className="py-3 px-6">&nbsp;</td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
             </div>
           )}
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={setCurrentPage}
-            totalItems={customers.length}
-            itemsPerPage={ITEMS_PER_PAGE}
-          />
+          {/* Pagination always at bottom */}
+          <div className="mt-auto pt-4">
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={setCurrentPage}
+              totalItems={customers.length}
+              itemsPerPage={ITEMS_PER_PAGE}
+            />
+          </div>
         </CardContent>
       </Card>
 
