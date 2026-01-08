@@ -49,6 +49,7 @@ export async function GET(request: NextRequest) {
         lastOrder: lastOrder?.createdAt.toISOString() || null,
         joinedAt: user.createdAt.toISOString(),
         status: hasRecentOrder ? 'active' : 'inactive',
+        role: user.role,
         orders: user.orders.slice(0, 5).map((order) => ({
           id: order.id,
           date: order.createdAt.toISOString().split('T')[0],

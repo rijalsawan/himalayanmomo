@@ -20,6 +20,8 @@ import {
   Users,
   X,
   CheckCircle,
+  Shield,
+  ShieldOff,
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -70,6 +72,7 @@ interface Customer {
   lastOrder: string | null;
   joinedAt: string;
   status: 'active' | 'inactive';
+  role: 'USER' | 'ADMIN';
   orders: CustomerOrder[];
 }
 
@@ -138,6 +141,31 @@ export default function CustomersPage() {
   const handleViewCustomer = (customer: Customer) => {
     setSelectedCustomer(customer);
     setIsDetailsOpen(true);
+  };
+
+  const handleToggleRole = async (customer: Customer) => {
+    const newRole = customer.role === 'ADMIN' ? 'USER' : 'ADMIN';
+    
+    try {
+      const response = await fetch(`/api/admin/customers/${customer.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ role: newRole }),
+      });
+
+      if (response.ok) {
+        // Update local state
+        setCustomers(prev => 
+          prev.map(c => c.id === customer.id ? { ...c, role: newRole } : c)
+        );
+        // Update selected customer if viewing details
+        if (selectedCustomer?.id === customer.id) {
+          setSelectedCustomer(prev => prev ? { ...prev, role: newRole } : null);
+        }
+      }
+    } catch (error) {
+      console.error('Error updating customer role:', error);
+    }
   };
 
   const formatDate = (dateString: string) => {
@@ -326,6 +354,12 @@ export default function CustomersPage() {
                           >
                             {customer.status.charAt(0).toUpperCase() + customer.status.slice(1)}
                           </Badge>
+                          {customer.role === 'ADMIN' && (
+                            <Badge className="ml-1 bg-purple-50 text-purple-700 border-purple-200">
+                              <Shield className="w-3 h-3 mr-1" />
+                              Admin
+                            </Badge>
+                          )}
                         </td>
                         <td className="py-3 px-4">
                           <DropdownMenu>
@@ -347,6 +381,27 @@ export default function CustomersPage() {
                                 Send Email
                               </DropdownMenuItem>
                               <DropdownMenuSeparator />
+                              <DropdownMenuItem 
+                                className={cn(
+                                  "cursor-pointer",
+                                  customer.role === 'ADMIN' 
+                                    ? "text-orange-600 focus:text-orange-600" 
+                                    : "text-purple-600 focus:text-purple-600"
+                                )}
+                                onClick={() => handleToggleRole(customer)}
+                              >
+                                {customer.role === 'ADMIN' ? (
+                                  <>
+                                    <ShieldOff className="w-4 h-4 mr-2" />
+                                    Remove Admin
+                                  </>
+                                ) : (
+                                  <>
+                                    <Shield className="w-4 h-4 mr-2" />
+                                    Make Admin
+                                  </>
+                                )}
+                              </DropdownMenuItem>
                               <DropdownMenuItem className="cursor-pointer text-red-600 focus:text-red-600">
                                 <Ban className="w-4 h-4 mr-2" />
                                 {customer.status === 'active' ? 'Deactivate' : 'Activate'}
@@ -396,6 +451,12 @@ export default function CustomersPage() {
                               >
                                 {customer.status}
                               </Badge>
+                              {customer.role === 'ADMIN' && (
+                                <Badge className="text-[10px] px-1.5 py-0 bg-purple-50 text-purple-700 border-purple-200">
+                                  <Shield className="w-2.5 h-2.5 mr-0.5" />
+                                  Admin
+                                </Badge>
+                              )}
                             </div>
                             <p className="text-sm text-gray-500 truncate">{customer.email}</p>
                           </div>
@@ -415,6 +476,27 @@ export default function CustomersPage() {
                                 Send Email
                               </DropdownMenuItem>
                               <DropdownMenuSeparator />
+                              <DropdownMenuItem 
+                                className={cn(
+                                  "cursor-pointer",
+                                  customer.role === 'ADMIN' 
+                                    ? "text-orange-600 focus:text-orange-600" 
+                                    : "text-purple-600 focus:text-purple-600"
+                                )}
+                                onClick={() => handleToggleRole(customer)}
+                              >
+                                {customer.role === 'ADMIN' ? (
+                                  <>
+                                    <ShieldOff className="w-4 h-4 mr-2" />
+                                    Remove Admin
+                                  </>
+                                ) : (
+                                  <>
+                                    <Shield className="w-4 h-4 mr-2" />
+                                    Make Admin
+                                  </>
+                                )}
+                              </DropdownMenuItem>
                               <DropdownMenuItem className="cursor-pointer text-red-600 focus:text-red-600">
                                 <Ban className="w-4 h-4 mr-2" />
                                 {customer.status === 'active' ? 'Deactivate' : 'Activate'}
@@ -499,6 +581,12 @@ export default function CustomersPage() {
                         {selectedCustomer.status === 'active' && <CheckCircle className="w-3 h-3 mr-1" />}
                         {selectedCustomer.status}
                       </Badge>
+                      {selectedCustomer.role === 'ADMIN' && (
+                        <Badge className="text-[10px] sm:text-xs py-0.5 px-2 bg-purple-50 text-purple-700 border-purple-200">
+                          <Shield className="w-3 h-3 mr-1" />
+                          Admin
+                        </Badge>
+                      )}
                     </div>
                     <p className="text-xs sm:text-sm text-gray-500 truncate">
                       {selectedCustomer.email}
@@ -597,10 +685,34 @@ export default function CustomersPage() {
                     </div>
 
                     {/* Quick Actions */}
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="grid grid-cols-3 gap-3">
                       <Button type="button" variant="outline" size="sm" className="gap-2 h-10">
                         <Mail className="w-4 h-4" />
-                        Send Email
+                        <span className="hidden sm:inline">Email</span>
+                      </Button>
+                      <Button 
+                        type="button" 
+                        variant="outline" 
+                        size="sm" 
+                        className={cn(
+                          "gap-2 h-10",
+                          selectedCustomer.role === 'ADMIN' 
+                            ? "text-orange-600 border-orange-200 hover:bg-orange-50 hover:text-orange-700"
+                            : "text-purple-600 border-purple-200 hover:bg-purple-50 hover:text-purple-700"
+                        )}
+                        onClick={() => handleToggleRole(selectedCustomer)}
+                      >
+                        {selectedCustomer.role === 'ADMIN' ? (
+                          <>
+                            <ShieldOff className="w-4 h-4" />
+                            <span className="hidden sm:inline">Remove Admin</span>
+                          </>
+                        ) : (
+                          <>
+                            <Shield className="w-4 h-4" />
+                            <span className="hidden sm:inline">Make Admin</span>
+                          </>
+                        )}
                       </Button>
                       <Button 
                         type="button" 
@@ -614,7 +726,7 @@ export default function CustomersPage() {
                         )}
                       >
                         <Ban className="w-4 h-4" />
-                        {selectedCustomer.status === 'active' ? 'Deactivate' : 'Activate'}
+                        <span className="hidden sm:inline">{selectedCustomer.status === 'active' ? 'Deactivate' : 'Activate'}</span>
                       </Button>
                     </div>
                   </TabsContent>

@@ -69,13 +69,17 @@ export async function PATCH(
     const { id } = await params;
     const body = await request.json();
 
+    // Build update data dynamically
+    const updateData: { name?: string; phone?: string; address?: string; role?: 'USER' | 'ADMIN' } = {};
+    
+    if (body.name !== undefined) updateData.name = body.name;
+    if (body.phone !== undefined) updateData.phone = body.phone;
+    if (body.address !== undefined) updateData.address = body.address;
+    if (body.role !== undefined) updateData.role = body.role;
+
     const user = await prisma.user.update({
       where: { id },
-      data: {
-        name: body.name,
-        phone: body.phone,
-        address: body.address,
-      },
+      data: updateData,
     });
 
     return NextResponse.json({
@@ -83,6 +87,7 @@ export async function PATCH(
       name: user.name,
       phone: user.phone,
       address: user.address,
+      role: user.role,
       updatedAt: user.updatedAt.toISOString(),
     });
   } catch (error) {
