@@ -8,13 +8,8 @@ export async function GET(request: NextRequest) {
     const search = searchParams.get('search');
     const status = searchParams.get('status');
 
-    // Get users with their order aggregates
+    // Get all users with their order aggregates
     const users = await prisma.user.findMany({
-      where: {
-        orders: {
-          some: {}, // Only users who have placed at least one order
-        },
-      },
       include: {
         orders: {
           include: {
