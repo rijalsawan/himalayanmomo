@@ -627,170 +627,267 @@ export default function CheckoutPage() {
                     initial={{ opacity: 0, x: 20 }}
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: -20 }}
-                    transition={{ duration: 0.2 }}
-                    className="space-y-4 sm:space-y-6"
+                    transition={{ duration: 0.3 }}
+                    className="space-y-5 sm:space-y-6"
                   >
-                    {/* Order Review Card */}
-                    <Card className="border border-gray-200 shadow-sm">
-                      <CardContent className="p-4 sm:p-6">
-                        <div className="flex items-center gap-2 mb-5">
-                          <Check className="w-5 h-5 text-emerald-600" />
-                          <h2 className="font-heading text-lg font-semibold text-gray-900">
-                            Order Review
+                    {/* Delivery Details Card - Minimalist */}
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.1 }}
+                      className="bg-white rounded-2xl border border-gray-100 overflow-hidden"
+                    >
+                      {/* Header */}
+                      <div className="px-5 sm:px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 rounded-full bg-emerald-50 flex items-center justify-center">
+                            <Check className="w-4 h-4 text-emerald-600" />
+                          </div>
+                          <h2 className="font-heading text-base sm:text-lg font-semibold text-gray-900">
+                            Delivery Details
                           </h2>
                         </div>
+                        <button
+                          onClick={prevStep}
+                          className="text-sm text-primary font-medium hover:underline underline-offset-2 transition-all"
+                        >
+                          Edit
+                        </button>
+                      </div>
 
-                        <div className="space-y-4">
+                      {/* Content */}
+                      <div className="p-5 sm:p-6">
+                        <div className="grid sm:grid-cols-2 gap-5 sm:gap-6">
                           {/* Delivery Address */}
-                          <div className="flex items-start gap-3 p-4 bg-gray-50 rounded-xl">
-                            <MapPin className="w-5 h-5 text-primary shrink-0 mt-0.5" />
-                            <div className="flex-1 min-w-0">
-                              <p className="font-medium text-gray-900 text-sm">Delivery Address</p>
-                              <p className="text-sm text-gray-600 mt-1">
-                                {formData.firstName} {formData.lastName}
-                                <br />
-                                {formData.address}
-                                {formData.apartment && `, ${formData.apartment}`}
-                                <br />
-                                {formData.city}, {formData.state} {formData.zipCode}
-                              </p>
+                          <div className="space-y-2">
+                            <div className="flex items-center gap-2 text-xs font-medium text-gray-400 uppercase tracking-wider">
+                              <MapPin className="w-3.5 h-3.5" />
+                              Delivery Address
                             </div>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={prevStep}
-                              className="text-primary hover:text-primary/80 hover:bg-primary/10"
-                            >
-                              Edit
-                            </Button>
+                            <div className="text-sm text-gray-700 leading-relaxed">
+                              <p className="font-medium text-gray-900">{formData.firstName} {formData.lastName}</p>
+                              <p>{formData.address}{formData.apartment && `, ${formData.apartment}`}</p>
+                              <p>{formData.city}, {formData.state} {formData.zipCode}</p>
+                            </div>
                           </div>
 
                           {/* Contact Info */}
-                          <div className="flex items-start gap-3 p-4 bg-gray-50 rounded-xl">
-                            <Phone className="w-5 h-5 text-primary shrink-0 mt-0.5" />
-                            <div className="flex-1 min-w-0">
-                              <p className="font-medium text-gray-900 text-sm">Contact Information</p>
-                              <p className="text-sm text-gray-600 mt-1">
+                          <div className="space-y-2">
+                            <div className="flex items-center gap-2 text-xs font-medium text-gray-400 uppercase tracking-wider">
+                              <User className="w-3.5 h-3.5" />
+                              Contact
+                            </div>
+                            <div className="text-sm text-gray-700 space-y-1">
+                              <p className="flex items-center gap-2">
+                                <Mail className="w-3.5 h-3.5 text-gray-400" />
                                 {formData.email}
-                                <br />
+                              </p>
+                              <p className="flex items-center gap-2">
+                                <Phone className="w-3.5 h-3.5 text-gray-400" />
                                 {formData.phone}
                               </p>
                             </div>
                           </div>
+                        </div>
 
-                          {/* Delivery Instructions */}
-                          {formData.deliveryInstructions && (
-                            <div className="flex items-start gap-3 p-4 bg-gray-50 rounded-xl">
-                              <Home className="w-5 h-5 text-primary shrink-0 mt-0.5" />
-                              <div className="flex-1 min-w-0">
-                                <p className="font-medium text-gray-900 text-sm">Delivery Instructions</p>
-                                <p className="text-sm text-gray-600 mt-1">{formData.deliveryInstructions}</p>
-                              </div>
+                        {/* Delivery Instructions */}
+                        {formData.deliveryInstructions && (
+                          <div className="mt-5 pt-5 border-t border-gray-100">
+                            <div className="flex items-center gap-2 text-xs font-medium text-gray-400 uppercase tracking-wider mb-2">
+                              <Home className="w-3.5 h-3.5" />
+                              Instructions
                             </div>
-                          )}
+                            <p className="text-sm text-gray-600 italic">&ldquo;{formData.deliveryInstructions}&rdquo;</p>
+                          </div>
+                        )}
 
-                          {/* Estimated Time */}
-                          <div className="flex items-center gap-3 p-4 bg-emerald-50 border border-emerald-100 rounded-xl">
+                        {/* Estimated Time Banner */}
+                        <motion.div 
+                          initial={{ opacity: 0, scale: 0.95 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          transition={{ delay: 0.2 }}
+                          className="mt-5 flex items-center gap-4 p-4 bg-gradient-to-r from-emerald-50 to-teal-50 rounded-xl border border-emerald-100/50"
+                        >
+                          <div className="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center">
                             <Clock className="w-5 h-5 text-emerald-600" />
+                          </div>
+                          <div>
+                            <p className="text-xs text-emerald-600 font-medium uppercase tracking-wide">Est. Delivery</p>
+                            <p className="text-lg font-bold text-gray-900">30–45 min</p>
+                          </div>
+                        </motion.div>
+                      </div>
+                    </motion.div>
+
+                    {/* Payment Section - Premium Design */}
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.2 }}
+                      className="bg-white rounded-2xl border border-gray-100 overflow-hidden"
+                    >
+                      {/* Dark Header */}
+                      <div className="relative bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 px-5 sm:px-6 py-5">
+                        <div className="absolute inset-0 opacity-30">
+                          <div className="absolute top-0 right-0 w-32 h-32 bg-primary/20 rounded-full blur-3xl" />
+                          <div className="absolute bottom-0 left-0 w-24 h-24 bg-[#635BFF]/20 rounded-full blur-2xl" />
+                        </div>
+                        <div className="relative flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-xl bg-white/10 backdrop-blur flex items-center justify-center">
+                              <Lock className="w-5 h-5 text-white" />
+                            </div>
                             <div>
-                              <p className="font-medium text-gray-900 text-sm">Estimated Delivery</p>
-                              <p className="text-sm font-semibold text-emerald-700">30-45 minutes</p>
+                              <h2 className="font-heading text-base sm:text-lg font-semibold text-white">
+                                Secure Checkout
+                              </h2>
+                              <p className="text-xs text-gray-400">End-to-end encrypted</p>
                             </div>
                           </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-
-                    {/* Payment Card */}
-                    <Card className="border border-gray-200 shadow-sm overflow-hidden">
-                      <div className="bg-gray-900 px-4 sm:px-6 py-4">
-                        <div className="flex items-center gap-2 text-white">
-                          <Lock className="w-5 h-5" />
-                          <h2 className="font-heading text-lg font-semibold">Secure Payment</h2>
+                          <div className="flex items-center gap-1.5">
+                            <Shield className="w-4 h-4 text-emerald-400" />
+                            <span className="text-xs text-emerald-400 font-medium hidden sm:inline">Protected</span>
+                          </div>
                         </div>
                       </div>
-                      <CardContent className="p-4 sm:p-6">
-                        <div className="space-y-5">
-                          {/* Stripe Branding */}
-                          <div className="flex items-center justify-center gap-3 py-3">
-                            <span className="text-sm text-gray-500">Powered by</span>
-                            <div className="flex items-center gap-1 text-[#635BFF] font-bold text-lg">
-                              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                                <path d="M13.976 9.15c-2.172-.806-3.356-1.426-3.356-2.409 0-.831.683-1.305 1.901-1.305 2.227 0 4.515.858 6.09 1.631l.89-5.494C18.252.975 15.697 0 12.165 0 9.667 0 7.589.654 6.104 1.872 4.56 3.147 3.757 4.992 3.757 7.218c0 4.039 2.467 5.76 6.476 7.219 2.585.92 3.445 1.574 3.445 2.583 0 .98-.84 1.545-2.354 1.545-1.875 0-4.965-.921-6.99-2.109l-.9 5.555C5.175 22.99 8.385 24 11.714 24c2.641 0 4.843-.624 6.328-1.813 1.664-1.305 2.525-3.236 2.525-5.732 0-4.128-2.524-5.851-6.591-7.305z" />
-                              </svg>
-                              <span>stripe</span>
+
+                      {/* Payment Content */}
+                      <div className="p-5 sm:p-6 space-y-5">
+                        {/* Order Total - Highlighted */}
+                        <div className="relative p-5 rounded-xl bg-gradient-to-br from-gray-50 to-white border border-gray-100">
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <p className="text-xs text-gray-500 uppercase tracking-wider font-medium">Total Amount</p>
+                              <p className="text-3xl sm:text-4xl font-bold text-gray-900 mt-1">
+                                ${total.toFixed(2)}
+                              </p>
+                            </div>
+                            <div className="text-right">
+                              <p className="text-xs text-gray-400">Includes</p>
+                              <p className="text-sm text-gray-600">Tax & {deliveryFee === 0 ? 'Free' : ''} Delivery</p>
                             </div>
                           </div>
+                        </div>
 
-                          {/* Card Icons */}
-                          <div className="flex items-center justify-center gap-2">
-                            <div className="bg-white border border-gray-200 rounded px-2.5 py-1.5">
-                              <svg width="32" height="20" viewBox="0 0 40 24" fill="none">
-                                <rect width="40" height="24" rx="4" fill="#1A1F71" />
-                                <path d="M17 16.5l2.5-9h2l-2.5 9h-2zm10.5-9l-3.5 9h-2l1.75-4.25-2.25-4.75h2.25l1.25 3.25 1.5-3.25h2l-1 1zm-14.25 9l-.75-1h-3l-.5 1h-2l3.5-9h2l3 9h-2.25zm-2-3h2l-1-3-1 3z" fill="white" />
+                        {/* Payment Methods */}
+                        <div className="space-y-3">
+                          <p className="text-xs text-gray-500 uppercase tracking-wider font-medium">
+                            Accepted Payment Methods
+                          </p>
+                          <div className="flex flex-wrap items-center gap-2">
+                            {/* Visa */}
+                            <div className="flex items-center gap-1.5 px-3 py-2 bg-gray-50 rounded-lg border border-gray-100 hover:border-gray-200 transition-colors">
+                              <svg width="28" height="18" viewBox="0 0 40 24" fill="none">
+                                <rect width="40" height="24" rx="3" fill="#1A1F71" />
+                                <path d="M17.5 16l2-8h2l-2 8h-2zm8-8l-3 8h-2l1.5-3.5-2-4.5h2l1.5 3 1-3h2zm-12 8l-.5-1.5h-2.5L10 16H8l3-8h2l2.5 8H13zm-1.5-3h1.5l-.75-2.5-.75 2.5z" fill="white" />
                               </svg>
+                              <span className="text-xs font-medium text-gray-600">Visa</span>
                             </div>
-                            <div className="bg-white border border-gray-200 rounded px-2.5 py-1.5">
-                              <svg width="32" height="20" viewBox="0 0 40 24" fill="none">
-                                <rect width="40" height="24" rx="4" fill="#fff" />
-                                <circle cx="15" cy="12" r="7" fill="#EB001B" />
-                                <circle cx="25" cy="12" r="7" fill="#F79E1B" />
-                                <path d="M20 6.5a6.98 6.98 0 012.5 5.5 6.98 6.98 0 01-2.5 5.5 6.98 6.98 0 01-2.5-5.5 6.98 6.98 0 012.5-5.5z" fill="#FF5F00" />
+                            {/* Mastercard */}
+                            <div className="flex items-center gap-1.5 px-3 py-2 bg-gray-50 rounded-lg border border-gray-100 hover:border-gray-200 transition-colors">
+                              <svg width="28" height="18" viewBox="0 0 40 24" fill="none">
+                                <rect width="40" height="24" rx="3" fill="#F7F7F7" />
+                                <circle cx="15" cy="12" r="6" fill="#EB001B" />
+                                <circle cx="25" cy="12" r="6" fill="#F79E1B" />
+                                <path d="M20 7a5.98 5.98 0 012 5 5.98 5.98 0 01-2 5 5.98 5.98 0 01-2-5 5.98 5.98 0 012-5z" fill="#FF5F00" />
                               </svg>
+                              <span className="text-xs font-medium text-gray-600">Mastercard</span>
                             </div>
-                            <div className="bg-white border border-gray-200 rounded px-2.5 py-1.5">
-                              <svg width="32" height="20" viewBox="0 0 40 24" fill="none">
-                                <rect width="40" height="24" rx="4" fill="#006FCF" />
-                                <path d="M20 5l7 7-7 7-7-7 7-7z" fill="#fff" />
+                            {/* Amex */}
+                            <div className="flex items-center gap-1.5 px-3 py-2 bg-gray-50 rounded-lg border border-gray-100 hover:border-gray-200 transition-colors">
+                              <svg width="28" height="18" viewBox="0 0 40 24" fill="none">
+                                <rect width="40" height="24" rx="3" fill="#006FCF" />
+                                <path d="M8 15h3l.5-1.5h1l.5 1.5h7v-1l.5 1h3l.5-1v1h3V9h-3l-.5 1-.5-1h-7v1l-.5-1H12l-.5 1-.5-1H8v6z" fill="white" />
                               </svg>
+                              <span className="text-xs font-medium text-gray-600">Amex</span>
+                            </div>
+                            {/* Apple Pay */}
+                            <div className="flex items-center gap-1.5 px-3 py-2 bg-gray-50 rounded-lg border border-gray-100 hover:border-gray-200 transition-colors">
+                              <svg width="28" height="18" viewBox="0 0 40 24" fill="none">
+                                <rect width="40" height="24" rx="3" fill="#000" />
+                                <path d="M14 8.5c.5-.6 1.2-1 1.8-1 .1.8-.2 1.5-.7 2-.5.6-1.1 1-1.8.9-.1-.7.3-1.4.7-1.9zm.8 2.2c1 0 1.5.7 1.5.7s-.8.5-.8 1.5c0 1.2 1 1.6 1 1.6s-.7 2-1.7 2c-.5 0-.8-.3-1.3-.3-.5 0-.9.3-1.3.3-.9 0-2-1.9-2-3.4 0-1.5 1-2.3 1.8-2.3.5 0 1 .3 1.3.3.4 0 .9-.4 1.5-.4z" fill="white" />
+                                <path d="M21 9h1.2l2.3 5.5 2.3-5.5H28l-3.2 7h-1.3L21 9z" fill="white" />
+                              </svg>
+                              <span className="text-xs font-medium text-gray-600">Apple Pay</span>
                             </div>
                           </div>
+                        </div>
 
-                          <div className="h-px bg-gray-200" />
-
-                          {/* Total */}
-                          <div className="bg-gray-50 rounded-xl p-4">
-                            <div className="flex justify-between items-center">
-                              <span className="text-gray-600">Total to pay</span>
-                              <span className="text-2xl font-bold text-primary">${total.toFixed(2)}</span>
-                            </div>
+                        {/* Divider */}
+                        <div className="relative">
+                          <div className="absolute inset-0 flex items-center">
+                            <div className="w-full border-t border-gray-100"></div>
                           </div>
+                          <div className="relative flex justify-center">
+                            <span className="bg-white px-3 text-xs text-gray-400">Powered by Stripe</span>
+                          </div>
+                        </div>
 
-                          {/* Pay Button */}
+                        {/* Pay Button - Premium */}
+                        <motion.div
+                          whileHover={{ scale: 1.01 }}
+                          whileTap={{ scale: 0.99 }}
+                        >
                           <Button
                             onClick={handleStripeCheckout}
                             disabled={isSubmitting}
-                            className="w-full h-12 sm:h-14 bg-[#635BFF] hover:bg-[#5851DB] text-white text-base sm:text-lg font-semibold rounded-xl"
+                            className="relative w-full h-14 sm:h-16 bg-gradient-to-r from-[#635BFF] via-[#7C75FF] to-[#635BFF] hover:from-[#5851DB] hover:via-[#6B64FF] hover:to-[#5851DB] text-white text-base sm:text-lg font-semibold rounded-xl shadow-lg shadow-[#635BFF]/25 transition-all duration-300 overflow-hidden group"
                           >
+                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
                             {isSubmitting ? (
-                              <div className="flex items-center gap-2">
+                              <div className="relative flex items-center justify-center gap-3">
                                 <Loader2 className="w-5 h-5 animate-spin" />
-                                Processing...
+                                <span>Processing Payment...</span>
                               </div>
                             ) : (
-                              <div className="flex items-center gap-2">
+                              <div className="relative flex items-center justify-center gap-3">
                                 <Lock className="w-5 h-5" />
-                                Pay ${total.toFixed(2)} with Stripe
+                                <span>Pay ${total.toFixed(2)}</span>
+                                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                               </div>
                             )}
                           </Button>
+                        </motion.div>
 
-                          {/* Security Note */}
-                          <div className="flex items-center justify-center gap-2 text-xs text-gray-500">
-                            <Shield className="w-4 h-4 text-emerald-600" />
-                            <span>Your payment is secured with 256-bit SSL encryption</span>
+                        {/* Security Badges */}
+                        <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6 pt-2">
+                          <div className="flex items-center gap-1.5 text-xs text-gray-500">
+                            <Shield className="w-4 h-4 text-emerald-500" />
+                            <span>256-bit SSL Encryption</span>
+                          </div>
+                          <div className="hidden sm:block w-1 h-1 rounded-full bg-gray-300" />
+                          <div className="flex items-center gap-1.5 text-xs text-gray-500">
+                            <Lock className="w-4 h-4 text-emerald-500" />
+                            <span>PCI DSS Compliant</span>
+                          </div>
+                          <div className="hidden sm:block w-1 h-1 rounded-full bg-gray-300" />
+                          <div className="flex items-center gap-1.5 text-xs text-gray-500">
+                            <Check className="w-4 h-4 text-emerald-500" />
+                            <span>Money-back Guarantee</span>
                           </div>
                         </div>
-                      </CardContent>
-                    </Card>
+                      </div>
+                    </motion.div>
 
-                    {/* Back Button */}
-                    <div className="pt-2">
-                      <Button variant="outline" onClick={prevStep} className="border-gray-200">
-                        <ArrowLeft className="w-4 h-4 mr-2" />
+                    {/* Back Navigation */}
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ delay: 0.3 }}
+                      className="flex items-center justify-between pt-2"
+                    >
+                      <Button 
+                        variant="ghost" 
+                        onClick={prevStep} 
+                        className="text-gray-600 hover:text-gray-900 hover:bg-gray-50 gap-2"
+                      >
+                        <ArrowLeft className="w-4 h-4" />
                         Back to Delivery
                       </Button>
-                    </div>
+                      <p className="text-xs text-gray-400 hidden sm:block">
+                        By placing your order, you agree to our Terms of Service
+                      </p>
+                    </motion.div>
                   </motion.div>
                 )}
               </AnimatePresence>

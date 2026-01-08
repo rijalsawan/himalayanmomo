@@ -45,6 +45,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import Navbar from '../components/Navbar';
+import Pagination from '../components/Pagination';
 
 interface OrderItem {
   id: string;
@@ -97,6 +98,8 @@ const sortOptions: { value: SortOption; label: string }[] = [
   { value: 'price-low', label: 'Price: Low to High' },
 ];
 
+const ITEMS_PER_PAGE = 10;
+
 // Loading Skeleton
 const OrderSkeleton = () => (
   <Card className="border border-gray-200 shadow-sm">
@@ -116,6 +119,11 @@ const OrderSkeleton = () => (
       </div>
     </CardContent>
   </Card>
+);
+
+// Empty placeholder to maintain consistent height (invisible spacer)
+const OrderPlaceholder = () => (
+  <div className="h-[88px] sm:h-[96px]" aria-hidden="true" />
 );
 
 // Receipt Component for printing/downloading
@@ -321,6 +329,9 @@ export default function OrdersPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
   
+  // Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  
   // Receipt
   const [showReceipt, setShowReceipt] = useState(false);
   const [selectedOrderForReceipt, setSelectedOrderForReceipt] = useState<Order | null>(null);
@@ -455,6 +466,20 @@ export default function OrdersPage() {
     return result;
   }, [orders, searchQuery, statusFilter, dateFilter, sortBy]);
 
+  // Paginated orders
+  const paginatedOrders = useMemo(() => {
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    return filteredOrders.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+  }, [filteredOrders, currentPage]);
+
+  // Calculate total pages
+  const totalPages = Math.ceil(filteredOrders.length / ITEMS_PER_PAGE);
+
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, statusFilter, dateFilter, sortBy]);
+
   // Count active filters
   const activeFilterCount = [
     statusFilter !== 'all',
@@ -511,7 +536,7 @@ export default function OrdersPage() {
         </div>
 
         <div className="container-custom py-6 sm:py-8 lg:py-12">
-          <div className="max-w-4xl mx-auto">
+          <div className="max-w-4xl mx-auto flex flex-col" style={{ minHeight: 'calc(100vh - 200px)' }}>
             {/* Header */}
             <div className="mb-6 sm:mb-8">
               <div className="flex items-center gap-3 mb-2">
@@ -779,50 +804,72 @@ export default function OrdersPage() {
             {/* Results Count */}
             <div className="flex items-center justify-between mb-4">
               <p className="text-sm text-gray-500">
-                Showing {filteredOrders.length} of {orders.length} orders
+                {filteredOrders.length === 0 ? (
+                  'No orders found'
+                ) : (
+                  <>
+                    Showing{' '}
+                    <span className="font-medium text-gray-700">
+                      {Math.min((currentPage - 1) * ITEMS_PER_PAGE + 1, filteredOrders.length)}
+                    </span>
+                    {' '}-{' '}
+                    <span className="font-medium text-gray-700">
+                      {Math.min(currentPage * ITEMS_PER_PAGE, filteredOrders.length)}
+                    </span>
+                    {' '}of{' '}
+                    <span className="font-medium text-gray-700">{filteredOrders.length}</span>
+                    {' '}orders
+                  </>
+                )}
               </p>
+              {totalPages > 1 && (
+                <p className="text-sm text-gray-500">
+                  Page {currentPage} of {totalPages}
+                </p>
+              )}
             </div>
 
             {/* Orders List */}
-            {filteredOrders.length === 0 ? (
-              <Card className="border border-gray-200 shadow-sm">
-                <CardContent className="p-8 sm:p-12 text-center">
-                  <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gray-100 flex items-center justify-center">
-                    <Package className="w-8 h-8 text-gray-400" />
-                  </div>
-                  {orders.length === 0 ? (
-                    <>
-                      <h2 className="font-heading text-xl font-semibold text-gray-900 mb-2">
-                        No orders yet
-                      </h2>
-                      <p className="text-gray-500 mb-6 max-w-sm mx-auto">
-                        You haven&apos;t placed any orders yet. Start exploring our delicious momos!
-                      </p>
-                      <Button asChild className="bg-primary hover:bg-primary/90">
-                        <Link href="/menu">Browse Menu</Link>
-                      </Button>
-                    </>
-                  ) : (
-                    <>
-                      <h2 className="font-heading text-xl font-semibold text-gray-900 mb-2">
-                        No orders found
-                      </h2>
-                      <p className="text-gray-500 mb-6">
-                        Try adjusting your search or filters to find what you&apos;re looking for.
-                      </p>
-                      <Button onClick={clearFilters} variant="outline">
-                        Clear Filters
-                      </Button>
-                    </>
-                  )}
-                </CardContent>
-              </Card>
-            ) : (
-              <div className="space-y-4">
-                {filteredOrders.map((order) => {
-                  const statusInfo = statusConfig[order.status] || statusConfig.PENDING;
-                  const StatusIcon = statusInfo.icon;
-                  const isExpanded = expandedOrder === order.id;
+            <div className="flex-1">
+              {filteredOrders.length === 0 ? (
+                <Card className="border border-gray-200 shadow-sm">
+                  <CardContent className="p-8 sm:p-12 text-center">
+                    <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gray-100 flex items-center justify-center">
+                      <Package className="w-8 h-8 text-gray-400" />
+                    </div>
+                    {orders.length === 0 ? (
+                      <>
+                        <h2 className="font-heading text-xl font-semibold text-gray-900 mb-2">
+                          No orders yet
+                        </h2>
+                        <p className="text-gray-500 mb-6 max-w-sm mx-auto">
+                          You haven&apos;t placed any orders yet. Start exploring our delicious momos!
+                        </p>
+                        <Button asChild className="bg-primary hover:bg-primary/90">
+                          <Link href="/menu">Browse Menu</Link>
+                        </Button>
+                      </>
+                    ) : (
+                      <>
+                        <h2 className="font-heading text-xl font-semibold text-gray-900 mb-2">
+                          No orders found
+                        </h2>
+                        <p className="text-gray-500 mb-6">
+                          Try adjusting your search or filters to find what you&apos;re looking for.
+                        </p>
+                        <Button onClick={clearFilters} variant="outline">
+                          Clear Filters
+                        </Button>
+                      </>
+                    )}
+                  </CardContent>
+                </Card>
+              ) : (
+                <div className="space-y-4">
+                  {paginatedOrders.map((order) => {
+                    const statusInfo = statusConfig[order.status] || statusConfig.PENDING;
+                    const StatusIcon = statusInfo.icon;
+                    const isExpanded = expandedOrder === order.id;
 
                   return (
                     <Card key={order.id} className="border border-gray-200 shadow-sm overflow-hidden">
@@ -998,6 +1045,27 @@ export default function OrdersPage() {
                     </Card>
                   );
                 })}
+                  {/* Placeholder spacers to maintain consistent height */}
+                  {paginatedOrders.length < ITEMS_PER_PAGE && 
+                    Array.from({ length: ITEMS_PER_PAGE - paginatedOrders.length }).map((_, i) => (
+                      <OrderPlaceholder key={`placeholder-${i}`} />
+                    ))
+                  }
+              </div>
+              )}
+            </div>
+
+            {/* Pagination - Always at bottom */}
+            {filteredOrders.length > 0 && (
+              <div className="mt-auto pt-6">
+                <Pagination
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  onPageChange={setCurrentPage}
+                  totalItems={filteredOrders.length}
+                  itemsPerPage={ITEMS_PER_PAGE}
+                  showItemCount={false}
+                />
               </div>
             )}
 

@@ -25,7 +25,6 @@ import {
   Palette,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   DropdownMenu,
@@ -37,6 +36,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
+import SearchModal from './components/SearchModal';
 
 // Tooltip component for collapsed sidebar
 function SidebarTooltip({ children, label, show }: { children: React.ReactNode; label: string; show: boolean }) {
@@ -191,6 +191,7 @@ export default function AdminLayout({
   const { data: session, status } = useSession();
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [pendingOrdersCount, setPendingOrdersCount] = useState(0);
@@ -253,6 +254,18 @@ export default function AdminLayout({
     };
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // Keyboard shortcut for search (Cmd/Ctrl + K)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        setSearchOpen((prev) => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
   // Show loading state while checking session
@@ -419,17 +432,29 @@ export default function AdminLayout({
               <Menu className="w-6 h-6" />
             </Button>
 
-            {/* Search Bar */}
+            {/* Search Bar - Opens Modal */}
             <div className="hidden md:flex flex-1 max-w-md">
-              <div className="relative w-full">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                <Input
-                  type="text"
-                  placeholder="Search orders, customers..."
-                  className="pl-10 bg-gray-50 border-gray-200 focus:border-primary focus:ring-primary"
-                />
-              </div>
+              <button
+                onClick={() => setSearchOpen(true)}
+                className="w-full flex items-center gap-3 px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-left hover:border-primary/50 hover:bg-gray-100/50 transition-all duration-200 group"
+              >
+                <Search className="w-4 h-4 text-gray-400 group-hover:text-primary transition-colors" />
+                <span className="text-gray-400 flex-1">Search orders, customers...</span>
+                <kbd className="hidden lg:flex items-center gap-1 px-2 py-0.5 text-[10px] font-medium text-gray-400 bg-white border border-gray-200 rounded-md">
+                  <span className="text-xs">⌘</span>K
+                </kbd>
+              </button>
             </div>
+
+            {/* Mobile Search Button */}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="md:hidden text-gray-600 hover:text-primary"
+              onClick={() => setSearchOpen(true)}
+            >
+              <Search className="w-5 h-5" />
+            </Button>
 
             {/* Right Section */}
             <div className="flex items-center gap-2 md:gap-4">
@@ -529,6 +554,9 @@ export default function AdminLayout({
         {/* Page Content */}
         <main className="p-4 lg:p-6">{children}</main>
       </div>
+
+      {/* Search Modal */}
+      <SearchModal isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
     </div>
   );
 }

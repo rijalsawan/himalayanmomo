@@ -22,6 +22,7 @@ export async function GET() {
         phone: true,
         address: true,
         image: true,
+        role: true,
         createdAt: true,
         _count: {
           select: { orders: true },
@@ -53,19 +54,21 @@ export async function PUT(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { name, phone, address, currentPassword, newPassword } = body;
+    const { name, phone, address, image, currentPassword, newPassword } = body;
 
     // Build update data
     const updateData: {
       name?: string;
       phone?: string;
       address?: string;
+      image?: string;
       password?: string;
     } = {};
 
     if (name !== undefined) updateData.name = name;
     if (phone !== undefined) updateData.phone = phone;
     if (address !== undefined) updateData.address = address;
+    if (image !== undefined) updateData.image = image;
 
     // Handle password change
     if (currentPassword && newPassword) {
@@ -110,6 +113,7 @@ export async function PUT(request: NextRequest) {
         phone: true,
         address: true,
         image: true,
+        role: true,
         createdAt: true,
         _count: {
           select: { orders: true },

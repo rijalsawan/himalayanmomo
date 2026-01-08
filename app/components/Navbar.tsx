@@ -19,7 +19,7 @@ import { useSession, signOut } from 'next-auth/react';
 const navLinks = [
   { name: 'Home', href: '/#home' },
   { name: 'About', href: '/#about' },
-  { name: 'Menu', href: '/menu' },
+  { name: 'Menu', href: '/#menu' },
   { name: 'Testimonials', href: '/#testimonials' },
   { name: 'Contact', href: '/#contact' },
 ];

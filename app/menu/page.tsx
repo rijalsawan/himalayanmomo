@@ -423,7 +423,7 @@ export default function MenuPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isFiltering, setIsFiltering] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
+  const itemsPerPage = 12; // 3 rows × 4 columns on xl screens
   const { totalItems, openCart } = useCart();
   
   // Track previous filter values to detect actual changes
@@ -849,6 +849,12 @@ export default function MenuPage() {
                             {paginatedItems.map((item) => (
                               <MobileMenuListItem key={item.id} item={item} />
                             ))}
+                            {/* Placeholder items to maintain consistent list height */}
+                            {paginatedItems.length < itemsPerPage && 
+                              Array.from({ length: itemsPerPage - paginatedItems.length }).map((_, i) => (
+                                <div key={`mobile-placeholder-${i}`} className="h-[120px]" aria-hidden="true" />
+                              ))
+                            }
                           </div>
                           {/* Mobile Pagination */}
                           {totalPages > 1 && (
@@ -874,6 +880,12 @@ export default function MenuPage() {
                             {paginatedItems.map((item, index) => (
                               <MenuCard key={item.id} item={item} index={index} />
                             ))}
+                            {/* Placeholder cards to maintain consistent grid height */}
+                            {paginatedItems.length < itemsPerPage && 
+                              Array.from({ length: itemsPerPage - paginatedItems.length }).map((_, i) => (
+                                <div key={`placeholder-${i}`} className="h-[340px]" aria-hidden="true" />
+                              ))
+                            }
                           </motion.div>
                           {/* Desktop Pagination */}
                           {totalPages > 1 && (
