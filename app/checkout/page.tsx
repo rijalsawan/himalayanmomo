@@ -146,12 +146,7 @@ export default function CheckoutPage() {
   const [errors, setErrors] = useState<FormErrors>({});
   const [touched, setTouched] = useState<Record<string, boolean>>({});
   const [submitAttempted, setSubmitAttempted] = useState(false);
-
-  useEffect(() => {
-    if (status === 'unauthenticated') {
-      router.push('/login?callbackUrl=/checkout');
-    }
-  }, [status, router]);
+  const [isLoadingProfile, setIsLoadingProfile] = useState(true);
 
   const [formData, setFormData] = useState<FormData>({
     firstName: '',
@@ -165,6 +160,101 @@ export default function CheckoutPage() {
     zipCode: '',
     deliveryInstructions: '',
   });
+
+  // Fetch user profile and pre-fill form
+  useEffect(() => {
+    const fetchProfile = async () => {
+      if (status !== 'authenticated') {
+        setIsLoadingProfile(false);
+        return;
+      }
+
+      try {
+        const response = await fetch('/api/profile');
+        if (response.ok) {
+          const profile = await response.json();
+          
+          // Parse the name into first and last name
+          const nameParts = (profile.name || '').trim().split(' ');
+          const firstName = nameParts[0] || '';
+          const lastName = nameParts.slice(1).join(' ') || '';
+          
+          // Parse address if available (format: "street, apt, city, state zip")
+          let street = '';
+          let apartment = '';
+          let city = '';
+          let state = '';
+          let zipCode = '';
+          
+          if (profile.address) {
+            // Try to parse address - common formats:
+            // "123 Main St, Apt 4, New York, NY 10001"
+            // "123 Main St, New York, NY 10001"
+            const addressParts = profile.address.split(',').map((p: string) => p.trim());
+            
+            if (addressParts.length >= 3) {
+              street = addressParts[0] || '';
+              
+              // Check if second part looks like an apartment
+              const secondPart = addressParts[1] || '';
+              const isApartment = /^(apt|suite|unit|#|\d)/i.test(secondPart);
+              
+              if (isApartment && addressParts.length >= 4) {
+                apartment = secondPart;
+                city = addressParts[2] || '';
+                const stateZip = addressParts[3] || '';
+                const stateZipMatch = stateZip.match(/^([A-Za-z]{2})\s*(\d{5}(-\d{4})?)?$/);
+                if (stateZipMatch) {
+                  state = stateZipMatch[1] || '';
+                  zipCode = stateZipMatch[2] || '';
+                } else {
+                  state = stateZip;
+                }
+              } else {
+                city = addressParts[1] || '';
+                const stateZip = addressParts[2] || '';
+                const stateZipMatch = stateZip.match(/^([A-Za-z]{2})\s*(\d{5}(-\d{4})?)?$/);
+                if (stateZipMatch) {
+                  state = stateZipMatch[1] || '';
+                  zipCode = stateZipMatch[2] || '';
+                } else {
+                  state = stateZip;
+                }
+              }
+            } else if (addressParts.length === 1) {
+              // Just a simple address
+              street = profile.address;
+            }
+          }
+
+          setFormData(prev => ({
+            ...prev,
+            firstName: firstName || prev.firstName,
+            lastName: lastName || prev.lastName,
+            email: profile.email || prev.email,
+            phone: profile.phone || prev.phone,
+            address: street || prev.address,
+            apartment: apartment || prev.apartment,
+            city: city || prev.city,
+            state: state || prev.state,
+            zipCode: zipCode || prev.zipCode,
+          }));
+        }
+      } catch (error) {
+        console.error('Error fetching profile:', error);
+      } finally {
+        setIsLoadingProfile(false);
+      }
+    };
+
+    fetchProfile();
+  }, [status]);
+
+  useEffect(() => {
+    if (status === 'unauthenticated') {
+      router.push('/login?callbackUrl=/checkout');
+    }
+  }, [status, router]);
 
   const deliveryFee = subtotal > 30 ? 0 : 4.99;
   const tax = subtotal * 0.08;
@@ -280,7 +370,7 @@ export default function CheckoutPage() {
     }
   };
 
-  if (status === 'loading') return <LoadingSkeleton />;
+  if (status === 'loading' || isLoadingProfile) return <LoadingSkeleton />;
   if (items.length === 0) return <EmptyCart />;
 
   const showError = (field: keyof FormErrors) =>
