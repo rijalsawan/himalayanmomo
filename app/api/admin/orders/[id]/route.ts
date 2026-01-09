@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { createOrderStatusNotification } from '@/lib/notifications';
 
 // GET single order by ID
 export async function GET(
@@ -63,11 +64,12 @@ export async function PATCH(
   try {
     const { id } = await params;
     const body = await request.json();
+    const newStatus = body.status?.toUpperCase();
 
     const order = await prisma.order.update({
       where: { id },
       data: {
-        status: body.status?.toUpperCase(),
+        status: newStatus,
       },
       include: {
         user: {
@@ -80,6 +82,11 @@ export async function PATCH(
         items: true,
       },
     });
+
+    // Create notification for the user about order status change
+    if (order.user?.id && newStatus) {
+      await createOrderStatusNotification(order.id, order.user.id, newStatus);
+    }
 
     return NextResponse.json({
       id: order.id,

@@ -34,20 +34,22 @@ model Session {
 }
 
 model User {
-  id            String    @id @default(cuid())
-  name          String?
-  email         String?   @unique
-  emailVerified DateTime?
-  image         String?
-  password      String?
-  phone         String?
-  address       String?
-  role          Role      @default(USER)
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  accounts      Account[]
-  orders        Order[]
-  sessions      Session[]
+  id                String             @id @default(cuid())
+  name              String?
+  email             String?            @unique
+  emailVerified     DateTime?
+  image             String?
+  password          String?
+  phone             String?
+  address           String?
+  role              Role               @default(USER)
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  accounts          Account[]
+  orders            Order[]
+  sessions          Session[]
+  notifications     UserNotification[]
+  pushSubscriptions PushSubscription[]
 }
 
 model VerificationToken {
@@ -289,4 +291,44 @@ enum NotificationType {
   ORDER_COMPLETED
   LOW_STOCK
   SYSTEM
+}
+
+enum UserNotificationType {
+  ORDER_CONFIRMED
+  ORDER_PREPARING
+  ORDER_READY
+  ORDER_OUT_FOR_DELIVERY
+  ORDER_DELIVERED
+  ORDER_CANCELLED
+  PROMOTION
+  WELCOME
+  SYSTEM
+}
+
+model UserNotification {
+  id        String               @id @default(cuid())
+  userId    String
+  type      UserNotificationType
+  title     String
+  message   String
+  orderId   String?
+  read      Boolean              @default(false)
+  createdAt DateTime             @default(now())
+  user      User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, read])
+  @@index([userId, createdAt])
+}
+
+model PushSubscription {
+  id        String   @id @default(cuid())
+  userId    String
+  endpoint  String   @unique
+  p256dh    String
+  auth      String
+  userAgent String?
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }

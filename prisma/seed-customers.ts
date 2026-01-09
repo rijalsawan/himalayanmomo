@@ -130,7 +130,6 @@ async function main() {
         address: customer.address,
         password: hashedPassword,
         role: customer.role || 'USER',
-        status: 'ACTIVE',
       },
     });
 

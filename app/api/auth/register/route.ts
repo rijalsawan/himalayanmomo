@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import prisma from '@/lib/prisma';
+import { createWelcomeNotification } from '@/lib/notifications';
 
 export async function POST(request: Request) {
   try {
@@ -38,6 +39,9 @@ export async function POST(request: Request) {
         password: hashedPassword,
       },
     });
+
+    // Send welcome notification
+    await createWelcomeNotification(user.id, user.name || undefined);
 
     return NextResponse.json(
       {

@@ -15,9 +15,7 @@ import {
   Loader2,
   RefreshCw,
   Calendar,
-  Users,
   X,
-  CheckCircle,
   Shield,
   ShieldOff,
 } from 'lucide-react';
@@ -69,15 +67,14 @@ interface Customer {
   totalSpent: number;
   lastOrder: string | null;
   joinedAt: string;
-  status: 'active' | 'inactive';
   role: 'USER' | 'ADMIN';
   orders: CustomerOrder[];
 }
 
 interface CustomerStats {
   totalCustomers: number;
-  activeCustomers: number;
-  inactiveCustomers: number;
+  totalAdmins: number;
+  totalUsers: number;
   totalRevenue: number;
   totalOrders: number;
   avgOrderValue: number;
@@ -92,7 +89,8 @@ export default function CustomersPage() {
   const [stats, setStats] = useState<CustomerStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState('all');
+  const [roleFilter, setRoleFilter] = useState('all');
+  const [dateFilter, setDateFilter] = useState('all');
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
@@ -107,7 +105,7 @@ export default function CustomersPage() {
   // Reset to page 1 when filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchQuery, statusFilter]);
+  }, [searchQuery, roleFilter, dateFilter]);
 
   // Fetch customers
   const fetchCustomers = async () => {
@@ -115,7 +113,8 @@ export default function CustomersPage() {
       setIsLoading(true);
       const params = new URLSearchParams();
       if (searchQuery) params.set('search', searchQuery);
-      if (statusFilter !== 'all') params.set('status', statusFilter);
+      if (roleFilter !== 'all') params.set('role', roleFilter);
+      if (dateFilter !== 'all') params.set('dateRange', dateFilter);
 
       const response = await fetch(`/api/admin/customers?${params.toString()}`);
       if (response.ok) {
@@ -136,7 +135,7 @@ export default function CustomersPage() {
       fetchCustomers();
     }, searchQuery ? 300 : 0); // Only debounce for search queries
     return () => clearTimeout(timer);
-  }, [searchQuery, statusFilter]);
+  }, [searchQuery, roleFilter, dateFilter]);
 
   const handleViewCustomer = (customer: Customer) => {
     setSelectedCustomer(customer);
@@ -214,14 +213,25 @@ export default function CustomersPage() {
           
           {/* Mobile Filters - Icon buttons with dropdowns */}
           <div className="flex sm:hidden items-center gap-2">
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <Select value={roleFilter} onValueChange={setRoleFilter}>
               <SelectTrigger className="w-9 h-9 p-0 justify-center [&>svg:last-child]:hidden">
-                <Users className={cn("w-4 h-4", statusFilter !== 'all' && "text-primary")} />
+                <Filter className={cn("w-4 h-4", roleFilter !== 'all' && "text-primary")} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Customers</SelectItem>
-                <SelectItem value="active">Active</SelectItem>
-                <SelectItem value="inactive">Inactive</SelectItem>
+                <SelectItem value="all">All Roles</SelectItem>
+                <SelectItem value="user">Users</SelectItem>
+                <SelectItem value="admin">Admins</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select value={dateFilter} onValueChange={setDateFilter}>
+              <SelectTrigger className="w-9 h-9 p-0 justify-center [&>svg:last-child]:hidden">
+                <Calendar className={cn("w-4 h-4", dateFilter !== 'all' && "text-primary")} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Time</SelectItem>
+                <SelectItem value="today">Today</SelectItem>
+                <SelectItem value="week">This Week</SelectItem>
+                <SelectItem value="month">This Month</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -243,16 +253,29 @@ export default function CustomersPage() {
                 className="pl-10 bg-gray-50"
               />
             </div>
-            {/* Status Filter - Desktop only */}
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="hidden sm:flex w-full sm:w-44">
+            {/* Role Filter - Desktop only */}
+            <Select value={roleFilter} onValueChange={setRoleFilter}>
+              <SelectTrigger className="hidden sm:flex w-full sm:w-40">
                 <Filter className="w-4 h-4 mr-2" />
-                <SelectValue placeholder="All Status" />
+                <SelectValue placeholder="All Roles" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Customers</SelectItem>
-                <SelectItem value="active">Active</SelectItem>
-                <SelectItem value="inactive">Inactive</SelectItem>
+                <SelectItem value="all">All Roles</SelectItem>
+                <SelectItem value="user">Users</SelectItem>
+                <SelectItem value="admin">Admins</SelectItem>
+              </SelectContent>
+            </Select>
+            {/* Date Filter - Desktop only */}
+            <Select value={dateFilter} onValueChange={setDateFilter}>
+              <SelectTrigger className="hidden sm:flex w-full sm:w-40">
+                <Calendar className="w-4 h-4 mr-2" />
+                <SelectValue placeholder="Joined Date" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Time</SelectItem>
+                <SelectItem value="today">Today</SelectItem>
+                <SelectItem value="week">This Week</SelectItem>
+                <SelectItem value="month">This Month</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -289,9 +312,6 @@ export default function CustomersPage() {
                       </th>
                       <th className="text-left py-4 px-6 text-sm font-medium text-gray-500 w-[120px]">
                         Total Spent
-                      </th>
-                      <th className="text-left py-4 px-6 text-sm font-medium text-gray-500 w-[100px]">
-                        Status
                       </th>
                       <th className="py-4 px-4 w-[60px]"></th>
                     </tr>
@@ -347,20 +367,8 @@ export default function CustomersPage() {
                           <span className="font-semibold text-[#1A1A1A]">
                             ${customer.totalSpent.toFixed(2)}
                           </span>
-                        </td>
-                        <td className="py-3 px-6">
-                          <Badge
-                            variant="outline"
-                            className={cn(
-                              customer.status === 'active'
-                                ? 'bg-green-50 text-green-700 border-green-200'
-                                : 'bg-gray-100 text-gray-600 border-gray-200'
-                            )}
-                          >
-                            {customer.status.charAt(0).toUpperCase() + customer.status.slice(1)}
-                          </Badge>
                           {customer.role === 'ADMIN' && (
-                            <Badge className="ml-1 bg-purple-50 text-purple-700 border-purple-200">
+                            <Badge className="ml-2 bg-purple-50 text-purple-700 border-purple-200">
                               <Shield className="w-3 h-3 mr-1" />
                               Admin
                             </Badge>
@@ -416,7 +424,7 @@ export default function CustomersPage() {
                     {/* Empty rows to maintain consistent height */}
                     {Array.from({ length: Math.max(0, ITEMS_PER_PAGE - paginatedCustomers.length) }).map((_, index) => (
                       <tr key={`empty-${index}`} className="border-b border-gray-50" style={{ height: '60px' }}>
-                        <td colSpan={6} className="py-3 px-6">&nbsp;</td>
+                        <td colSpan={5} className="py-3 px-6">&nbsp;</td>
                       </tr>
                     ))}
                   </tbody>
@@ -442,17 +450,6 @@ export default function CustomersPage() {
                           <div className="min-w-0">
                             <div className="flex items-center gap-1.5">
                               <h3 className="font-medium text-[#1A1A1A] truncate">{customer.name}</h3>
-                              <Badge
-                                variant="outline"
-                                className={cn(
-                                  'text-[10px] px-1.5 py-0',
-                                  customer.status === 'active'
-                                    ? 'bg-green-50 text-green-700 border-green-200'
-                                    : 'bg-gray-100 text-gray-600 border-gray-200'
-                                )}
-                              >
-                                {customer.status}
-                              </Badge>
                               {customer.role === 'ADMIN' && (
                                 <Badge className="text-[10px] px-1.5 py-0 bg-purple-50 text-purple-700 border-purple-200">
                                   <Shield className="w-2.5 h-2.5 mr-0.5" />
@@ -568,18 +565,6 @@ export default function CustomersPage() {
                       <DialogTitle className="font-heading text-base sm:text-lg font-semibold text-[#1A1A1A]">
                         {selectedCustomer.name}
                       </DialogTitle>
-                      <Badge
-                        variant="outline"
-                        className={cn(
-                          'text-[10px] sm:text-xs py-0.5 px-2',
-                          selectedCustomer.status === 'active'
-                            ? 'bg-green-50 text-green-700 border-green-200'
-                            : 'bg-gray-100 text-gray-600 border-gray-200'
-                        )}
-                      >
-                        {selectedCustomer.status === 'active' && <CheckCircle className="w-3 h-3 mr-1" />}
-                        {selectedCustomer.status}
-                      </Badge>
                       {selectedCustomer.role === 'ADMIN' && (
                         <Badge className="text-[10px] sm:text-xs py-0.5 px-2 bg-purple-50 text-purple-700 border-purple-200">
                           <Shield className="w-3 h-3 mr-1" />

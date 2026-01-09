@@ -1,15 +1,44 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
-// GET all customers (users with orders) for admin
+// GET all customers for admin
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const search = searchParams.get('search');
-    const status = searchParams.get('status');
+    const role = searchParams.get('role');
+    const dateRange = searchParams.get('dateRange');
+
+    // Build date filter
+    let dateFilter: Date | undefined;
+    if (dateRange === 'today') {
+      dateFilter = new Date();
+      dateFilter.setHours(0, 0, 0, 0);
+    } else if (dateRange === 'week') {
+      dateFilter = new Date();
+      dateFilter.setDate(dateFilter.getDate() - 7);
+    } else if (dateRange === 'month') {
+      dateFilter = new Date();
+      dateFilter.setMonth(dateFilter.getMonth() - 1);
+    }
+
+    // Build where clause
+    const whereClause: {
+      role?: 'USER' | 'ADMIN';
+      createdAt?: { gte: Date };
+    } = {};
+    
+    if (role && role !== 'all') {
+      whereClause.role = role.toUpperCase() as 'USER' | 'ADMIN';
+    }
+    
+    if (dateFilter) {
+      whereClause.createdAt = { gte: dateFilter };
+    }
 
     // Get all users with their order aggregates
     const users = await prisma.user.findMany({
+      where: whereClause,
       include: {
         orders: {
           include: {
@@ -28,9 +57,6 @@ export async function GET(request: NextRequest) {
     let customers = users.map((user) => {
       const totalSpent = user.orders.reduce((sum, order) => sum + order.total, 0);
       const lastOrder = user.orders[0];
-      const hasRecentOrder = lastOrder 
-        ? new Date(lastOrder.createdAt) > new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) // 30 days
-        : false;
 
       return {
         id: user.id,
@@ -43,7 +69,6 @@ export async function GET(request: NextRequest) {
         totalSpent,
         lastOrder: lastOrder?.createdAt.toISOString() || null,
         joinedAt: user.createdAt.toISOString(),
-        status: hasRecentOrder ? 'active' : 'inactive',
         role: user.role,
         orders: user.orders.slice(0, 5).map((order) => ({
           id: order.id,
@@ -65,16 +90,11 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Apply status filter
-    if (status && status !== 'all') {
-      customers = customers.filter((customer) => customer.status === status);
-    }
-
     // Calculate overall stats
     const stats = {
       totalCustomers: customers.length,
-      activeCustomers: customers.filter((c) => c.status === 'active').length,
-      inactiveCustomers: customers.filter((c) => c.status === 'inactive').length,
+      totalAdmins: customers.filter((c) => c.role === 'ADMIN').length,
+      totalUsers: customers.filter((c) => c.role === 'USER').length,
       totalRevenue: customers.reduce((sum, c) => sum + c.totalSpent, 0),
       totalOrders: customers.reduce((sum, c) => sum + c.totalOrders, 0),
     };

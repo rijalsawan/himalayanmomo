@@ -46,6 +46,8 @@ import {
 } from '@/components/ui/dropdown-menu';
 import Navbar from '../components/Navbar';
 import Pagination from '../components/Pagination';
+import NotificationButton from '../components/NotificationButton';
+import PushNotificationManager from '../components/PushNotificationManager';
 
 interface OrderItem {
   id: string;
@@ -539,17 +541,23 @@ export default function OrdersPage() {
           <div className="max-w-4xl mx-auto flex flex-col" style={{ minHeight: 'calc(100vh - 200px)' }}>
             {/* Header */}
             <div className="mb-6 sm:mb-8">
-              <div className="flex items-center gap-3 mb-2">
-                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-primary/10 flex items-center justify-center">
-                  <ShoppingBag className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-primary/10 flex items-center justify-center">
+                    <ShoppingBag className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
+                  </div>
+                  <div>
+                    <h1 className="font-heading text-2xl sm:text-3xl font-bold text-gray-900">
+                      My Orders
+                    </h1>
+                    <p className="text-sm text-gray-500">
+                      {orders.length} order{orders.length !== 1 ? 's' : ''} in total
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <h1 className="font-heading text-2xl sm:text-3xl font-bold text-gray-900">
-                    My Orders
-                  </h1>
-                  <p className="text-sm text-gray-500">
-                    {orders.length} order{orders.length !== 1 ? 's' : ''} in total
-                  </p>
+                <div className="flex items-center gap-2">
+                  <PushNotificationManager variant="compact" />
+                  <NotificationButton />
                 </div>
               </div>
             </div>
