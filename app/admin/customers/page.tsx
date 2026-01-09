@@ -1,18 +1,16 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useSession } from 'next-auth/react';
 import {
   Search,
   MoreHorizontal,
-  Mail,
   Phone,
   ShoppingBag,
-  DollarSign,
   Eye,
-  Ban,
   Download,
   Filter,
-  User,
+  Mail,
   MapPin,
   Loader2,
   RefreshCw,
@@ -88,6 +86,8 @@ interface CustomerStats {
 const ITEMS_PER_PAGE = 10;
 
 export default function CustomersPage() {
+  const { data: session } = useSession();
+  const currentUserId = session?.user?.id;
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [stats, setStats] = useState<CustomerStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -144,6 +144,11 @@ export default function CustomersPage() {
   };
 
   const handleToggleRole = async (customer: Customer) => {
+    // Prevent admin from removing their own admin role
+    if (customer.id === currentUserId && customer.role === 'ADMIN') {
+      return;
+    }
+
     const newRole = customer.role === 'ADMIN' ? 'USER' : 'ADMIN';
     
     try {
@@ -376,36 +381,33 @@ export default function CustomersPage() {
                                 <Eye className="w-4 h-4 mr-2" />
                                 View Details
                               </DropdownMenuItem>
-                              <DropdownMenuItem className="cursor-pointer">
-                                <Mail className="w-4 h-4 mr-2" />
-                                Send Email
-                              </DropdownMenuItem>
-                              <DropdownMenuSeparator />
-                              <DropdownMenuItem 
-                                className={cn(
-                                  "cursor-pointer",
-                                  customer.role === 'ADMIN' 
-                                    ? "text-orange-600 focus:text-orange-600" 
-                                    : "text-purple-600 focus:text-purple-600"
-                                )}
-                                onClick={() => handleToggleRole(customer)}
-                              >
-                                {customer.role === 'ADMIN' ? (
-                                  <>
-                                    <ShieldOff className="w-4 h-4 mr-2" />
-                                    Remove Admin
-                                  </>
-                                ) : (
-                                  <>
-                                    <Shield className="w-4 h-4 mr-2" />
-                                    Make Admin
-                                  </>
-                                )}
-                              </DropdownMenuItem>
-                              <DropdownMenuItem className="cursor-pointer text-red-600 focus:text-red-600">
-                                <Ban className="w-4 h-4 mr-2" />
-                                {customer.status === 'active' ? 'Deactivate' : 'Activate'}
-                              </DropdownMenuItem>
+                              {/* Only show admin toggle if not current user trying to remove own admin */}
+                              {!(customer.id === currentUserId && customer.role === 'ADMIN') && (
+                                <>
+                                  <DropdownMenuSeparator />
+                                  <DropdownMenuItem 
+                                    className={cn(
+                                      "cursor-pointer",
+                                      customer.role === 'ADMIN' 
+                                        ? "text-orange-600 focus:text-orange-600" 
+                                        : "text-purple-600 focus:text-purple-600"
+                                    )}
+                                    onClick={() => handleToggleRole(customer)}
+                                  >
+                                    {customer.role === 'ADMIN' ? (
+                                      <>
+                                        <ShieldOff className="w-4 h-4 mr-2" />
+                                        Remove Admin
+                                      </>
+                                    ) : (
+                                      <>
+                                        <Shield className="w-4 h-4 mr-2" />
+                                        Make Admin
+                                      </>
+                                    )}
+                                  </DropdownMenuItem>
+                                </>
+                              )}
                             </DropdownMenuContent>
                           </DropdownMenu>
                         </td>
@@ -471,36 +473,33 @@ export default function CustomersPage() {
                                 <Eye className="w-4 h-4 mr-2" />
                                 View Details
                               </DropdownMenuItem>
-                              <DropdownMenuItem className="cursor-pointer">
-                                <Mail className="w-4 h-4 mr-2" />
-                                Send Email
-                              </DropdownMenuItem>
-                              <DropdownMenuSeparator />
-                              <DropdownMenuItem 
-                                className={cn(
-                                  "cursor-pointer",
-                                  customer.role === 'ADMIN' 
-                                    ? "text-orange-600 focus:text-orange-600" 
-                                    : "text-purple-600 focus:text-purple-600"
-                                )}
-                                onClick={() => handleToggleRole(customer)}
-                              >
-                                {customer.role === 'ADMIN' ? (
-                                  <>
-                                    <ShieldOff className="w-4 h-4 mr-2" />
-                                    Remove Admin
-                                  </>
-                                ) : (
-                                  <>
-                                    <Shield className="w-4 h-4 mr-2" />
-                                    Make Admin
-                                  </>
-                                )}
-                              </DropdownMenuItem>
-                              <DropdownMenuItem className="cursor-pointer text-red-600 focus:text-red-600">
-                                <Ban className="w-4 h-4 mr-2" />
-                                {customer.status === 'active' ? 'Deactivate' : 'Activate'}
-                              </DropdownMenuItem>
+                              {/* Only show admin toggle if not current user trying to remove own admin */}
+                              {!(customer.id === currentUserId && customer.role === 'ADMIN') && (
+                                <>
+                                  <DropdownMenuSeparator />
+                                  <DropdownMenuItem 
+                                    className={cn(
+                                      "cursor-pointer",
+                                      customer.role === 'ADMIN' 
+                                        ? "text-orange-600 focus:text-orange-600" 
+                                        : "text-purple-600 focus:text-purple-600"
+                                    )}
+                                    onClick={() => handleToggleRole(customer)}
+                                  >
+                                    {customer.role === 'ADMIN' ? (
+                                      <>
+                                        <ShieldOff className="w-4 h-4 mr-2" />
+                                        Remove Admin
+                                      </>
+                                    ) : (
+                                      <>
+                                        <Shield className="w-4 h-4 mr-2" />
+                                        Make Admin
+                                      </>
+                                    )}
+                                  </DropdownMenuItem>
+                                </>
+                              )}
                             </DropdownMenuContent>
                           </DropdownMenu>
                         </div>
@@ -685,50 +684,35 @@ export default function CustomersPage() {
                     </div>
 
                     {/* Quick Actions */}
-                    <div className="grid grid-cols-3 gap-3">
-                      <Button type="button" variant="outline" size="sm" className="gap-2 h-10">
-                        <Mail className="w-4 h-4" />
-                        <span className="hidden sm:inline">Email</span>
-                      </Button>
-                      <Button 
-                        type="button" 
-                        variant="outline" 
-                        size="sm" 
-                        className={cn(
-                          "gap-2 h-10",
-                          selectedCustomer.role === 'ADMIN' 
-                            ? "text-orange-600 border-orange-200 hover:bg-orange-50 hover:text-orange-700"
-                            : "text-purple-600 border-purple-200 hover:bg-purple-50 hover:text-purple-700"
-                        )}
-                        onClick={() => handleToggleRole(selectedCustomer)}
-                      >
-                        {selectedCustomer.role === 'ADMIN' ? (
-                          <>
-                            <ShieldOff className="w-4 h-4" />
-                            <span className="hidden sm:inline">Remove Admin</span>
-                          </>
-                        ) : (
-                          <>
-                            <Shield className="w-4 h-4" />
-                            <span className="hidden sm:inline">Make Admin</span>
-                          </>
-                        )}
-                      </Button>
-                      <Button 
-                        type="button" 
-                        variant="outline" 
-                        size="sm" 
-                        className={cn(
-                          "gap-2 h-10",
-                          selectedCustomer.status === 'active' 
-                            ? "text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700"
-                            : "text-green-600 border-green-200 hover:bg-green-50 hover:text-green-700"
-                        )}
-                      >
-                        <Ban className="w-4 h-4" />
-                        <span className="hidden sm:inline">{selectedCustomer.status === 'active' ? 'Deactivate' : 'Activate'}</span>
-                      </Button>
-                    </div>
+                    {/* Only show admin toggle if not current user trying to remove own admin */}
+                    {!(selectedCustomer.id === currentUserId && selectedCustomer.role === 'ADMIN') && (
+                      <div className="flex justify-center">
+                        <Button 
+                          type="button" 
+                          variant="outline" 
+                          size="sm" 
+                          className={cn(
+                            "gap-2 h-10 w-full max-w-xs",
+                            selectedCustomer.role === 'ADMIN' 
+                              ? "text-orange-600 border-orange-200 hover:bg-orange-50 hover:text-orange-700"
+                              : "text-purple-600 border-purple-200 hover:bg-purple-50 hover:text-purple-700"
+                          )}
+                          onClick={() => handleToggleRole(selectedCustomer)}
+                        >
+                          {selectedCustomer.role === 'ADMIN' ? (
+                            <>
+                              <ShieldOff className="w-4 h-4" />
+                              <span>Remove Admin</span>
+                            </>
+                          ) : (
+                            <>
+                              <Shield className="w-4 h-4" />
+                              <span>Make Admin</span>
+                            </>
+                          )}
+                        </Button>
+                      </div>
+                    )}
                   </TabsContent>
 
                   {/* Orders Tab */}
@@ -788,7 +772,7 @@ export default function CustomersPage() {
               </Tabs>
 
               {/* Modal Footer */}
-              <div className="px-4 sm:px-6 py-3 sm:py-4 border-t border-gray-100 bg-gradient-to-r from-gray-50 to-white flex items-center justify-end gap-2 shrink-0">
+              <div className="px-4 sm:px-6 py-3 sm:py-4 border-t border-gray-100 bg-gradient-to-r from-gray-50 to-white flex items-center justify-end shrink-0">
                 <Button 
                   type="button"
                   variant="outline" 
@@ -796,14 +780,6 @@ export default function CustomersPage() {
                   onClick={() => setIsDetailsOpen(false)}
                 >
                   Close
-                </Button>
-                <Button 
-                  type="button"
-                  size="sm" 
-                  className="bg-primary hover:bg-primary/90 gap-2"
-                >
-                  <Mail className="w-4 h-4" />
-                  <span className="hidden sm:inline">Send Email</span>
                 </Button>
               </div>
             </>
