@@ -62,9 +62,9 @@ export async function createOrderStatusNotification(
       }
     });
 
-    // Get site settings for favicon
+    // Get site settings for brand logo
     const siteSettings = await getSiteSettings();
-    const iconUrl = siteSettings.favicon || '/favicon-32.svg';
+    const iconUrl = siteSettings.heroLogo || '/brandlogo.svg';
 
     // Send browser push notification
     await sendPushNotification(userId, {
@@ -157,9 +157,9 @@ export async function createWelcomeNotification(userId: string, userName?: strin
       }
     });
 
-    // Get site settings for favicon
+    // Get site settings for brand logo
     const siteSettings = await getSiteSettings();
-    const iconUrl = siteSettings.favicon || '/favicon-32.svg';
+    const iconUrl = siteSettings.heroLogo || '/brandlogo.svg';
 
     // Send welcome push notification
     await sendPushNotification(userId, {

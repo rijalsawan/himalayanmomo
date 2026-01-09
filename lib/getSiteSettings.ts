@@ -14,6 +14,7 @@ export interface SiteSettings {
   ogImageAlt: string;
   twitterImage: string;
   twitterHandle: string;
+  heroLogo: string;
 }
 
 // Default settings fallback
@@ -31,6 +32,7 @@ const defaultSettings: SiteSettings = {
   ogImageAlt: 'MO:MO Station - Authentic Nepali Dumplings',
   twitterImage: '/twitter-image.svg',
   twitterHandle: '@momostation',
+  heroLogo: '/brandlogo.svg',
 };
 
 // Cache the settings to avoid repeated DB calls
@@ -63,6 +65,7 @@ export async function getSiteSettings(): Promise<SiteSettings> {
         ogImageAlt: true,
         twitterImage: true,
         twitterHandle: true,
+        heroLogo: true,
       },
     });
 

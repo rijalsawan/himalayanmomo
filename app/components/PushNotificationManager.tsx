@@ -2,17 +2,31 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useSession } from 'next-auth/react';
-import { Bell, BellOff, BellRing, Loader2, Check, X, AlertTriangle } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
-type PermissionState = 'default' | 'granted' | 'denied' | 'unsupported' | 'localhost';
+type PermissionState = 'default' | 'granted' | 'denied' | 'unsupported' | 'localhost' | 'ios-unsupported';
 
 interface PushNotificationManagerProps {
   className?: string;
   showLabel?: boolean;
   variant?: 'default' | 'compact';
 }
+
+// Detect iOS
+const isIOS = (): boolean => {
+  if (typeof window === 'undefined') return false;
+  const userAgent = window.navigator.userAgent.toLowerCase();
+  return /iphone|ipad|ipod/.test(userAgent);
+};
+
+// Detect if running as PWA (standalone mode)
+const isStandalone = (): boolean => {
+  if (typeof window === 'undefined') return false;
+  return window.matchMedia('(display-mode: standalone)').matches || 
+         (window.navigator as Navigator & { standalone?: boolean }).standalone === true;
+};
 
 export default function PushNotificationManager({
   className,
@@ -31,12 +45,20 @@ export default function PushNotificationManager({
     (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
 
   // Check if push notifications are supported
+  // Note: iOS only supports push in Safari 16.4+ when installed as PWA
   const isPushSupported = typeof window !== 'undefined' && 
     'serviceWorker' in navigator && 
-    'PushManager' in window;
+    'PushManager' in window &&
+    'Notification' in window;
 
   // Register service worker
   useEffect(() => {
+    // iOS Chrome/Firefox don't support Web Push - only Safari as PWA does
+    if (isIOS() && !isStandalone()) {
+      setPermission('ios-unsupported');
+      return;
+    }
+
     if (!isPushSupported) {
       setPermission('unsupported');
       return;
@@ -233,21 +255,41 @@ export default function PushNotificationManager({
   if (status !== 'authenticated') return null;
   if (permission === 'unsupported') return null;
 
+  // iOS without PWA - push not supported
+  if (permission === 'ios-unsupported') {
+    if (variant === 'compact') {
+      return null; // Don't show anything on iOS in browser
+    }
+    return (
+      <div className={cn('flex items-center gap-3', className)}>
+        <Button
+          variant="outline"
+          size="sm"
+          className="h-9 border-gray-200 text-gray-500 cursor-help"
+          disabled
+          title="Add to Home Screen to enable push notifications"
+        >
+          {showLabel && <span>Add to Home Screen for notifications</span>}
+        </Button>
+      </div>
+    );
+  }
+
   // Localhost warning - show disabled state with tooltip
   if (permission === 'localhost' && !isSubscribed) {
     if (variant === 'compact') {
       return (
         <Button
           variant="outline"
-          size="icon"
+          size="sm"
           className={cn(
-            'h-10 w-10 rounded-xl border-amber-200 bg-amber-50/50 cursor-help',
+            'h-9 rounded-xl border-amber-200 bg-amber-50/50 text-amber-700 cursor-help px-3',
             className
           )}
           disabled
           title="Push notifications require HTTPS. Deploy to Vercel to enable."
         >
-          <AlertTriangle className="h-5 w-5 text-amber-500" />
+          {showLabel && <span>Push needs HTTPS</span>}
         </Button>
       );
     }
@@ -256,11 +298,10 @@ export default function PushNotificationManager({
         <Button
           variant="outline"
           size="sm"
-          className="gap-2 h-9 border-amber-200 bg-amber-50/50 text-amber-700 cursor-help"
+          className="h-9 border-amber-200 bg-amber-50/50 text-amber-700 cursor-help"
           disabled
           title="Push notifications require HTTPS"
         >
-          <AlertTriangle className="h-4 w-4" />
           {showLabel && <span>Push needs HTTPS</span>}
         </Button>
         {showLabel && (
@@ -272,15 +313,16 @@ export default function PushNotificationManager({
     );
   }
 
-  // Compact variant (just an icon button)
+  // Compact variant
   if (variant === 'compact') {
     return (
       <Button
         variant="outline"
-        size="icon"
+        size="sm"
         className={cn(
-          'h-10 w-10 rounded-xl border-gray-200 hover:bg-primary/5 hover:border-primary/30 transition-all duration-200',
-          isSubscribed && 'border-primary/30 bg-primary/5',
+          'h-9 rounded-xl border-gray-200 hover:bg-primary/5 hover:border-primary/30 transition-all duration-200 px-3',
+          isSubscribed && 'border-primary/30 bg-primary/5 text-primary',
+          permission === 'denied' && 'border-gray-200 text-gray-400',
           className
         )}
         onClick={isSubscribed ? unsubscribe : subscribe}
@@ -294,13 +336,15 @@ export default function PushNotificationManager({
         }
       >
         {isLoading ? (
-          <Loader2 className="h-5 w-5 animate-spin text-gray-500" />
-        ) : permission === 'denied' ? (
-          <BellOff className="h-5 w-5 text-gray-400" />
-        ) : isSubscribed ? (
-          <BellRing className="h-5 w-5 text-primary" />
+          <Loader2 className="h-4 w-4 animate-spin" />
         ) : (
-          <Bell className="h-5 w-5 text-gray-600" />
+          <span>
+            {permission === 'denied'
+              ? 'Blocked'
+              : isSubscribed
+              ? 'Notifications On'
+              : 'Enable Notifications'}
+          </span>
         )}
       </Button>
     );
@@ -313,7 +357,7 @@ export default function PushNotificationManager({
         variant={isSubscribed ? 'default' : 'outline'}
         size="sm"
         className={cn(
-          'gap-2 h-9 transition-all duration-200',
+          'h-9 transition-all duration-200',
           isSubscribed 
             ? 'bg-primary hover:bg-primary/90' 
             : 'border-gray-200 hover:bg-primary/5 hover:border-primary/30'
@@ -323,21 +367,16 @@ export default function PushNotificationManager({
       >
         {isLoading ? (
           <Loader2 className="h-4 w-4 animate-spin" />
-        ) : permission === 'denied' ? (
-          <BellOff className="h-4 w-4" />
-        ) : isSubscribed ? (
-          <Check className="h-4 w-4" />
         ) : (
-          <Bell className="h-4 w-4" />
-        )}
-        {showLabel && (
-          <span>
-            {permission === 'denied'
-              ? 'Notifications Blocked'
-              : isSubscribed
-              ? 'Notifications Enabled'
-              : 'Enable Notifications'}
-          </span>
+          showLabel && (
+            <span>
+              {permission === 'denied'
+                ? 'Notifications Blocked'
+                : isSubscribed
+                ? 'Notifications Enabled'
+                : 'Enable Notifications'}
+            </span>
+          )
         )}
       </Button>
       
