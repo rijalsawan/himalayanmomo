@@ -1,11 +1,12 @@
 'use client';
 
-import { useState, Suspense } from 'react';
+import { useState, Suspense, useEffect } from 'react';
 import { signIn } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { motion } from 'framer-motion';
-import { Mail, Lock, Eye, EyeOff, ArrowRight, Loader2 } from 'lucide-react';
+import { Eye, EyeOff, ArrowRight, Loader2, Sparkles, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
@@ -31,18 +32,40 @@ const GoogleIcon = () => (
   </svg>
 );
 
+interface SiteSettings {
+  heroLogo: string;
+  siteName: string;
+}
+
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get('callbackUrl') || '/';
+  const registered = searchParams.get('registered');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [error, setError] = useState('');
+  const [settings, setSettings] = useState<SiteSettings>({ heroLogo: '/brandlogo.svg', siteName: 'Himalayan Momos' });
   const [formData, setFormData] = useState({
     email: '',
     password: '',
   });
+
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        const res = await fetch('/api/site-settings');
+        if (res.ok) {
+          const data = await res.json();
+          setSettings(data);
+        }
+      } catch (error) {
+        console.error('Error fetching site settings:', error);
+      }
+    };
+    fetchSettings();
+  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -87,103 +110,151 @@ function LoginForm() {
 
   return (
     <div className="min-h-screen bg-[#FDF8F3] flex">
-      {/* Left Side - Decorative */}
-      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-gradient-to-br from-[#1A1A1A] to-[#2A2A2A]">
-        {/* Animated gradient blobs */}
-        <motion.div
-          animate={{
-            scale: [1, 1.2, 1],
-            x: [0, 30, 0],
-            y: [0, -20, 0],
+      {/* Left Side - Decorative Panel */}
+      <div className="hidden lg:flex lg:w-[45%] xl:w-1/2 relative overflow-hidden">
+        {/* Background with gradient overlay */}
+        <div className="absolute inset-0 bg-gradient-to-br from-[#1A1A1A] via-[#2A2A2A] to-[#1A1A1A]" />
+        
+        {/* Subtle pattern overlay */}
+        <div 
+          className="absolute inset-0 opacity-[0.03]"
+          style={{
+            backgroundImage: `radial-gradient(circle at 1px 1px, #fff 1px, transparent 0)`,
+            backgroundSize: '32px 32px'
           }}
-          transition={{ duration: 15, repeat: Infinity, ease: 'easeInOut' }}
-          className="absolute -top-40 -right-40 w-[500px] h-[500px] rounded-full bg-gradient-to-br from-primary/40 via-[#F4A261]/30 to-transparent blur-3xl"
         />
-        <motion.div
-          animate={{
-            scale: [1, 1.1, 1],
-            x: [0, -20, 0],
-            y: [0, 30, 0],
-          }}
-          transition={{ duration: 12, repeat: Infinity, ease: 'easeInOut' }}
-          className="absolute -bottom-40 -left-40 w-[400px] h-[400px] rounded-full bg-gradient-to-tr from-[#F4A261]/40 via-primary/30 to-transparent blur-3xl"
-        />
+        
+        {/* Animated gradient orbs */}
+        <div className="absolute -top-32 -right-32 w-[400px] h-[400px] rounded-full bg-gradient-to-br from-primary/30 via-[#F4A261]/20 to-transparent blur-3xl animate-blob-1" />
+        <div className="absolute -bottom-32 -left-32 w-[350px] h-[350px] rounded-full bg-gradient-to-tr from-[#F4A261]/30 via-primary/20 to-transparent blur-3xl animate-blob-2" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] rounded-full bg-primary/10 blur-3xl animate-blob-3" />
 
         {/* Content */}
-        <div className="relative z-10 flex flex-col justify-center px-12 xl:px-20">
+        <div className="relative z-10 flex flex-col justify-between p-10 xl:p-16 w-full">
+          {/* Logo */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
+            transition={{ duration: 0.5 }}
           >
-            <Link href="/" className="inline-block mb-12">
+            <Link href="/" className="inline-flex items-center gap-3 group">
+              <div className="relative w-12 h-12 rounded-xl overflow-hidden bg-white/10 backdrop-blur-sm border border-white/10 p-2 transition-transform group-hover:scale-105">
+                <Image 
+                  src={settings.heroLogo || '/brandlogo.svg'} 
+                  alt="Logo" 
+                  fill 
+                  className="object-contain"
+                />
+              </div>
               <div className="flex flex-col">
-                <span className="font-heading text-3xl font-bold text-white">
-                  Himalayan
+                <span className="font-heading text-xl font-bold text-white">
+                  {settings.siteName?.split(' ')[0] || 'Himalayan'}
                 </span>
-                <span className="font-accent text-xl text-[#F4A261] -mt-1">
-                  Momos
+                <span className="font-accent text-sm text-[#F4A261] -mt-0.5">
+                  {settings.siteName?.split(' ').slice(1).join(' ') || 'Momos'}
                 </span>
               </div>
             </Link>
+          </motion.div>
 
-            <h1 className="font-heading text-4xl xl:text-5xl font-bold text-white mb-6 leading-tight">
-              Welcome back,<br />
-              <span className="text-primary">food lover!</span>
+          {/* Main Content */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="space-y-8"
+          >
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-sm">
+              <Sparkles className="w-4 h-4 text-[#F4A261]" />
+              <span className="text-sm text-gray-300">Authentic Flavors Await</span>
+            </div>
+            
+            <h1 className="font-heading text-4xl xl:text-5xl font-bold text-white leading-tight">
+              Welcome back to<br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-[#F4A261]">
+                delicious moments
+              </span>
             </h1>
 
-            <p className="text-gray-400 text-lg max-w-md leading-relaxed">
-              Sign in to access your orders, save your favorite momos, and enjoy exclusive offers.
+            <p className="text-gray-400 text-lg max-w-sm leading-relaxed">
+              Sign in to access your orders, save favorites, and enjoy exclusive member benefits.
             </p>
+          </motion.div>
 
-            {/* Decorative elements */}
-            <div className="mt-12 flex gap-4">
-              {['🥟', '🌶️', '🍜'].map((emoji, i) => (
-                <motion.div
-                  key={i}
-                  initial={{ opacity: 0, scale: 0 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.8 + i * 0.1 }}
-                  className="w-14 h-14 rounded-2xl bg-white/10 backdrop-blur-sm flex items-center justify-center text-2xl"
-                >
-                  {emoji}
-                </motion.div>
-              ))}
-            </div>
+          {/* Bottom Features */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.6, delay: 0.4 }}
+            className="space-y-4"
+          >
+            {[
+              'Quick & easy ordering',
+              'Track orders in real-time',
+              'Exclusive member rewards',
+            ].map((feature, i) => (
+              <div key={i} className="flex items-center gap-3">
+                <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center">
+                  <CheckCircle className="w-3.5 h-3.5 text-primary" />
+                </div>
+                <span className="text-gray-400 text-sm">{feature}</span>
+              </div>
+            ))}
           </motion.div>
         </div>
       </div>
 
       {/* Right Side - Form */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-12">
+      <div className="w-full lg:w-[55%] xl:w-1/2 flex items-center justify-center px-6 py-12 sm:px-12 lg:px-16 xl:px-24">
         <motion.div
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.6 }}
-          className="w-full max-w-md"
+          transition={{ duration: 0.5 }}
+          className="w-full max-w-[400px]"
         >
           {/* Mobile Logo */}
-          <div className="lg:hidden mb-8 text-center">
-            <Link href="/" className="inline-block">
-              <div className="flex flex-col items-center">
-                <span className="font-heading text-2xl font-bold text-[#1A1A1A]">
-                  Himalayan
+          <div className="lg:hidden mb-10 text-center">
+            <Link href="/" className="inline-flex items-center gap-3 justify-center">
+              <div className="relative w-10 h-10 rounded-xl overflow-hidden bg-primary/10 p-1.5">
+                <Image 
+                  src={settings.heroLogo || '/brandlogo.svg'} 
+                  alt="Logo" 
+                  fill 
+                  className="object-contain"
+                />
+              </div>
+              <div className="flex flex-col items-start">
+                <span className="font-heading text-lg font-bold text-[#1A1A1A]">
+                  {settings.siteName?.split(' ')[0] || 'Himalayan'}
                 </span>
-                <span className="font-accent text-lg text-primary -mt-1">
-                  Momos
+                <span className="font-accent text-xs text-primary -mt-0.5">
+                  {settings.siteName?.split(' ').slice(1).join(' ') || 'Momos'}
                 </span>
               </div>
             </Link>
           </div>
 
+          {/* Header */}
           <div className="text-center lg:text-left mb-8">
-            <h2 className="font-heading text-3xl font-bold text-[#1A1A1A]">
-              Sign In
+            <h2 className="font-heading text-2xl sm:text-3xl font-bold text-[#1A1A1A]">
+              Sign in to your account
             </h2>
-            <p className="text-gray-500 mt-2">
+            <p className="text-gray-500 mt-2 text-sm sm:text-base">
               Enter your credentials to continue
             </p>
           </div>
+
+          {/* Success Message */}
+          {registered && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mb-6 p-4 bg-green-50 border border-green-200 rounded-xl text-green-700 text-sm flex items-center gap-2"
+            >
+              <CheckCircle className="w-4 h-4 flex-shrink-0" />
+              Account created successfully! Please sign in.
+            </motion.div>
+          )}
 
           {/* Error Message */}
           {error && (
@@ -200,86 +271,76 @@ function LoginForm() {
             {/* Email Field */}
             <div className="space-y-2">
               <label className="text-sm font-medium text-[#1A1A1A]">
-                Email Address
+                Email
               </label>
-              <div className="relative">
-                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                <Input
-                  type="email"
-                  name="email"
-                  placeholder="you@example.com"
-                  value={formData.email}
-                  onChange={handleChange}
-                  className="pl-12 h-12 rounded-xl border-gray-200 focus:border-primary focus:ring-primary bg-white"
-                  required
-                />
-              </div>
+              <Input
+                type="email"
+                name="email"
+                placeholder="you@example.com"
+                value={formData.email}
+                onChange={handleChange}
+                className="h-12 rounded-xl border-gray-200 focus:border-primary focus:ring-primary/20 bg-white text-base placeholder:text-gray-400"
+                required
+              />
             </div>
 
             {/* Password Field */}
             <div className="space-y-2">
-              <label className="text-sm font-medium text-[#1A1A1A]">
-                Password
-              </label>
+              <div className="flex items-center justify-between">
+                <label className="text-sm font-medium text-[#1A1A1A]">
+                  Password
+                </label>
+                <Link
+                  href="/forgot-password"
+                  className="text-xs text-primary hover:text-[#B8420A] transition-colors font-medium"
+                >
+                  Forgot password?
+                </Link>
+              </div>
               <div className="relative">
-                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                 <Input
                   type={showPassword ? 'text' : 'password'}
                   name="password"
                   placeholder="••••••••"
                   value={formData.password}
                   onChange={handleChange}
-                  className="pl-12 pr-12 h-12 rounded-xl border-gray-200 focus:border-primary focus:ring-primary bg-white"
+                  className="h-12 pr-12 rounded-xl border-gray-200 focus:border-primary focus:ring-primary/20 bg-white text-base placeholder:text-gray-400"
                   required
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
                 >
-                  {showPassword ? (
-                    <EyeOff className="w-5 h-5" />
-                  ) : (
-                    <Eye className="w-5 h-5" />
-                  )}
+                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
               </div>
-            </div>
-
-            {/* Forgot Password */}
-            <div className="flex justify-end">
-              <Link
-                href="/forgot-password"
-                className="text-sm text-primary hover:text-[#B8420A] transition-colors"
-              >
-                Forgot password?
-              </Link>
             </div>
 
             {/* Submit Button */}
             <Button
               type="submit"
               disabled={isLoading}
-              className="w-full h-12 rounded-xl bg-primary hover:bg-[#B8420A] text-white font-medium text-base shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 transition-all duration-300 group"
+              className="w-full h-12 rounded-xl bg-primary hover:bg-[#B8420A] text-white font-medium text-base transition-all duration-300 group"
             >
               {isLoading ? (
                 <Loader2 className="w-5 h-5 animate-spin" />
               ) : (
                 <>
                   Sign In
-                  <ArrowRight className="w-5 h-5 ml-2 transition-transform group-hover:translate-x-1" />
+                  <ArrowRight className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-1" />
                 </>
               )}
             </Button>
           </form>
 
           {/* Divider */}
-          <div className="relative my-6">
+          <div className="relative my-8">
             <div className="absolute inset-0 flex items-center">
               <div className="w-full border-t border-gray-200"></div>
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="px-4 bg-[#FDF8F3] text-gray-500">
+              <span className="px-4 bg-[#FDF8F3] text-gray-400 text-xs uppercase tracking-wider">
                 Or continue with
               </span>
             </div>
@@ -291,46 +352,34 @@ function LoginForm() {
             variant="outline"
             onClick={handleGoogleSignIn}
             disabled={isGoogleLoading}
-            className="w-full h-12 rounded-xl border-2 border-gray-200 bg-white hover:bg-gray-50 text-[#1A1A1A] font-medium text-base transition-all duration-300 flex items-center justify-center gap-3"
+            className="w-full h-12 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 text-[#1A1A1A] font-medium text-base transition-all duration-300 flex items-center justify-center gap-3 hover:border-gray-300"
           >
             {isGoogleLoading ? (
               <Loader2 className="w-5 h-5 animate-spin" />
             ) : (
               <>
                 <GoogleIcon />
-                Continue with Google
+                Google
               </>
             )}
           </Button>
 
-          {/* Divider */}
-          <div className="relative my-6">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-200"></div>
-            </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="px-4 bg-[#FDF8F3] text-gray-500">
-                New to Himalayan Momos?
-              </span>
-            </div>
-          </div>
-
           {/* Sign Up Link */}
-          <Link href="/signup">
-            <Button
-              type="button"
-              variant="outline"
-              className="w-full h-12 rounded-xl border-2 border-[#1A1A1A] text-[#1A1A1A] hover:bg-[#1A1A1A] hover:text-white font-medium text-base transition-all duration-300"
+          <p className="text-center mt-8 text-gray-500 text-sm">
+            Don&apos;t have an account?{' '}
+            <Link
+              href="/signup"
+              className="text-primary hover:text-[#B8420A] transition-colors font-semibold"
             >
-              Create an Account
-            </Button>
-          </Link>
+              Create one
+            </Link>
+          </p>
 
           {/* Back to Home */}
-          <p className="text-center mt-8 text-gray-500 text-sm">
+          <p className="text-center mt-4 text-gray-400 text-xs">
             <Link
               href="/"
-              className="text-primary hover:text-[#B8420A] transition-colors"
+              className="hover:text-gray-600 transition-colors"
             >
               ← Back to Home
             </Link>
@@ -345,8 +394,10 @@ function LoginLoading() {
   return (
     <div className="min-h-screen bg-[#FDF8F3] flex items-center justify-center">
       <div className="text-center">
-        <Loader2 className="w-8 h-8 animate-spin text-primary mx-auto mb-4" />
-        <p className="text-gray-500">Loading...</p>
+        <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
+          <Loader2 className="w-6 h-6 animate-spin text-primary" />
+        </div>
+        <p className="text-gray-500 text-sm">Loading...</p>
       </div>
     </div>
   );

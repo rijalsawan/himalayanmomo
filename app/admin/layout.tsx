@@ -23,6 +23,7 @@ import {
   CheckCircle,
   AlertTriangle,
   Palette,
+  MessageSquare,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -113,6 +114,12 @@ const sidebarLinks = [
     icon: Palette,
   },
   {
+    name: 'Messages',
+    href: '/admin/messages',
+    icon: MessageSquare,
+    badgeKey: 'unreadMessages' as const,
+  },
+  {
     name: 'Settings',
     href: '/admin/settings',
     icon: Settings,
@@ -195,6 +202,7 @@ export default function AdminLayout({
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [pendingOrdersCount, setPendingOrdersCount] = useState(0);
+  const [unreadMessagesCount, setUnreadMessagesCount] = useState(0);
   const pathname = usePathname();
 
   // Fetch notifications
@@ -224,21 +232,36 @@ export default function AdminLayout({
     }
   }, []);
 
+  // Fetch unread messages count
+  const fetchUnreadMessages = useCallback(async () => {
+    try {
+      const response = await fetch('/api/admin/messages?status=UNREAD&limit=1');
+      if (response.ok) {
+        const data = await response.json();
+        setUnreadMessagesCount(data.unreadCount || 0);
+      }
+    } catch (error) {
+      console.error('Error fetching unread messages:', error);
+    }
+  }, []);
+
   // Initial fetch and polling
   useEffect(() => {
     if (session?.user?.role === 'ADMIN') {
       fetchNotifications();
       fetchPendingOrders();
+      fetchUnreadMessages();
       
       // Poll every 30 seconds for new notifications
       const interval = setInterval(() => {
         fetchNotifications();
         fetchPendingOrders();
+        fetchUnreadMessages();
       }, 30000);
 
       return () => clearInterval(interval);
     }
-  }, [session, fetchNotifications, fetchPendingOrders]);
+  }, [session, fetchNotifications, fetchPendingOrders, fetchUnreadMessages]);
 
   // Close mobile menu on route change
   useEffect(() => {
@@ -342,7 +365,11 @@ export default function AdminLayout({
           {sidebarLinks.map((link) => {
             const isActive = pathname === link.href || 
               (link.href !== '/admin' && pathname.startsWith(link.href));
-            const badgeCount = link.badgeKey === 'pendingOrders' ? pendingOrdersCount : 0;
+            const badgeCount = link.badgeKey === 'pendingOrders' 
+              ? pendingOrdersCount 
+              : link.badgeKey === 'unreadMessages' 
+                ? unreadMessagesCount 
+                : 0;
             
             return (
               <SidebarTooltip key={link.href} label={link.name} show={!sidebarOpen}>

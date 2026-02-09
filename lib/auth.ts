@@ -68,30 +68,45 @@ export const authOptions: NextAuthOptions = {
       }
       return true;
     },
-    async jwt({ token, user, account }) {
-      if (user) {
+    async jwt({ token, user, account, profile }) {
+      // Initial sign in
+      if (account && user) {
         token.id = user.id;
         token.role = user.role;
-      }
-      // For Google sign-in, fetch the user from database to get the role
-      if (account?.provider === 'google' && user?.email) {
-        const dbUser = await prisma.user.findUnique({
-          where: { email: user.email },
-          select: { id: true, role: true },
-        });
-        if (dbUser) {
-          token.id = dbUser.id;
-          token.role = dbUser.role;
+        
+        // For Google OAuth, get image directly from profile
+        if (account.provider === 'google' && profile) {
+          const googleProfile = profile as { picture?: string };
+          token.picture = googleProfile.picture || user.image;
+        } else {
+          token.picture = user.image;
+        }
+        
+        // Fetch role from database
+        if (user.email) {
+          const dbUser = await prisma.user.findUnique({
+            where: { email: user.email },
+            select: { id: true, role: true },
+          });
+          if (dbUser) {
+            token.id = dbUser.id;
+            token.role = dbUser.role;
+          }
         }
       }
-      // Always fetch the latest role from database to handle role changes
-      if (token.id) {
+      
+      // Subsequent requests - refresh role from database
+      if (token.id && !account) {
         const dbUser = await prisma.user.findUnique({
           where: { id: token.id as string },
-          select: { role: true },
+          select: { role: true, image: true },
         });
         if (dbUser) {
           token.role = dbUser.role;
+          // Only update picture if dbUser has a custom image set
+          if (dbUser.image && !dbUser.image.includes('googleusercontent.com')) {
+            token.picture = dbUser.image;
+          }
         }
       }
       return token;
@@ -100,6 +115,7 @@ export const authOptions: NextAuthOptions = {
       if (session.user) {
         session.user.id = token.id as string;
         session.user.role = token.role;
+        session.user.image = token.picture as string | null | undefined;
       }
       return session;
     },

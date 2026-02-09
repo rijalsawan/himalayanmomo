@@ -13,6 +13,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { useCart } from '../context/CartContext';
 import { useSession, signOut } from 'next-auth/react';
 
@@ -150,17 +151,16 @@ export default function Navbar() {
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <button className="flex items-center gap-2 px-3 py-2 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors">
-                    <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-                      {session.user?.image ? (
-                        <img
-                          src={session.user.image}
-                          alt={session.user.name || 'User'}
-                          className="w-full h-full rounded-full object-cover"
-                        />
-                      ) : (
+                    <Avatar className="w-8 h-8">
+                      <AvatarImage 
+                        src={session.user?.image || undefined} 
+                        alt={session.user?.name || 'User'}
+                        referrerPolicy="no-referrer"
+                      />
+                      <AvatarFallback className="bg-primary/10">
                         <User className="w-4 h-4 text-primary" />
-                      )}
-                    </div>
+                      </AvatarFallback>
+                    </Avatar>
                     <span className="text-sm font-medium text-[#1A1A1A] max-w-[100px] truncate">
                       {session.user?.name?.split(' ')[0] || 'User'}
                     </span>
@@ -294,17 +294,16 @@ export default function Navbar() {
                       <div className="space-y-3">
                         {/* User Info */}
                         <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
-                          <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                            {session.user?.image ? (
-                              <img
-                                src={session.user.image}
-                                alt={session.user.name || 'User'}
-                                className="w-full h-full rounded-full object-cover"
-                              />
-                            ) : (
+                          <Avatar className="w-10 h-10 flex-shrink-0">
+                            <AvatarImage 
+                              src={session.user?.image || undefined} 
+                              alt={session.user?.name || 'User'}
+                              referrerPolicy="no-referrer"
+                            />
+                            <AvatarFallback className="bg-primary/10">
                               <User className="w-5 h-5 text-primary" />
-                            )}
-                          </div>
+                            </AvatarFallback>
+                          </Avatar>
                           <div className="min-w-0 flex-1">
                             <p className="font-medium text-[#1A1A1A] text-sm truncate">
                               {session.user?.name}

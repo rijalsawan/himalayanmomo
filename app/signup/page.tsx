@@ -1,11 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { motion } from 'framer-motion';
-import { User, Mail, Lock, Eye, EyeOff, ArrowRight, Loader2, Check } from 'lucide-react';
+import { Eye, EyeOff, ArrowRight, Loader2, CheckCircle, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
@@ -31,6 +32,11 @@ const GoogleIcon = () => (
   </svg>
 );
 
+interface SiteSettings {
+  heroLogo: string;
+  siteName: string;
+}
+
 export default function SignupPage() {
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
@@ -38,12 +44,28 @@ export default function SignupPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [error, setError] = useState('');
+  const [settings, setSettings] = useState<SiteSettings>({ heroLogo: '/brandlogo.svg', siteName: 'Himalayan Momos' });
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     password: '',
     confirmPassword: '',
   });
+
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        const res = await fetch('/api/site-settings');
+        if (res.ok) {
+          const data = await res.json();
+          setSettings(data);
+        }
+      } catch (error) {
+        console.error('Error fetching site settings:', error);
+      }
+    };
+    fetchSettings();
+  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -122,32 +144,41 @@ export default function SignupPage() {
   return (
     <div className="min-h-screen bg-[#FDF8F3] flex">
       {/* Left Side - Form */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-12">
+      <div className="w-full lg:w-[55%] xl:w-1/2 flex items-center justify-center px-6 py-12 sm:px-12 lg:px-16 xl:px-24">
         <motion.div
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.6 }}
-          className="w-full max-w-md"
+          transition={{ duration: 0.5 }}
+          className="w-full max-w-[400px]"
         >
           {/* Mobile Logo */}
-          <div className="lg:hidden mb-8 text-center">
-            <Link href="/" className="inline-block">
-              <div className="flex flex-col items-center">
-                <span className="font-heading text-2xl font-bold text-[#1A1A1A]">
-                  Himalayan
+          <div className="lg:hidden mb-10 text-center">
+            <Link href="/" className="inline-flex items-center gap-3 justify-center">
+              <div className="relative w-10 h-10 rounded-xl overflow-hidden bg-primary/10 p-1.5">
+                <Image 
+                  src={settings.heroLogo || '/brandlogo.svg'} 
+                  alt="Logo" 
+                  fill 
+                  className="object-contain"
+                />
+              </div>
+              <div className="flex flex-col items-start">
+                <span className="font-heading text-lg font-bold text-[#1A1A1A]">
+                  {settings.siteName?.split(' ')[0] || 'Himalayan'}
                 </span>
-                <span className="font-accent text-lg text-primary -mt-1">
-                  Momos
+                <span className="font-accent text-xs text-primary -mt-0.5">
+                  {settings.siteName?.split(' ').slice(1).join(' ') || 'Momos'}
                 </span>
               </div>
             </Link>
           </div>
 
+          {/* Header */}
           <div className="text-center lg:text-left mb-8">
-            <h2 className="font-heading text-3xl font-bold text-[#1A1A1A]">
-              Create Account
+            <h2 className="font-heading text-2xl sm:text-3xl font-bold text-[#1A1A1A]">
+              Create your account
             </h2>
-            <p className="text-gray-500 mt-2">
+            <p className="text-gray-500 mt-2 text-sm sm:text-base">
               Join us for a delicious experience
             </p>
           </div>
@@ -163,43 +194,37 @@ export default function SignupPage() {
             </motion.div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-5">
+          <form onSubmit={handleSubmit} className="space-y-4">
             {/* Name Field */}
             <div className="space-y-2">
               <label className="text-sm font-medium text-[#1A1A1A]">
                 Full Name
               </label>
-              <div className="relative">
-                <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                <Input
-                  type="text"
-                  name="name"
-                  placeholder="John Doe"
-                  value={formData.name}
-                  onChange={handleChange}
-                  className="pl-12 h-12 rounded-xl border-gray-200 focus:border-primary focus:ring-primary bg-white"
-                  required
-                />
-              </div>
+              <Input
+                type="text"
+                name="name"
+                placeholder="John Doe"
+                value={formData.name}
+                onChange={handleChange}
+                className="h-12 rounded-xl border-gray-200 focus:border-primary focus:ring-primary/20 bg-white text-base placeholder:text-gray-400"
+                required
+              />
             </div>
 
             {/* Email Field */}
             <div className="space-y-2">
               <label className="text-sm font-medium text-[#1A1A1A]">
-                Email Address
+                Email
               </label>
-              <div className="relative">
-                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                <Input
-                  type="email"
-                  name="email"
-                  placeholder="you@example.com"
-                  value={formData.email}
-                  onChange={handleChange}
-                  className="pl-12 h-12 rounded-xl border-gray-200 focus:border-primary focus:ring-primary bg-white"
-                  required
-                />
-              </div>
+              <Input
+                type="email"
+                name="email"
+                placeholder="you@example.com"
+                value={formData.email}
+                onChange={handleChange}
+                className="h-12 rounded-xl border-gray-200 focus:border-primary focus:ring-primary/20 bg-white text-base placeholder:text-gray-400"
+                required
+              />
             </div>
 
             {/* Password Field */}
@@ -208,32 +233,27 @@ export default function SignupPage() {
                 Password
               </label>
               <div className="relative">
-                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                 <Input
                   type={showPassword ? 'text' : 'password'}
                   name="password"
                   placeholder="••••••••"
                   value={formData.password}
                   onChange={handleChange}
-                  className="pl-12 pr-12 h-12 rounded-xl border-gray-200 focus:border-primary focus:ring-primary bg-white"
+                  className="h-12 pr-12 rounded-xl border-gray-200 focus:border-primary focus:ring-primary/20 bg-white text-base placeholder:text-gray-400"
                   required
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
                 >
-                  {showPassword ? (
-                    <EyeOff className="w-5 h-5" />
-                  ) : (
-                    <Eye className="w-5 h-5" />
-                  )}
+                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
               </div>
 
               {/* Password Strength Indicator */}
               {formData.password && (
-                <div className="space-y-2">
+                <div className="space-y-1.5 pt-1">
                   <div className="flex gap-1">
                     {[1, 2, 3, 4, 5].map((i) => (
                       <div
@@ -247,14 +267,7 @@ export default function SignupPage() {
                     ))}
                   </div>
                   <p className="text-xs text-gray-500">
-                    Password strength:{' '}
-                    <span
-                      className={`font-medium ${
-                        passwordStrength >= 4 ? 'text-green-600' : 'text-gray-600'
-                      }`}
-                    >
-                      {strengthLabels[passwordStrength - 1] || 'Too short'}
-                    </span>
+                    {strengthLabels[passwordStrength - 1] || 'Too short'}
                   </p>
                 </div>
               )}
@@ -266,14 +279,13 @@ export default function SignupPage() {
                 Confirm Password
               </label>
               <div className="relative">
-                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                 <Input
                   type={showConfirmPassword ? 'text' : 'password'}
                   name="confirmPassword"
                   placeholder="••••••••"
                   value={formData.confirmPassword}
                   onChange={handleChange}
-                  className={`pl-12 pr-12 h-12 rounded-xl border-gray-200 focus:border-primary focus:ring-primary bg-white ${
+                  className={`h-12 pr-12 rounded-xl border-gray-200 focus:border-primary focus:ring-primary/20 bg-white text-base placeholder:text-gray-400 ${
                     formData.confirmPassword &&
                     formData.password === formData.confirmPassword
                       ? 'border-green-500 focus:border-green-500'
@@ -284,11 +296,11 @@ export default function SignupPage() {
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
                 >
                   {formData.confirmPassword &&
                   formData.password === formData.confirmPassword ? (
-                    <Check className="w-5 h-5 text-green-500" />
+                    <CheckCircle className="w-5 h-5 text-green-500" />
                   ) : showConfirmPassword ? (
                     <EyeOff className="w-5 h-5" />
                   ) : (
@@ -299,7 +311,7 @@ export default function SignupPage() {
             </div>
 
             {/* Terms */}
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-gray-500 pt-1">
               By creating an account, you agree to our{' '}
               <Link href="/terms" className="text-primary hover:underline">
                 Terms of Service
@@ -315,14 +327,14 @@ export default function SignupPage() {
             <Button
               type="submit"
               disabled={isLoading}
-              className="w-full h-12 rounded-xl bg-primary hover:bg-[#B8420A] text-white font-medium text-base shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 transition-all duration-300 group"
+              className="w-full h-12 rounded-xl bg-primary hover:bg-[#B8420A] text-white font-medium text-base transition-all duration-300 group mt-2"
             >
               {isLoading ? (
                 <Loader2 className="w-5 h-5 animate-spin" />
               ) : (
                 <>
                   Create Account
-                  <ArrowRight className="w-5 h-5 ml-2 transition-transform group-hover:translate-x-1" />
+                  <ArrowRight className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-1" />
                 </>
               )}
             </Button>
@@ -334,7 +346,7 @@ export default function SignupPage() {
               <div className="w-full border-t border-gray-200"></div>
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="px-4 bg-[#FDF8F3] text-gray-500">
+              <span className="px-4 bg-[#FDF8F3] text-gray-400 text-xs uppercase tracking-wider">
                 Or continue with
               </span>
             </div>
@@ -346,46 +358,34 @@ export default function SignupPage() {
             variant="outline"
             onClick={handleGoogleSignUp}
             disabled={isGoogleLoading}
-            className="w-full h-12 rounded-xl border-2 border-gray-200 bg-white hover:bg-gray-50 text-[#1A1A1A] font-medium text-base transition-all duration-300 flex items-center justify-center gap-3"
+            className="w-full h-12 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 text-[#1A1A1A] font-medium text-base transition-all duration-300 flex items-center justify-center gap-3 hover:border-gray-300"
           >
             {isGoogleLoading ? (
               <Loader2 className="w-5 h-5 animate-spin" />
             ) : (
               <>
                 <GoogleIcon />
-                Continue with Google
+                Google
               </>
             )}
           </Button>
 
-          {/* Divider */}
-          <div className="relative my-6">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-200"></div>
-            </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="px-4 bg-[#FDF8F3] text-gray-500">
-                Already have an account?
-              </span>
-            </div>
-          </div>
-
           {/* Sign In Link */}
-          <Link href="/login">
-            <Button
-              type="button"
-              variant="outline"
-              className="w-full h-12 rounded-xl border-2 border-[#1A1A1A] text-[#1A1A1A] hover:bg-[#1A1A1A] hover:text-white font-medium text-base transition-all duration-300"
+          <p className="text-center mt-8 text-gray-500 text-sm">
+            Already have an account?{' '}
+            <Link
+              href="/login"
+              className="text-primary hover:text-[#B8420A] transition-colors font-semibold"
             >
-              Sign In Instead
-            </Button>
-          </Link>
+              Sign in
+            </Link>
+          </p>
 
           {/* Back to Home */}
-          <p className="text-center mt-8 text-gray-500 text-sm">
+          <p className="text-center mt-4 text-gray-400 text-xs">
             <Link
               href="/"
-              className="text-primary hover:text-[#B8420A] transition-colors"
+              className="hover:text-gray-600 transition-colors"
             >
               ← Back to Home
             </Link>
@@ -393,76 +393,97 @@ export default function SignupPage() {
         </motion.div>
       </div>
 
-      {/* Right Side - Decorative */}
-      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-gradient-to-bl from-[#1A1A1A] to-[#2A2A2A]">
-        {/* Animated gradient blobs */}
-        <motion.div
-          animate={{
-            scale: [1, 1.2, 1],
-            x: [0, -30, 0],
-            y: [0, 20, 0],
+      {/* Right Side - Decorative Panel */}
+      <div className="hidden lg:flex lg:w-[45%] xl:w-1/2 relative overflow-hidden">
+        {/* Background with gradient overlay */}
+        <div className="absolute inset-0 bg-gradient-to-bl from-[#1A1A1A] via-[#2A2A2A] to-[#1A1A1A]" />
+        
+        {/* Subtle pattern overlay */}
+        <div 
+          className="absolute inset-0 opacity-[0.03]"
+          style={{
+            backgroundImage: `radial-gradient(circle at 1px 1px, #fff 1px, transparent 0)`,
+            backgroundSize: '32px 32px'
           }}
-          transition={{ duration: 15, repeat: Infinity, ease: 'easeInOut' }}
-          className="absolute -top-40 -left-40 w-[500px] h-[500px] rounded-full bg-gradient-to-br from-primary/40 via-[#F4A261]/30 to-transparent blur-3xl"
         />
-        <motion.div
-          animate={{
-            scale: [1, 1.1, 1],
-            x: [0, 20, 0],
-            y: [0, -30, 0],
-          }}
-          transition={{ duration: 12, repeat: Infinity, ease: 'easeInOut' }}
-          className="absolute -bottom-40 -right-40 w-[400px] h-[400px] rounded-full bg-gradient-to-tr from-[#F4A261]/40 via-primary/30 to-transparent blur-3xl"
-        />
+        
+        {/* Animated gradient orbs */}
+        <div className="absolute -top-32 -left-32 w-[400px] h-[400px] rounded-full bg-gradient-to-br from-primary/30 via-[#F4A261]/20 to-transparent blur-3xl animate-blob-1" />
+        <div className="absolute -bottom-32 -right-32 w-[350px] h-[350px] rounded-full bg-gradient-to-tr from-[#F4A261]/30 via-primary/20 to-transparent blur-3xl animate-blob-2" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] rounded-full bg-primary/10 blur-3xl animate-blob-3" />
 
         {/* Content */}
-        <div className="relative z-10 flex flex-col justify-center px-12 xl:px-20 text-right ml-auto">
+        <div className="relative z-10 flex flex-col justify-between p-10 xl:p-16 w-full">
+          {/* Logo */}
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="flex justify-end"
+          >
+            <Link href="/" className="inline-flex items-center gap-3 group">
+              <div className="flex flex-col items-end">
+                <span className="font-heading text-xl font-bold text-white">
+                  {settings.siteName?.split(' ')[0] || 'Himalayan'}
+                </span>
+                <span className="font-accent text-sm text-[#F4A261] -mt-0.5">
+                  {settings.siteName?.split(' ').slice(1).join(' ') || 'Momos'}
+                </span>
+              </div>
+              <div className="relative w-12 h-12 rounded-xl overflow-hidden bg-white/10 backdrop-blur-sm border border-white/10 p-2 transition-transform group-hover:scale-105">
+                <Image 
+                  src={settings.heroLogo || '/brandlogo.svg'} 
+                  alt="Logo" 
+                  fill 
+                  className="object-contain"
+                />
+              </div>
+            </Link>
+          </motion.div>
+
+          {/* Main Content */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="space-y-8 text-right"
           >
-            <Link href="/" className="inline-block mb-12 ml-auto">
-              <div className="flex flex-col items-end">
-                <span className="font-heading text-3xl font-bold text-white">
-                  Himalayan
-                </span>
-                <span className="font-accent text-xl text-[#F4A261] -mt-1">
-                  Momos
-                </span>
-              </div>
-            </Link>
-
-            <h1 className="font-heading text-4xl xl:text-5xl font-bold text-white mb-6 leading-tight">
-              Join our<br />
-              <span className="text-primary">momo family!</span>
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-sm ml-auto">
+              <span className="text-sm text-gray-300">Join the Family</span>
+              <Sparkles className="w-4 h-4 text-[#F4A261]" />
+            </div>
+            
+            <h1 className="font-heading text-4xl xl:text-5xl font-bold text-white leading-tight">
+              Start your<br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#F4A261] to-primary">
+                flavorful journey
+              </span>
             </h1>
 
-            <p className="text-gray-400 text-lg max-w-md leading-relaxed ml-auto">
-              Create an account to order faster, track your orders, and get personalized recommendations.
+            <p className="text-gray-400 text-lg max-w-sm leading-relaxed ml-auto">
+              Create an account to order faster, track deliveries, and unlock exclusive member rewards.
             </p>
+          </motion.div>
 
-            {/* Features */}
-            <div className="mt-12 space-y-4">
-              {[
-                'Fast checkout experience',
-                'Track your orders in real-time',
-                'Exclusive member discounts',
-              ].map((feature, i) => (
-                <motion.div
-                  key={i}
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.8 + i * 0.1 }}
-                  className="flex items-center gap-3 justify-end"
-                >
-                  <span className="text-gray-300 text-sm">{feature}</span>
-                  <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
-                    <Check className="w-4 h-4 text-primary" />
-                  </div>
-                </motion.div>
-              ))}
-            </div>
+          {/* Bottom Features */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.6, delay: 0.4 }}
+            className="space-y-4"
+          >
+            {[
+              'Fast checkout experience',
+              'Real-time order tracking',
+              'Exclusive member discounts',
+            ].map((feature, i) => (
+              <div key={i} className="flex items-center gap-3 justify-end">
+                <span className="text-gray-400 text-sm">{feature}</span>
+                <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center">
+                  <CheckCircle className="w-3.5 h-3.5 text-primary" />
+                </div>
+              </div>
+            ))}
           </motion.div>
         </div>
       </div>
