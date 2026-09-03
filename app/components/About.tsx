@@ -3,7 +3,6 @@
 import { motion } from 'framer-motion';
 import { useInView } from 'framer-motion';
 import { useRef, useEffect, useState } from 'react';
-import { businessInfo } from '../data/businessInfo';
 
 interface SiteSettings {
   aboutImage1: string;

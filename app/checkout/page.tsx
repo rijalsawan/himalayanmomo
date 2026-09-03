@@ -39,7 +39,6 @@ import { Badge } from '@/components/ui/badge';
 import { useCart } from '../context/CartContext';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
-import { businessInfo } from '../data/businessInfo';
 
 type FulfillmentType = 'PICKUP' | 'DINE_IN' | 'DELIVERY';
 
@@ -161,9 +160,19 @@ export default function CheckoutPage() {
   const [submitAttempted, setSubmitAttempted] = useState(false);
   const [isLoadingProfile, setIsLoadingProfile] = useState(true);
   const [fulfillmentType, setFulfillmentType] = useState<FulfillmentType>('PICKUP');
-  const [orderingSettings, setOrderingSettings] = useState({ deliveryEnabled: false, promoEnabled: true });
+  const [orderingSettings, setOrderingSettings] = useState({
+    deliveryEnabled: false,
+    promoEnabled: true,
+    businessName: 'MO:MO Station',
+    businessAddress: {
+      street: '123 Momo Street',
+      city: 'San Francisco',
+      state: 'CA',
+      zip: '94102',
+    },
+  });
 
-  // Fetch admin-controlled ordering settings (delivery availability & promo)
+  // Fetch admin-controlled ordering settings (delivery availability, promo & business info)
   useEffect(() => {
     const fetchSettings = async () => {
       try {
@@ -173,6 +182,13 @@ export default function CheckoutPage() {
           setOrderingSettings({
             deliveryEnabled: !!data.deliveryEnabled,
             promoEnabled: data.promoEnabled ?? true,
+            businessName: data.footerBrandName || 'MO:MO Station',
+            businessAddress: {
+              street: data.contactAddressStreet || '123 Momo Street',
+              city: data.contactAddressCity || 'San Francisco',
+              state: data.contactAddressState || 'CA',
+              zip: data.contactAddressZip || '94102',
+            },
           });
         }
       } catch (error) {
@@ -381,11 +397,11 @@ export default function CheckoutPage() {
     if (fulfillmentType === 'DELIVERY') {
       return `${formData.address}${formData.apartment ? ', ' + formData.apartment : ''}, ${formData.city}, ${formData.state} ${formData.zipCode}`;
     }
-    const { street, city, state, zip } = businessInfo.contact.address;
+    const { street, city, state, zip } = orderingSettings.businessAddress;
     if (fulfillmentType === 'DINE_IN') {
-      return `Dine-In at ${businessInfo.name} — ${street}, ${city}, ${state} ${zip}`;
+      return `Dine-In at ${orderingSettings.businessName} — ${street}, ${city}, ${state} ${zip}`;
     }
-    return `Pickup at ${businessInfo.name} — ${street}, ${city}, ${state} ${zip}`;
+    return `Pickup at ${orderingSettings.businessName} — ${street}, ${city}, ${state} ${zip}`;
   };
 
   const handleStripeCheckout = async () => {
@@ -767,10 +783,10 @@ export default function CheckoutPage() {
                               <Store className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
                               <div className="text-sm text-gray-700">
                                 <p className="font-medium text-gray-900">
-                                  {fulfillmentType === 'DINE_IN' ? 'Dine-In at' : 'Pickup at'} {businessInfo.name}
+                                  {fulfillmentType === 'DINE_IN' ? 'Dine-In at' : 'Pickup at'} {orderingSettings.businessName}
                                 </p>
                                 <p className="text-gray-500 mt-0.5">
-                                  {businessInfo.contact.address.street}, {businessInfo.contact.address.city}, {businessInfo.contact.address.state} {businessInfo.contact.address.zip}
+                                  {orderingSettings.businessAddress.street}, {orderingSettings.businessAddress.city}, {orderingSettings.businessAddress.state} {orderingSettings.businessAddress.zip}
                                 </p>
                               </div>
                             </div>
@@ -891,8 +907,8 @@ export default function CheckoutPage() {
                                 </>
                               ) : (
                                 <>
-                                  <p>{businessInfo.name}</p>
-                                  <p>{businessInfo.contact.address.street}, {businessInfo.contact.address.city}, {businessInfo.contact.address.state} {businessInfo.contact.address.zip}</p>
+                                  <p>{orderingSettings.businessName}</p>
+                                  <p>{orderingSettings.businessAddress.street}, {orderingSettings.businessAddress.city}, {orderingSettings.businessAddress.state} {orderingSettings.businessAddress.zip}</p>
                                 </>
                               )}
                             </div>

@@ -1,4 +1,4 @@
-import { businessInfo } from '../data/businessInfo';
+import { getSiteSettings } from '@/lib/getSiteSettings';
 
 const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
 
@@ -7,7 +7,15 @@ interface JsonLdProps {
   data?: Record<string, unknown>;
 }
 
-export function JsonLd({ type = 'restaurant', data }: JsonLdProps) {
+export async function JsonLd({ type = 'restaurant', data }: JsonLdProps) {
+  const settings = await getSiteSettings();
+  const businessName = settings.footerBrandName;
+  const socialLinks = [
+    settings.contactSocial1Url,
+    settings.contactSocial2Url,
+    settings.contactSocial3Url,
+  ].filter(Boolean);
+
   const getStructuredData = () => {
     switch (type) {
       case 'restaurant':
@@ -15,19 +23,18 @@ export function JsonLd({ type = 'restaurant', data }: JsonLdProps) {
           '@context': 'https://schema.org',
           '@type': 'Restaurant',
           '@id': `${BASE_URL}/#restaurant`,
-          name: 'MO:MO Station',
-          alternateName: 'Momo Station',
-          description: businessInfo.description,
+          name: businessName,
+          alternateName: businessName,
+          description: settings.siteDescription,
           url: BASE_URL,
-          telephone: businessInfo.contact.phone,
-          email: businessInfo.contact.email,
+          telephone: settings.contactPhone,
+          email: settings.contactEmail,
           address: {
             '@type': 'PostalAddress',
-            streetAddress: businessInfo.contact.address.street,
-            addressLocality: businessInfo.contact.address.city,
-            addressRegion: businessInfo.contact.address.state,
-            postalCode: businessInfo.contact.address.zip,
-            addressCountry: businessInfo.contact.address.country,
+            streetAddress: settings.contactAddressStreet,
+            addressLocality: settings.contactAddressCity,
+            addressRegion: settings.contactAddressState,
+            postalCode: settings.contactAddressZip,
           },
           geo: {
             '@type': 'GeoCoordinates',
@@ -63,12 +70,7 @@ export function JsonLd({ type = 'restaurant', data }: JsonLdProps) {
               closes: '21:00',
             },
           ],
-          sameAs: [
-            businessInfo.social.instagram,
-            businessInfo.social.facebook,
-            businessInfo.social.tiktok,
-            businessInfo.social.twitter,
-          ],
+          sameAs: socialLinks,
           aggregateRating: {
             '@type': 'AggregateRating',
             ratingValue: '4.8',
@@ -96,7 +98,7 @@ export function JsonLd({ type = 'restaurant', data }: JsonLdProps) {
           '@context': 'https://schema.org',
           '@type': 'Menu',
           '@id': `${BASE_URL}/menu#menu`,
-          name: 'MO:MO Station Menu',
+          name: `${businessName} Menu`,
           description: 'Explore our authentic Nepali momos and dishes',
           url: `${BASE_URL}/menu`,
           mainEntity: {
@@ -178,27 +180,30 @@ export function JsonLd({ type = 'restaurant', data }: JsonLdProps) {
 }
 
 // Organization schema for the website
-export function OrganizationJsonLd() {
+export async function OrganizationJsonLd() {
+  const settings = await getSiteSettings();
+  const businessName = settings.footerBrandName;
+  const socialLinks = [
+    settings.contactSocial1Url,
+    settings.contactSocial2Url,
+    settings.contactSocial3Url,
+  ].filter(Boolean);
+
   const organizationData = {
     '@context': 'https://schema.org',
     '@type': 'Organization',
     '@id': `${BASE_URL}/#organization`,
-    name: 'MO:MO Station',
+    name: businessName,
     url: BASE_URL,
     logo: `${BASE_URL}/brandlogo.svg`,
-    description: businessInfo.description,
+    description: settings.siteDescription,
     contactPoint: {
       '@type': 'ContactPoint',
-      telephone: businessInfo.contact.phone,
+      telephone: settings.contactPhone,
       contactType: 'customer service',
       availableLanguage: ['English'],
     },
-    sameAs: [
-      businessInfo.social.instagram,
-      businessInfo.social.facebook,
-      businessInfo.social.tiktok,
-      businessInfo.social.twitter,
-    ],
+    sameAs: socialLinks,
   };
 
   return (
@@ -210,14 +215,17 @@ export function OrganizationJsonLd() {
 }
 
 // Website schema
-export function WebsiteJsonLd() {
+export async function WebsiteJsonLd() {
+  const settings = await getSiteSettings();
+  const businessName = settings.footerBrandName;
+
   const websiteData = {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
     '@id': `${BASE_URL}/#website`,
-    name: 'MO:MO Station',
+    name: businessName,
     url: BASE_URL,
-    description: businessInfo.description,
+    description: settings.siteDescription,
     potentialAction: {
       '@type': 'SearchAction',
       target: {
@@ -237,22 +245,24 @@ export function WebsiteJsonLd() {
 }
 
 // Local Business schema (more specific than Restaurant for local SEO)
-export function LocalBusinessJsonLd() {
+export async function LocalBusinessJsonLd() {
+  const settings = await getSiteSettings();
+  const businessName = settings.footerBrandName;
+
   const localBusinessData = {
     '@context': 'https://schema.org',
     '@type': 'LocalBusiness',
     '@id': `${BASE_URL}/#localbusiness`,
-    name: 'MO:MO Station',
+    name: businessName,
     image: `${BASE_URL}/og-image.jpg`,
-    telephone: businessInfo.contact.phone,
-    email: businessInfo.contact.email,
+    telephone: settings.contactPhone,
+    email: settings.contactEmail,
     address: {
       '@type': 'PostalAddress',
-      streetAddress: businessInfo.contact.address.street,
-      addressLocality: businessInfo.contact.address.city,
-      addressRegion: businessInfo.contact.address.state,
-      postalCode: businessInfo.contact.address.zip,
-      addressCountry: businessInfo.contact.address.country,
+      streetAddress: settings.contactAddressStreet,
+      addressLocality: settings.contactAddressCity,
+      addressRegion: settings.contactAddressState,
+      postalCode: settings.contactAddressZip,
     },
     priceRange: '$$',
     aggregateRating: {
