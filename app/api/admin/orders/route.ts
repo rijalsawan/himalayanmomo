@@ -92,6 +92,7 @@ export async function GET(request: NextRequest) {
       subtotal: order.subtotal,
       tax: order.tax,
       deliveryFee: order.deliveryFee,
+      fulfillmentType: order.fulfillmentType,
       status: order.status.toLowerCase(),
       notes: order.notes,
       createdAt: order.createdAt.toISOString(),

@@ -16,6 +16,7 @@ import {
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { useCart } from '../context/CartContext';
 import { useSession, signOut } from 'next-auth/react';
+import AnnouncementBar from './AnnouncementBar';
 
 const navLinks = [
   { name: 'Home', href: '/#home' },
@@ -66,13 +67,16 @@ export default function Navbar() {
   const useDarkText = true;
 
   return (
-    <nav
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 animate-slide-down ${
-        scrolled
-          ? 'bg-white/95 backdrop-blur-md shadow-lg border-b border-border'
-          : 'bg-white/80 backdrop-blur-sm'
-      }`}
-    >
+    <>
+      <AnnouncementBar />
+      <nav
+        style={{ top: 'var(--announcement-h, 0px)' }}
+        className={`fixed left-0 right-0 z-50 transition-all duration-300 animate-slide-down ${
+          scrolled
+            ? 'bg-white/95 backdrop-blur-md shadow-lg border-b border-border'
+            : 'bg-white/80 backdrop-blur-sm'
+        }`}
+      >
       <div className="container-custom overflow-hidden">
         <div className="flex items-center justify-between h-16 md:h-20">
           {/* Logo */}
@@ -372,6 +376,9 @@ export default function Navbar() {
           </div>
         </div>
       </div>
-    </nav>
+      </nav>
+      {/* Spacer that grows with the announcement bar so fixed nav never overlaps page content */}
+      <div style={{ height: 'var(--announcement-h, 0px)' }} />
+    </>
   );
 }

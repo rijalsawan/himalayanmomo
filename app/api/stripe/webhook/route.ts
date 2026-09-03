@@ -110,16 +110,21 @@ export async function POST(request: NextRequest) {
         console.log('Creating order with', orderItems.length, 'items');
 
         // Create order in database
+        const rawSubtotal = parseFloat(metadata.subtotal || '0');
+        const discountAmount = parseFloat(metadata.discountAmount || '0');
+        const discountedSubtotal = Math.max(rawSubtotal - discountAmount, 0);
+        const fulfillmentType = (metadata.fulfillmentType as 'PICKUP' | 'DINE_IN' | 'DELIVERY') || 'PICKUP';
         const order = await prisma.order.create({
           data: {
             userId: user.id,
-            subtotal: parseFloat(metadata.subtotal || '0'),
+            subtotal: discountedSubtotal,
             tax: parseFloat(metadata.tax || '0'),
             deliveryFee: parseFloat(metadata.deliveryFee || '0'),
             total: parseFloat(metadata.total || String((session.amount_total || 0) / 100)),
             address: metadata.deliveryAddress || 'Address not provided',
             phone: metadata.deliveryPhone || 'Phone not provided',
             notes: metadata.deliveryInstructions || null,
+            fulfillmentType,
             stripeSessionId: session.id,
             status: 'CONFIRMED',
             items: {

@@ -45,6 +45,7 @@ export async function GET(
       subtotal: order.subtotal,
       tax: order.tax,
       deliveryFee: order.deliveryFee,
+      fulfillmentType: order.fulfillmentType,
       status: order.status.toLowerCase(),
       notes: order.notes,
       createdAt: order.createdAt.toISOString(),

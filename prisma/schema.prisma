@@ -61,20 +61,21 @@ model VerificationToken {
 }
 
 model Order {
-  id              String      @id @default(cuid())
+  id              String          @id @default(cuid())
   userId          String
-  status          OrderStatus @default(PENDING)
+  status          OrderStatus     @default(PENDING)
+  fulfillmentType FulfillmentType @default(PICKUP)
   total           Float
   subtotal        Float
   tax             Float
-  deliveryFee     Float       @default(0)
+  deliveryFee     Float           @default(0)
   notes           String?
   address         String
   phone           String
-  stripeSessionId String?     @unique
-  createdAt       DateTime    @default(now())
-  updatedAt       DateTime    @updatedAt
-  user            User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  stripeSessionId String?         @unique
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  user            User            @relation(fields: [userId], references: [id], onDelete: Cascade)
   items           OrderItem[]
 }
 
@@ -247,6 +248,13 @@ model SiteSettings {
   twitterHandle          String   @default("@momostation")
   themeColor             String   @default("#E85D04")
   backgroundColor        String   @default("#FFFFFF")
+  // Announcement / Promo Banners
+  comingSoonEnabled      Boolean  @default(true)
+  comingSoonMessage      String   @default("We're opening soon! Please don't place an order just yet.")
+  promoEnabled           Boolean  @default(true)
+  promoMessage           String   @default("Get 10% OFF online Pickup & Dine-In orders!")
+  // Ordering / Fulfillment
+  deliveryEnabled        Boolean  @default(false)
   createdAt              DateTime @default(now())
   updatedAt              DateTime @updatedAt
 }
@@ -277,6 +285,12 @@ enum OrderStatus {
 enum Role {
   USER
   ADMIN
+}
+
+enum FulfillmentType {
+  PICKUP
+  DINE_IN
+  DELIVERY
 }
 
 enum MenuCategory {
