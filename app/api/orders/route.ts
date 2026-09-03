@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { items, subtotal, tax, deliveryFee, total, notes, address, phone } = body;
+    const { items, subtotal, tax, deliveryFee, total, notes, address, phone, fulfillmentType } = body;
 
     // Validate required fields
     if (!items || items.length === 0) {
@@ -62,6 +62,7 @@ export async function POST(request: NextRequest) {
         notes: notes || null,
         address,
         phone,
+        fulfillmentType: fulfillmentType || 'PICKUP',
         items: {
           create: items.map((item: { name: string; price: number; quantity: number; image?: string }) => ({
             name: item.name,

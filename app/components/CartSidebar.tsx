@@ -20,8 +20,10 @@ import {
   ShoppingBag,
   Trash2,
   ArrowRight,
+  Tag,
 } from 'lucide-react';
 import { useCart } from '../context/CartContext';
+import { useEffect, useState } from 'react';
 
 export default function CartSidebar() {
   const {
@@ -35,8 +37,28 @@ export default function CartSidebar() {
     clearCart,
   } = useCart();
 
-  const deliveryFee = subtotal > 30 ? 0 : 4.99;
-  const total = subtotal + deliveryFee;
+  const [orderingSettings, setOrderingSettings] = useState({
+    deliveryEnabled: false,
+    promoEnabled: true,
+  });
+
+  useEffect(() => {
+    fetch('/api/site-settings')
+      .then((res) => res.json())
+      .then((data) =>
+        setOrderingSettings({
+          deliveryEnabled: !!data?.deliveryEnabled,
+          promoEnabled: data?.promoEnabled ?? true,
+        })
+      )
+      .catch(() => {});
+  }, []);
+
+  // Delivery is disabled for now — cart previews assume Pickup / Dine-In unless admin re-enables it.
+  const deliveryFee = orderingSettings.deliveryEnabled ? (subtotal > 30 ? 0 : 4.99) : 0;
+  const discountRate = orderingSettings.promoEnabled && !orderingSettings.deliveryEnabled ? 0.1 : 0;
+  const discountAmount = subtotal * discountRate;
+  const total = subtotal - discountAmount + deliveryFee;
 
   return (
     <Sheet open={isOpen} onOpenChange={closeCart}>
@@ -192,19 +214,37 @@ export default function CartSidebar() {
                   <span className="text-gray-600">Subtotal</span>
                   <span className="font-semibold">${subtotal.toFixed(2)}</span>
                 </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Delivery</span>
-                  <span className="font-semibold">
-                    {deliveryFee === 0 ? (
-                      <span className="text-[#2D6A4F]">FREE</span>
-                    ) : (
-                      `$${deliveryFee.toFixed(2)}`
-                    )}
-                  </span>
-                </div>
-                {deliveryFee > 0 && (
+                {discountAmount > 0 && (
+                  <div className="flex justify-between text-sm">
+                    <span className="text-[#2D6A4F] flex items-center gap-1">
+                      <Tag className="w-3.5 h-3.5" />
+                      Pickup &amp; Dine-In Promo (10%)
+                    </span>
+                    <span className="font-semibold text-[#2D6A4F]">
+                      -${discountAmount.toFixed(2)}
+                    </span>
+                  </div>
+                )}
+                {orderingSettings.deliveryEnabled && (
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-600">Delivery</span>
+                    <span className="font-semibold">
+                      {deliveryFee === 0 ? (
+                        <span className="text-[#2D6A4F]">FREE</span>
+                      ) : (
+                        `$${deliveryFee.toFixed(2)}`
+                      )}
+                    </span>
+                  </div>
+                )}
+                {orderingSettings.deliveryEnabled && deliveryFee > 0 && (
                   <p className="text-xs text-gray-500">
                     Free delivery on orders over $30
+                  </p>
+                )}
+                {!orderingSettings.deliveryEnabled && orderingSettings.promoEnabled && (
+                  <p className="text-xs text-gray-500">
+                    Pickup &amp; Dine-In only for now — enjoy 10% off!
                   </p>
                 )}
               </div>

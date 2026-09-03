@@ -27,6 +27,10 @@ import {
   Loader2,
   ChevronRight,
   Package,
+  Store,
+  UtensilsCrossed,
+  Truck,
+  Tag,
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -35,6 +39,9 @@ import { Badge } from '@/components/ui/badge';
 import { useCart } from '../context/CartContext';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import { businessInfo } from '../data/businessInfo';
+
+type FulfillmentType = 'PICKUP' | 'DINE_IN' | 'DELIVERY';
 
 interface FormErrors {
   firstName?: string;
@@ -60,8 +67,14 @@ interface FormData {
 }
 
 const steps = [
-  { id: 1, title: 'Delivery', icon: MapPin },
+  { id: 1, title: 'Order Details', icon: MapPin },
   { id: 2, title: 'Review & Pay', icon: CreditCard },
+];
+
+const fulfillmentOptions: { value: FulfillmentType; label: string; description: string; icon: typeof Store }[] = [
+  { value: 'PICKUP', label: 'Pickup', description: 'Grab your order at the restaurant', icon: Store },
+  { value: 'DINE_IN', label: 'Dine-In', description: "We'll have it ready at your table", icon: UtensilsCrossed },
+  { value: 'DELIVERY', label: 'Delivery', description: 'Delivered to your door', icon: Truck },
 ];
 
 // Loading skeleton component
@@ -147,6 +160,34 @@ export default function CheckoutPage() {
   const [touched, setTouched] = useState<Record<string, boolean>>({});
   const [submitAttempted, setSubmitAttempted] = useState(false);
   const [isLoadingProfile, setIsLoadingProfile] = useState(true);
+  const [fulfillmentType, setFulfillmentType] = useState<FulfillmentType>('PICKUP');
+  const [orderingSettings, setOrderingSettings] = useState({ deliveryEnabled: false, promoEnabled: true });
+
+  // Fetch admin-controlled ordering settings (delivery availability & promo)
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        const res = await fetch('/api/site-settings');
+        if (res.ok) {
+          const data = await res.json();
+          setOrderingSettings({
+            deliveryEnabled: !!data.deliveryEnabled,
+            promoEnabled: data.promoEnabled ?? true,
+          });
+        }
+      } catch (error) {
+        console.error('Error fetching ordering settings:', error);
+      }
+    };
+    fetchSettings();
+  }, []);
+
+  // If delivery gets disabled while Delivery is selected, fall back to Pickup
+  useEffect(() => {
+    if (fulfillmentType === 'DELIVERY' && !orderingSettings.deliveryEnabled) {
+      setFulfillmentType('PICKUP');
+    }
+  }, [orderingSettings.deliveryEnabled, fulfillmentType]);
 
   const [formData, setFormData] = useState<FormData>({
     firstName: '',
@@ -256,9 +297,13 @@ export default function CheckoutPage() {
     }
   }, [status, router]);
 
-  const deliveryFee = subtotal > 30 ? 0 : 4.99;
-  const tax = subtotal * 0.08;
-  const total = subtotal + deliveryFee + tax;
+  const isDelivery = fulfillmentType === 'DELIVERY';
+  const deliveryFee = isDelivery ? (subtotal > 30 ? 0 : 4.99) : 0;
+  const discountRate = orderingSettings.promoEnabled && !isDelivery ? 0.1 : 0;
+  const discountAmount = subtotal * discountRate;
+  const taxableAmount = subtotal - discountAmount;
+  const tax = taxableAmount * 0.08;
+  const total = taxableAmount + tax + deliveryFee;
 
   const validateEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   const validatePhone = (phone: string) => /^[\d\s\-\+\(\)]{10,}$/.test(phone);
@@ -277,9 +322,11 @@ export default function CheckoutPage() {
     } else if (!validatePhone(formData.phone)) {
       newErrors.phone = 'Please enter a valid phone number';
     }
-    if (!formData.address.trim()) newErrors.address = 'Address is required';
-    if (!formData.city.trim()) newErrors.city = 'City is required';
-    if (!formData.zipCode.trim()) newErrors.zipCode = 'ZIP code is required';
+    if (isDelivery) {
+      if (!formData.address.trim()) newErrors.address = 'Address is required';
+      if (!formData.city.trim()) newErrors.city = 'City is required';
+      if (!formData.zipCode.trim()) newErrors.zipCode = 'ZIP code is required';
+    }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -309,9 +356,7 @@ export default function CheckoutPage() {
       lastName: true,
       email: true,
       phone: true,
-      address: true,
-      city: true,
-      zipCode: true,
+      ...(isDelivery ? { address: true, city: true, zipCode: true } : {}),
     });
 
     if (validateStep()) {
@@ -332,6 +377,17 @@ export default function CheckoutPage() {
 
   const prevStep = () => setCurrentStep(1);
 
+  const getFulfillmentAddress = () => {
+    if (fulfillmentType === 'DELIVERY') {
+      return `${formData.address}${formData.apartment ? ', ' + formData.apartment : ''}, ${formData.city}, ${formData.state} ${formData.zipCode}`;
+    }
+    const { street, city, state, zip } = businessInfo.contact.address;
+    if (fulfillmentType === 'DINE_IN') {
+      return `Dine-In at ${businessInfo.name} — ${street}, ${city}, ${state} ${zip}`;
+    }
+    return `Pickup at ${businessInfo.name} — ${street}, ${city}, ${state} ${zip}`;
+  };
+
   const handleStripeCheckout = async () => {
     if (!validateStep()) return;
     setIsSubmitting(true);
@@ -348,11 +404,13 @@ export default function CheckoutPage() {
             image: item.image || null,
           })),
           deliveryInfo: {
-            address: `${formData.address}${formData.apartment ? ', ' + formData.apartment : ''}, ${formData.city}, ${formData.state} ${formData.zipCode}`,
+            address: getFulfillmentAddress(),
             phone: formData.phone,
             instructions: formData.deliveryInstructions,
           },
+          fulfillmentType,
           subtotal,
+          discountAmount,
           tax,
           deliveryFee,
           total,
@@ -450,13 +508,64 @@ export default function CheckoutPage() {
                     transition={{ duration: 0.2 }}
                     className="space-y-4 sm:space-y-6"
                   >
+                    {/* Fulfillment Method Selector */}
+                    <Card className="border border-gray-200 shadow-sm">
+                      <CardContent className="p-4 sm:p-6">
+                        <div className="flex items-center gap-2 mb-4">
+                          <Store className="w-5 h-5 text-primary" />
+                          <h2 className="font-heading text-lg font-semibold text-gray-900">
+                            How would you like your order?
+                          </h2>
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                          {fulfillmentOptions
+                            .filter((option) => option.value !== 'DELIVERY' || orderingSettings.deliveryEnabled)
+                            .map((option) => {
+                              const isSelected = fulfillmentType === option.value;
+                              return (
+                                <button
+                                  key={option.value}
+                                  type="button"
+                                  onClick={() => setFulfillmentType(option.value)}
+                                  className={`flex items-start gap-3 p-4 rounded-xl border-2 text-left transition-all ${
+                                    isSelected
+                                      ? 'border-primary bg-primary/5'
+                                      : 'border-gray-200 hover:border-gray-300'
+                                  }`}
+                                >
+                                  <div
+                                    className={`w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 ${
+                                      isSelected ? 'bg-primary text-white' : 'bg-gray-100 text-gray-500'
+                                    }`}
+                                  >
+                                    <option.icon className="w-4 h-4" />
+                                  </div>
+                                  <div>
+                                    <p className={`text-sm font-semibold ${isSelected ? 'text-primary' : 'text-gray-900'}`}>
+                                      {option.label}
+                                    </p>
+                                    <p className="text-xs text-gray-500 mt-0.5">{option.description}</p>
+                                  </div>
+                                </button>
+                              );
+                            })}
+                        </div>
+                        {!orderingSettings.deliveryEnabled && (
+                          <p className="text-xs text-gray-500 mt-3 flex items-center gap-1.5">
+                            <AlertCircle className="w-3.5 h-3.5 text-amber-500 flex-shrink-0" />
+                            Delivery isn&apos;t available just yet — pickup and dine-in orders get 10% off!
+                          </p>
+                        )}
+                      </CardContent>
+                    </Card>
+
                     {/* Delivery Form Card */}
                     <Card className="border border-gray-200 shadow-sm">
                       <CardContent className="p-4 sm:p-6">
                         <div className="flex items-center gap-2 mb-5">
                           <MapPin className="w-5 h-5 text-primary" />
                           <h2 className="font-heading text-lg font-semibold text-gray-900">
-                            Delivery Information
+                            {isDelivery ? 'Delivery Information' : 'Contact Information'}
                           </h2>
                         </div>
 
@@ -560,7 +669,9 @@ export default function CheckoutPage() {
                             </div>
                           </div>
 
-                          {/* Address */}
+                          {/* Address (Delivery only) */}
+                          {isDelivery && (
+                            <>
                           <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1.5">
                               Street Address <span className="text-red-500">*</span>
@@ -647,14 +758,31 @@ export default function CheckoutPage() {
                               )}
                             </div>
                           </div>
+                            </>
+                          )}
 
-                          {/* Delivery Instructions */}
+                          {/* Pickup / Dine-In notice */}
+                          {!isDelivery && (
+                            <div className="flex items-start gap-3 p-4 bg-primary/5 border border-primary/10 rounded-xl">
+                              <Store className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
+                              <div className="text-sm text-gray-700">
+                                <p className="font-medium text-gray-900">
+                                  {fulfillmentType === 'DINE_IN' ? 'Dine-In at' : 'Pickup at'} {businessInfo.name}
+                                </p>
+                                <p className="text-gray-500 mt-0.5">
+                                  {businessInfo.contact.address.street}, {businessInfo.contact.address.city}, {businessInfo.contact.address.state} {businessInfo.contact.address.zip}
+                                </p>
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Instructions */}
                           <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                              Delivery Instructions (optional)
+                              {isDelivery ? 'Delivery Instructions (optional)' : 'Notes for the kitchen (optional)'}
                             </label>
                             <textarea
-                              placeholder="Ring doorbell, leave at door, etc."
+                              placeholder={isDelivery ? 'Ring doorbell, leave at door, etc.' : 'Any special requests?'}
                               value={formData.deliveryInstructions}
                               onChange={(e) => handleInputChange('deliveryInstructions', e.target.value)}
                               rows={3}
@@ -734,7 +862,7 @@ export default function CheckoutPage() {
                             <Check className="w-4 h-4 text-emerald-600" />
                           </div>
                           <h2 className="font-heading text-base sm:text-lg font-semibold text-gray-900">
-                            Delivery Details
+                            {fulfillmentType === 'DELIVERY' ? 'Delivery Details' : fulfillmentType === 'DINE_IN' ? 'Dine-In Details' : 'Pickup Details'}
                           </h2>
                         </div>
                         <button
@@ -748,16 +876,25 @@ export default function CheckoutPage() {
                       {/* Content */}
                       <div className="p-5 sm:p-6">
                         <div className="grid sm:grid-cols-2 gap-5 sm:gap-6">
-                          {/* Delivery Address */}
+                          {/* Delivery / Pickup Address */}
                           <div className="space-y-2">
                             <div className="flex items-center gap-2 text-xs font-medium text-gray-400 uppercase tracking-wider">
                               <MapPin className="w-3.5 h-3.5" />
-                              Delivery Address
+                              {isDelivery ? 'Delivery Address' : fulfillmentType === 'DINE_IN' ? 'Dine-In Location' : 'Pickup Location'}
                             </div>
                             <div className="text-sm text-gray-700 leading-relaxed">
                               <p className="font-medium text-gray-900">{formData.firstName} {formData.lastName}</p>
-                              <p>{formData.address}{formData.apartment && `, ${formData.apartment}`}</p>
-                              <p>{formData.city}, {formData.state} {formData.zipCode}</p>
+                              {isDelivery ? (
+                                <>
+                                  <p>{formData.address}{formData.apartment && `, ${formData.apartment}`}</p>
+                                  <p>{formData.city}, {formData.state} {formData.zipCode}</p>
+                                </>
+                              ) : (
+                                <>
+                                  <p>{businessInfo.name}</p>
+                                  <p>{businessInfo.contact.address.street}, {businessInfo.contact.address.city}, {businessInfo.contact.address.state} {businessInfo.contact.address.zip}</p>
+                                </>
+                              )}
                             </div>
                           </div>
 
@@ -785,7 +922,7 @@ export default function CheckoutPage() {
                           <div className="mt-5 pt-5 border-t border-gray-100">
                             <div className="flex items-center gap-2 text-xs font-medium text-gray-400 uppercase tracking-wider mb-2">
                               <Home className="w-3.5 h-3.5" />
-                              Instructions
+                              {isDelivery ? 'Instructions' : 'Notes'}
                             </div>
                             <p className="text-sm text-gray-600 italic">&ldquo;{formData.deliveryInstructions}&rdquo;</p>
                           </div>
@@ -802,8 +939,10 @@ export default function CheckoutPage() {
                             <Clock className="w-5 h-5 text-emerald-600" />
                           </div>
                           <div>
-                            <p className="text-xs text-emerald-600 font-medium uppercase tracking-wide">Est. Delivery</p>
-                            <p className="text-lg font-bold text-gray-900">30–45 min</p>
+                            <p className="text-xs text-emerald-600 font-medium uppercase tracking-wide">
+                              {isDelivery ? 'Est. Delivery' : 'Est. Ready Time'}
+                            </p>
+                            <p className="text-lg font-bold text-gray-900">{isDelivery ? '30–45 min' : '15–20 min'}</p>
                           </div>
                         </motion.div>
                       </div>
@@ -854,7 +993,9 @@ export default function CheckoutPage() {
                             </div>
                             <div className="text-right">
                               <p className="text-xs text-gray-400">Includes</p>
-                              <p className="text-sm text-gray-600">Tax & {deliveryFee === 0 ? 'Free' : ''} Delivery</p>
+                              <p className="text-sm text-gray-600">
+                                Tax{isDelivery ? ` & ${deliveryFee === 0 ? 'Free' : ''} Delivery` : ''}{discountAmount > 0 ? ' & 10% Off' : ''}
+                              </p>
                             </div>
                           </div>
                         </div>
@@ -1047,16 +1188,27 @@ export default function CheckoutPage() {
                       <span className="text-gray-600">Subtotal</span>
                       <span className="font-medium text-gray-900">${subtotal.toFixed(2)}</span>
                     </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">Delivery</span>
-                      <span className="font-medium">
-                        {deliveryFee === 0 ? (
-                          <span className="text-emerald-600">FREE</span>
-                        ) : (
-                          <span className="text-gray-900">${deliveryFee.toFixed(2)}</span>
-                        )}
-                      </span>
-                    </div>
+                    {discountAmount > 0 && (
+                      <div className="flex justify-between">
+                        <span className="text-emerald-600 flex items-center gap-1">
+                          <Tag className="w-3.5 h-3.5" />
+                          Pickup &amp; Dine-In Promo (10%)
+                        </span>
+                        <span className="font-medium text-emerald-600">-${discountAmount.toFixed(2)}</span>
+                      </div>
+                    )}
+                    {isDelivery && (
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Delivery</span>
+                        <span className="font-medium">
+                          {deliveryFee === 0 ? (
+                            <span className="text-emerald-600">FREE</span>
+                          ) : (
+                            <span className="text-gray-900">${deliveryFee.toFixed(2)}</span>
+                          )}
+                        </span>
+                      </div>
+                    )}
                     <div className="flex justify-between">
                       <span className="text-gray-600">Tax</span>
                       <span className="font-medium text-gray-900">${tax.toFixed(2)}</span>
@@ -1071,11 +1223,19 @@ export default function CheckoutPage() {
                   </div>
 
                   {/* Free Delivery Notice */}
-                  {subtotal < 30 && (
+                  {isDelivery && subtotal < 30 && (
                     <div className="mt-4 p-3 bg-amber-50 border border-amber-100 rounded-xl">
                       <p className="text-xs text-amber-700">
                         <Package className="w-4 h-4 inline mr-1.5" />
                         Add ${(30 - subtotal).toFixed(2)} more for free delivery!
+                      </p>
+                    </div>
+                  )}
+                  {!isDelivery && orderingSettings.promoEnabled && (
+                    <div className="mt-4 p-3 bg-emerald-50 border border-emerald-100 rounded-xl">
+                      <p className="text-xs text-emerald-700">
+                        <Tag className="w-4 h-4 inline mr-1.5" />
+                        10% off applied for Pickup &amp; Dine-In orders!
                       </p>
                     </div>
                   )}

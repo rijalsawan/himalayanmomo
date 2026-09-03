@@ -70,6 +70,9 @@ import {
   ChevronRight,
   Check,
   AtSign,
+  Megaphone,
+  Tag,
+  Store,
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -270,6 +273,12 @@ interface SiteSettings {
   twitterHandle: string;
   themeColor: string;
   backgroundColor: string;
+  // Ordering — Announcement, Promo & Fulfillment
+  comingSoonEnabled: boolean;
+  comingSoonMessage: string;
+  promoEnabled: boolean;
+  promoMessage: string;
+  deliveryEnabled: boolean;
 }
 
 // Menu item interface for selection
@@ -445,6 +454,11 @@ const defaultSettings: SiteSettings = {
   twitterHandle: '@momostation',
   themeColor: '#E85D04',
   backgroundColor: '#FFFFFF',
+  comingSoonEnabled: true,
+  comingSoonMessage: "We're opening soon! Please don't place an order just yet.",
+  promoEnabled: true,
+  promoMessage: 'Get 10% OFF online Pickup & Dine-In orders!',
+  deliveryEnabled: false,
 };
 
 export default function CustomizePage() {
@@ -1110,6 +1124,13 @@ export default function CustomizePage() {
           >
             <Phone className="w-4 h-4" />
             <span className="hidden sm:inline">Contact Us</span>
+          </TabsTrigger>
+          <TabsTrigger
+            value="ordering"
+            className="gap-2 data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:shadow-lg rounded-lg px-4 py-2"
+          >
+            <Megaphone className="w-4 h-4" />
+            <span className="hidden sm:inline">Ordering</span>
           </TabsTrigger>
           <TabsTrigger
             value="footer"
@@ -4304,6 +4325,143 @@ export default function CustomizePage() {
                   {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                   Save Social Links
                 </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Ordering Tab */}
+        <TabsContent value="ordering" className="space-y-6">
+          {/* Announcement Bar Card */}
+          <Card className="border-gray-100 shadow-sm pb-8">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="font-heading text-lg flex items-center gap-2">
+                    <Megaphone className="w-5 h-5 text-primary" />
+                    Announcement Bar
+                  </CardTitle>
+                  <CardDescription>
+                    Shown at the very top of every page. Use this to let visitors know
+                    the restaurant is opening soon and orders shouldn&apos;t be placed yet.
+                  </CardDescription>
+                </div>
+                <Switch
+                  checked={settings.comingSoonEnabled}
+                  onCheckedChange={(checked) => updateSetting('comingSoonEnabled', checked)}
+                />
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <Label>Announcement Message</Label>
+                <Textarea
+                  value={settings.comingSoonMessage}
+                  onChange={(e) => updateSetting('comingSoonMessage', e.target.value)}
+                  placeholder="We're opening soon! Please don't place an order just yet."
+                  rows={2}
+                  className="mt-1.5"
+                  disabled={!settings.comingSoonEnabled}
+                />
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Promo Banner Card */}
+          <Card className="border-gray-100 shadow-sm pb-8">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="font-heading text-lg flex items-center gap-2">
+                    <Tag className="w-5 h-5 text-primary" />
+                    Promo Banner
+                  </CardTitle>
+                  <CardDescription>
+                    Advertise the 10% discount for online Pickup &amp; Dine-In orders.
+                    The discount is automatically applied at checkout while Delivery is disabled below.
+                  </CardDescription>
+                </div>
+                <Switch
+                  checked={settings.promoEnabled}
+                  onCheckedChange={(checked) => updateSetting('promoEnabled', checked)}
+                />
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <Label>Promo Message</Label>
+                <Input
+                  value={settings.promoMessage}
+                  onChange={(e) => updateSetting('promoMessage', e.target.value)}
+                  placeholder="Get 10% OFF online Pickup & Dine-In orders!"
+                  className="mt-1.5"
+                  disabled={!settings.promoEnabled}
+                />
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Fulfillment Options Card */}
+          <Card className="border-gray-100 shadow-sm pb-8">
+            <CardHeader>
+              <CardTitle className="font-heading text-lg flex items-center gap-2">
+                <Store className="w-5 h-5 text-primary" />
+                Fulfillment Options
+              </CardTitle>
+              <CardDescription>
+                Control which order types customers can choose at checkout.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="flex items-center justify-between p-4 rounded-xl border border-gray-100 bg-gray-50/50">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                      <Store className="w-4 h-4 text-primary" />
+                    </div>
+                    <div>
+                      <span className="font-medium text-sm block">Pickup</span>
+                      <span className="text-xs text-gray-400">Always available</span>
+                    </div>
+                  </div>
+                  <Switch checked disabled />
+                </div>
+                <div className="flex items-center justify-between p-4 rounded-xl border border-gray-100 bg-gray-50/50">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                      <UtensilsCrossed className="w-4 h-4 text-primary" />
+                    </div>
+                    <div>
+                      <span className="font-medium text-sm block">Dine-In</span>
+                      <span className="text-xs text-gray-400">Always available</span>
+                    </div>
+                  </div>
+                  <Switch checked disabled />
+                </div>
+                <div className="flex items-center justify-between p-4 rounded-xl border border-gray-100 bg-gray-50/50 sm:col-span-2">
+                  <div className="flex items-center gap-3">
+                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${settings.deliveryEnabled ? 'bg-primary/10' : 'bg-gray-100'}`}>
+                      <Truck className={`w-4 h-4 ${settings.deliveryEnabled ? 'text-primary' : 'text-gray-400'}`} />
+                    </div>
+                    <div>
+                      <span className="font-medium text-sm block">Delivery</span>
+                      <span className="text-xs text-gray-400">
+                        {settings.deliveryEnabled ? 'Customers can choose delivery at checkout' : 'Currently disabled — Pickup & Dine-In only'}
+                      </span>
+                    </div>
+                  </div>
+                  <Switch
+                    checked={settings.deliveryEnabled}
+                    onCheckedChange={(checked) => updateSetting('deliveryEnabled', checked)}
+                  />
+                </div>
+              </div>
+              <div className="mt-4 flex items-start gap-2 p-3 rounded-lg bg-blue-50 border border-blue-100">
+                <Info className="w-4 h-4 text-blue-500 flex-shrink-0 mt-0.5" />
+                <p className="text-xs text-blue-700">
+                  Pickup and Dine-In (online order) always remain available as the default
+                  options. Turn Delivery back on any time — no code changes needed.
+                </p>
               </div>
             </CardContent>
           </Card>

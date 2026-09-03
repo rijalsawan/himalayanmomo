@@ -83,6 +83,7 @@ interface Order {
   subtotal: number;
   tax: number;
   deliveryFee: number;
+  fulfillmentType?: 'PICKUP' | 'DINE_IN' | 'DELIVERY';
   status: string;
   notes?: string;
   createdAt: string;
@@ -253,6 +254,18 @@ export default function OrdersPage() {
     return statusConfig[normalizedStatus] || statusConfig.pending;
   };
 
+  const getFulfillmentLabel = (type?: string) => {
+    switch (type) {
+      case 'DELIVERY':
+        return 'Delivery';
+      case 'DINE_IN':
+        return 'Dine-In';
+      case 'PICKUP':
+      default:
+        return 'Pickup';
+    }
+  };
+
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
       month: 'short',
@@ -417,6 +430,9 @@ export default function OrdersPage() {
                             <div>
                               <p className="font-medium text-[#1A1A1A]">#{order.id.slice(-8).toUpperCase()}</p>
                               <p className="text-xs text-gray-400">{formatDate(order.createdAt)}</p>
+                              <Badge variant="outline" className="mt-1 text-[10px] px-1.5 py-0 h-4 font-normal text-gray-500 border-gray-200">
+                                {getFulfillmentLabel(order.fulfillmentType)}
+                              </Badge>
                             </div>
                           </td>
                           <td className="py-3 px-6">
@@ -545,6 +561,9 @@ export default function OrdersPage() {
                                 <h3 className="font-medium text-[#1A1A1A] truncate">{order.customer.name}</h3>
                               </div>
                               <p className="text-sm text-gray-500">#{order.id.slice(-8).toUpperCase()}</p>
+                              <Badge variant="outline" className="mt-1 text-[10px] px-1.5 py-0 h-4 font-normal text-gray-500 border-gray-200">
+                                {getFulfillmentLabel(order.fulfillmentType)}
+                              </Badge>
                             </div>
                             <DropdownMenu>
                               <DropdownMenuTrigger asChild>
@@ -662,6 +681,9 @@ export default function OrdersPage() {
                         >
                           <config.icon className="w-3 h-3 mr-1" />
                           {config.label}
+                        </Badge>
+                        <Badge variant="outline" className="text-[10px] sm:text-xs py-0.5 px-2 text-gray-600 border-gray-200">
+                          {getFulfillmentLabel(selectedOrder.fulfillmentType)}
                         </Badge>
                       </div>
                       <p className="text-xs sm:text-sm text-gray-500">
@@ -820,7 +842,9 @@ export default function OrdersPage() {
                               <MapPin className="w-4 h-4 text-primary" />
                             </div>
                             <div className="min-w-0 flex-1">
-                              <p className="text-xs text-gray-500">Delivery Address</p>
+                              <p className="text-xs text-gray-500">
+                                {selectedOrder.fulfillmentType === 'DELIVERY' ? 'Delivery Address' : 'Order Details'}
+                              </p>
                               <p className="text-sm font-medium text-[#1A1A1A] break-words">
                                 {selectedOrder.customer.address || 'Not provided'}
                               </p>
@@ -852,10 +876,12 @@ export default function OrdersPage() {
                             <span className="text-gray-600">Subtotal</span>
                             <span className="text-[#1A1A1A]">${selectedOrder.subtotal.toFixed(2)}</span>
                           </div>
-                          <div className="flex justify-between text-sm">
-                            <span className="text-gray-600">Delivery Fee</span>
-                            <span className="text-[#1A1A1A]">${selectedOrder.deliveryFee.toFixed(2)}</span>
-                          </div>
+                          {selectedOrder.fulfillmentType === 'DELIVERY' && (
+                            <div className="flex justify-between text-sm">
+                              <span className="text-gray-600">Delivery Fee</span>
+                              <span className="text-[#1A1A1A]">${selectedOrder.deliveryFee.toFixed(2)}</span>
+                            </div>
+                          )}
                           <div className="flex justify-between text-sm">
                             <span className="text-gray-600">Tax</span>
                             <span className="text-[#1A1A1A]">${selectedOrder.tax.toFixed(2)}</span>

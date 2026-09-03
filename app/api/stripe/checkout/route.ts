@@ -15,7 +15,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { items, deliveryInfo, subtotal, tax, deliveryFee, total } = body;
+    const { items, deliveryInfo, subtotal, tax, deliveryFee, total, fulfillmentType, discountAmount } = body;
 
     if (!items || items.length === 0) {
       return NextResponse.json(
@@ -24,15 +24,19 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Stripe doesn't support negative line items, so the promo discount (10% off
+    // Pickup/Dine-In orders) is applied proportionally to each item's unit price.
+    const discountRate = subtotal > 0 && discountAmount > 0 ? discountAmount / subtotal : 0;
+
     // Create line items for Stripe
     const lineItems = items.map((item: { name: string; price: number; quantity: number; image?: string }) => ({
       price_data: {
         currency: 'usd',
         product_data: {
-          name: item.name,
+          name: discountRate > 0 ? `${item.name} (10% off)` : item.name,
           images: item.image ? [item.image] : [],
         },
-        unit_amount: Math.round(item.price * 100), // Stripe expects amounts in cents
+        unit_amount: Math.round(item.price * (1 - discountRate) * 100), // Stripe expects amounts in cents
       },
       quantity: item.quantity,
     }));
@@ -52,8 +56,8 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // Add delivery fee as a line item
-    if (deliveryFee > 0) {
+    // Add delivery fee as a line item (delivery only)
+    if (fulfillmentType === 'DELIVERY' && deliveryFee > 0) {
       lineItems.push({
         price_data: {
           currency: 'usd',
@@ -81,7 +85,9 @@ export async function POST(request: NextRequest) {
         deliveryAddress: deliveryInfo.address.substring(0, 450),
         deliveryPhone: deliveryInfo.phone,
         deliveryInstructions: (deliveryInfo.instructions || '').substring(0, 450),
+        fulfillmentType: fulfillmentType || 'PICKUP',
         subtotal: subtotal.toString(),
+        discountAmount: (discountAmount || 0).toString(),
         tax: tax.toString(),
         deliveryFee: deliveryFee.toString(),
         total: total.toString(),

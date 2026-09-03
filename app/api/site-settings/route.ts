@@ -147,6 +147,13 @@ export async function GET() {
         twitterHandle: '@momostation',
         themeColor: '#E85D04',
         backgroundColor: '#FFFFFF',
+        // Announcement / Promo Banners
+        comingSoonEnabled: true,
+        comingSoonMessage: "We're opening soon! Please don't place an order just yet.",
+        promoEnabled: true,
+        promoMessage: 'Get 10% OFF online Pickup & Dine-In orders!',
+        // Ordering / Fulfillment
+        deliveryEnabled: false,
         createdAt: new Date(),
         updatedAt: new Date(),
       };
