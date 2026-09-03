@@ -79,7 +79,7 @@ export default function AnnouncementBar() {
   return (
     <div
       ref={barRef}
-      className="fixed top-0 left-0 right-0 z-[60] bg-gradient-to-r from-primary via-[#F4A261] to-primary text-white animate-slide-down"
+      className="fixed top-0 left-0 right-0 z-40 bg-gradient-to-r from-primary via-[#F4A261] to-primary text-white animate-slide-down"
     >
       <div className="container-custom py-2">
         <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-center text-xs sm:text-sm font-medium">

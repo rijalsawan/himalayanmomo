@@ -15,6 +15,18 @@ export interface SiteSettings {
   twitterImage: string;
   twitterHandle: string;
   heroLogo: string;
+  // Business identity & contact info (single source of truth — admin-editable
+  // via Customize > Contact Us / Footer; consumed everywhere business info is shown)
+  footerBrandName: string;
+  contactPhone: string;
+  contactEmail: string;
+  contactAddressStreet: string;
+  contactAddressCity: string;
+  contactAddressState: string;
+  contactAddressZip: string;
+  contactSocial1Url: string;
+  contactSocial2Url: string;
+  contactSocial3Url: string;
 }
 
 // Default settings fallback
@@ -33,6 +45,16 @@ const defaultSettings: SiteSettings = {
   twitterImage: '/twitter-image.svg',
   twitterHandle: '@momostation',
   heroLogo: '/brandlogo.svg',
+  footerBrandName: 'MO:MO Station',
+  contactPhone: '(415) 555-MOMO',
+  contactEmail: 'hello@momostation.com',
+  contactAddressStreet: '123 Momo Street',
+  contactAddressCity: 'San Francisco',
+  contactAddressState: 'CA',
+  contactAddressZip: '94102',
+  contactSocial1Url: 'https://instagram.com',
+  contactSocial2Url: 'https://facebook.com',
+  contactSocial3Url: 'https://tiktok.com',
 };
 
 // Cache the settings to avoid repeated DB calls
@@ -66,6 +88,16 @@ export async function getSiteSettings(): Promise<SiteSettings> {
         twitterImage: true,
         twitterHandle: true,
         heroLogo: true,
+        footerBrandName: true,
+        contactPhone: true,
+        contactEmail: true,
+        contactAddressStreet: true,
+        contactAddressCity: true,
+        contactAddressState: true,
+        contactAddressZip: true,
+        contactSocial1Url: true,
+        contactSocial2Url: true,
+        contactSocial3Url: true,
       },
     });
 
