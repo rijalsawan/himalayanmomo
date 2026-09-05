@@ -26,7 +26,6 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -41,7 +40,6 @@ import { useCart } from '../context/CartContext';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import CartQuantityButton from '../components/CartQuantityButton';
-import Pagination from '../admin/components/Pagination';
 
 // Define MenuItem type for database items
 interface MenuItem {
@@ -422,9 +420,9 @@ export default function MenuPage() {
   const [showFilters, setShowFilters] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isFiltering, setIsFiltering] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 12; // 3 rows × 4 columns on xl screens
+  const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
   const { totalItems, openCart } = useCart();
+  const PREVIEW_COUNT = 8;
   
   // Track previous filter values to detect actual changes
   const prevFiltersRef = useRef({
@@ -546,17 +544,31 @@ export default function MenuPage() {
     return items;
   }, [menuItems, activeCategory, searchQuery, sortBy, dietaryFilter, spiceFilter]);
 
-  // Reset to page 1 when filters change
+  // Item counts per category (unaffected by search/dietary/spice filters, for the nav pills)
+  const categoryCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    for (const cat of categories) {
+      counts[cat.id] = menuItems.filter((item) => item.category === cat.id).length;
+    }
+    return counts;
+  }, [menuItems]);
+
+  // Collapse "show more" state whenever the active category or filters change
   useEffect(() => {
-    setCurrentPage(1);
+    setExpandedCategories(new Set());
   }, [activeCategory, searchQuery, sortBy, dietaryFilter, spiceFilter]);
 
-  // Paginated items for mobile view
-  const totalPages = Math.ceil(filteredItems.length / itemsPerPage);
-  const paginatedItems = useMemo(() => {
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    return filteredItems.slice(startIndex, startIndex + itemsPerPage);
-  }, [filteredItems, currentPage, itemsPerPage]);
+  const toggleCategoryExpand = (categoryId: string) => {
+    setExpandedCategories((prev) => {
+      const next = new Set(prev);
+      if (next.has(categoryId)) {
+        next.delete(categoryId);
+      } else {
+        next.add(categoryId);
+      }
+      return next;
+    });
+  };
 
   const clearAllFilters = () => {
     setSortBy('default');
@@ -791,145 +803,164 @@ export default function MenuPage() {
                 
               </div>
             </div>
+
+            {/* Category Quick Nav */}
+            <div className="flex items-center gap-2 overflow-x-auto pb-1 -mx-1 px-1 mt-3 pt-3 border-t border-gray-100 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+              <button
+                type="button"
+                onClick={() => setActiveCategory('all')}
+                className={`flex-shrink-0 inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
+                  activeCategory === 'all'
+                    ? 'bg-primary text-white shadow-sm'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                }`}
+              >
+                <span>🍽️</span> All
+                <span className="opacity-70">({menuItems.length})</span>
+              </button>
+              {categories.map((cat) => (
+                <button
+                  key={cat.id}
+                  type="button"
+                  onClick={() => setActiveCategory(cat.id)}
+                  className={`flex-shrink-0 inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
+                    activeCategory === cat.id
+                      ? 'bg-primary text-white shadow-sm'
+                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  }`}
+                >
+                  <span>{cat.icon}</span> {cat.name}
+                  <span className="opacity-70">({categoryCounts[cat.id] ?? 0})</span>
+                </button>
+              ))}
+            </div>
           </div>
         </section>
 
         {/* Menu Content */}
         <section className="py-8 md:py-12">
           <div className="container-custom">
-            {/* Category Tabs */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
+              className="space-y-12"
             >
-              <Tabs
-                value={activeCategory}
-                onValueChange={setActiveCategory}
-                className="w-full"
-              >
-                
+              <AnimatePresence mode="wait">
+                {showSkeleton ? (
+                  <motion.div key="skeleton" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                    {/* Mobile Skeleton List */}
+                    <Card className="sm:hidden overflow-hidden">
+                      <div className="divide-y divide-gray-100">
+                        {Array.from({ length: 6 }).map((_, index) => (
+                          <SkeletonListItem key={index} />
+                        ))}
+                      </div>
+                    </Card>
+                    {/* Desktop Skeleton Grid */}
+                    <div className="hidden sm:grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                      {Array.from({ length: 8 }).map((_, index) => (
+                        <SkeletonCard key={index} index={index} />
+                      ))}
+                    </div>
+                  </motion.div>
+                ) : filteredItems.length > 0 ? (
+                  <motion.div
+                    key={`groups-${activeCategory}-${searchQuery}-${sortBy}-${dietaryFilter}-${spiceFilter}`}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.3 }}
+                    className="space-y-12"
+                  >
+                    {categories
+                      .filter((cat) => activeCategory === 'all' || activeCategory === cat.id)
+                      .map((cat) => {
+                        const items = filteredItems.filter((item) => item.category === cat.id);
+                        if (items.length === 0) return null;
 
-                
+                        const isExpanded = activeCategory !== 'all' || expandedCategories.has(cat.id);
+                        const visibleItems = isExpanded ? items : items.slice(0, PREVIEW_COUNT);
 
-                
+                        return (
+                          <div key={cat.id} id={`category-${cat.id}`} className="scroll-mt-40">
+                            {/* Category Header */}
+                            <div className="flex items-end justify-between gap-4 mb-6 pb-4 border-b border-gray-100">
+                              <div>
+                                <div className="flex items-center gap-2.5">
+                                  <span className="text-3xl leading-none">{cat.icon}</span>
+                                  <h2 className="font-heading text-2xl md:text-3xl font-bold text-gray-900">
+                                    {cat.name}
+                                  </h2>
+                                  <span className="text-sm font-medium text-gray-400">
+                                    {items.length} {items.length === 1 ? 'item' : 'items'}
+                                  </span>
+                                </div>
+                                <p className="text-gray-500 mt-1">{cat.description}</p>
+                              </div>
+                            </div>
 
-                {/* Menu Grid */}
-                <TabsContent value={activeCategory} className="mt-0">
-                  <AnimatePresence mode="wait">
-                    {showSkeleton ? (
-                      <>
-                        {/* Mobile Skeleton List */}
-                        <Card className="sm:hidden overflow-hidden">
-                          <div className="divide-y divide-gray-100">
-                            {Array.from({ length: 6 }).map((_, index) => (
-                              <SkeletonListItem key={index} />
-                            ))}
-                          </div>
-                        </Card>
-                        {/* Desktop Skeleton Grid */}
-                        <motion.div
-                          key="skeleton-grid-desktop"
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          exit={{ opacity: 0 }}
-                          transition={{ duration: 0.3 }}
-                          className="hidden sm:grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
-                        >
-                          {Array.from({ length: 8 }).map((_, index) => (
-                            <SkeletonCard key={index} index={index} />
-                          ))}
-                        </motion.div>
-                      </>
-                    ) : filteredItems.length > 0 ? (
-                      <>
-                        {/* Mobile List View */}
-                        <Card className="sm:hidden overflow-hidden">
-                          <div className="divide-y divide-gray-100">
-                            {paginatedItems.map((item) => (
-                              <MobileMenuListItem key={item.id} item={item} />
-                            ))}
-                            {/* Placeholder items to maintain consistent list height */}
-                            {paginatedItems.length < itemsPerPage && 
-                              Array.from({ length: itemsPerPage - paginatedItems.length }).map((_, i) => (
-                                <div key={`mobile-placeholder-${i}`} className="h-[120px]" aria-hidden="true" />
-                              ))
-                            }
-                          </div>
-                          {/* Mobile Pagination */}
-                          {totalPages > 1 && (
-                            <Pagination
-                              currentPage={currentPage}
-                              totalPages={totalPages}
-                              onPageChange={setCurrentPage}
-                              totalItems={filteredItems.length}
-                              itemsPerPage={itemsPerPage}
-                            />
-                          )}
-                        </Card>
-                        {/* Desktop Card Grid */}
-                        <div className="hidden sm:block">
-                          <motion.div
-                            key={`desktop-grid-${activeCategory}-${searchQuery}-${sortBy}-${dietaryFilter}-${spiceFilter}`}
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            transition={{ duration: 0.3 }}
-                            className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
-                          >
-                            {paginatedItems.map((item, index) => (
-                              <MenuCard key={item.id} item={item} index={index} />
-                            ))}
-                            {/* Placeholder cards to maintain consistent grid height */}
-                            {paginatedItems.length < itemsPerPage && 
-                              Array.from({ length: itemsPerPage - paginatedItems.length }).map((_, i) => (
-                                <div key={`placeholder-${i}`} className="h-[340px]" aria-hidden="true" />
-                              ))
-                            }
-                          </motion.div>
-                          {/* Desktop Pagination */}
-                          {totalPages > 1 && (
-                            <Card className="mt-6 overflow-hidden">
-                              <Pagination
-                                currentPage={currentPage}
-                                totalPages={totalPages}
-                                onPageChange={setCurrentPage}
-                                totalItems={filteredItems.length}
-                                itemsPerPage={itemsPerPage}
-                              />
+                            {/* Mobile List View */}
+                            <Card className="sm:hidden overflow-hidden mb-2">
+                              <div className="divide-y divide-gray-100">
+                                {visibleItems.map((item) => (
+                                  <MobileMenuListItem key={item.id} item={item} />
+                                ))}
+                              </div>
                             </Card>
-                          )}
-                        </div>
-                      </>
-                    ) : (
-                      <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="text-center py-16"
-                      >
-                        <div className="w-20 h-20 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-4">
-                          <Search className="w-10 h-10 text-gray-400" />
-                        </div>
-                        <h3 className="font-heading text-xl font-semibold text-gray-800 mb-2">
-                          No items found
-                        </h3>
-                        <p className="text-gray-500 mb-4">
-                          Try adjusting your search or filters
-                        </p>
-                        <Button
-                          variant="outline"
-                          onClick={() => {
-                            clearAllFilters();
-                            setActiveCategory('all');
-                          }}
-                        >
-                          Clear all filters
-                        </Button>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </TabsContent>
-              </Tabs>
+
+                            {/* Desktop Card Grid */}
+                            <div className="hidden sm:grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                              {visibleItems.map((item, index) => (
+                                <MenuCard key={item.id} item={item} index={index} />
+                              ))}
+                            </div>
+
+                            {/* Show more / less toggle */}
+                            {items.length > PREVIEW_COUNT && (
+                              <div className="flex justify-center mt-6">
+                                <Button
+                                  variant="outline"
+                                  onClick={() => toggleCategoryExpand(cat.id)}
+                                  className="border-gray-200 hover:border-primary hover:text-primary"
+                                >
+                                  {isExpanded
+                                    ? 'Show less'
+                                    : `Show all ${items.length} ${cat.name.toLowerCase()}`}
+                                </Button>
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="text-center py-16"
+                  >
+                    <div className="w-20 h-20 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-4">
+                      <Search className="w-10 h-10 text-gray-400" />
+                    </div>
+                    <h3 className="font-heading text-xl font-semibold text-gray-800 mb-2">
+                      No items found
+                    </h3>
+                    <p className="text-gray-500 mb-4">
+                      Try adjusting your search or filters
+                    </p>
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        clearAllFilters();
+                        setActiveCategory('all');
+                      }}
+                    >
+                      Clear all filters
+                    </Button>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </motion.div>
           </div>
         </section>

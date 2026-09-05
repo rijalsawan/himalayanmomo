@@ -448,11 +448,11 @@ const defaultSettings: SiteSettings = {
   favicon: '/favicon-32.svg',
   faviconSvg: '/favicon.svg',
   appleTouchIcon: '/apple-touch-icon.svg',
-  ogImage: '/og-image.svg',
+  ogImage: '/og-image.png',
   ogImageAlt: 'MO:MO Station - Authentic Nepali Dumplings',
-  twitterImage: '/twitter-image.svg',
+  twitterImage: '/twitter-image.png',
   twitterHandle: '@momostation',
-  themeColor: '#E85D04',
+  themeColor: '#B3060A',
   backgroundColor: '#FFFFFF',
   comingSoonEnabled: true,
   comingSoonMessage: "We're opening soon! Please don't place an order just yet.",
@@ -5272,7 +5272,7 @@ export default function CustomizePage() {
                     updateSetting('favicon', '/favicon-32.svg');
                     updateSetting('faviconSvg', '/favicon.svg');
                     updateSetting('appleTouchIcon', '/apple-touch-icon.svg');
-                    updateSetting('themeColor', '#E85D04');
+                    updateSetting('themeColor', '#B3060A');
                     updateSetting('backgroundColor', '#FFFFFF');
                   }}
                   className="gap-2 text-gray-600 hover:text-primary"
@@ -5518,21 +5518,21 @@ export default function CustomizePage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-3">
                   <Label className="text-sm font-medium flex items-center gap-2">
-                    <div className="w-4 h-4 rounded" style={{ backgroundColor: settings.themeColor || '#E85D04' }} />
+                    <div className="w-4 h-4 rounded" style={{ backgroundColor: settings.themeColor || '#B3060A' }} />
                     Theme Color
                   </Label>
                   <p className="text-xs text-gray-500">Used for browser chrome on mobile devices</p>
                   <div className="flex items-center gap-3">
                     <input
                       type="color"
-                      value={settings.themeColor || '#E85D04'}
+                      value={settings.themeColor || '#B3060A'}
                       onChange={(e) => updateSetting('themeColor', e.target.value)}
                       className="w-10 h-10 cursor-pointer"
                     />
                     <Input
                       value={settings.themeColor || ''}
                       onChange={(e) => updateSetting('themeColor', e.target.value)}
-                      placeholder="#E85D04"
+                      placeholder="#B3060A"
                       className="font-mono text-sm flex-1"
                     />
                   </div>
@@ -5624,9 +5624,9 @@ export default function CustomizePage() {
                   variant="outline"
                   size="sm"
                   onClick={() => {
-                    updateSetting('ogImage', '/og-image.svg');
+                    updateSetting('ogImage', '/og-image.png');
                     updateSetting('ogImageAlt', 'MO:MO Station - Authentic Nepali Dumplings');
-                    updateSetting('twitterImage', '/twitter-image.svg');
+                    updateSetting('twitterImage', '/twitter-image.png');
                     updateSetting('twitterHandle', '@momostation');
                   }}
                   className="gap-2 text-gray-600 hover:text-primary"
@@ -5689,7 +5689,7 @@ export default function CustomizePage() {
                             <Button
                               variant="destructive"
                               size="sm"
-                              onClick={() => updateSetting('ogImage', '/og-image.svg')}
+                              onClick={() => updateSetting('ogImage', '/og-image.png')}
                             >
                               Reset
                             </Button>
@@ -5726,7 +5726,7 @@ export default function CustomizePage() {
                       <Input
                         value={settings.ogImage || ''}
                         onChange={(e) => updateSetting('ogImage', e.target.value)}
-                        placeholder="/og-image.svg"
+                        placeholder="/og-image.png"
                         className="mb-2"
                       />
                     )}
@@ -5794,7 +5794,7 @@ export default function CustomizePage() {
                             <Button
                               variant="destructive"
                               size="sm"
-                              onClick={() => updateSetting('twitterImage', '/twitter-image.svg')}
+                              onClick={() => updateSetting('twitterImage', '/twitter-image.png')}
                             >
                               Reset
                             </Button>
@@ -5831,7 +5831,7 @@ export default function CustomizePage() {
                       <Input
                         value={settings.twitterImage || ''}
                         onChange={(e) => updateSetting('twitterImage', e.target.value)}
-                        placeholder="/twitter-image.svg"
+                        placeholder="/twitter-image.png"
                         className="mb-2"
                       />
                     )}

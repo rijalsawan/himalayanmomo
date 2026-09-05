@@ -2,6 +2,12 @@ import { getSiteSettings } from '@/lib/getSiteSettings';
 
 const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
 
+// Resolve a settings-provided asset path to an absolute URL. Admin-uploaded
+// assets (e.g. Cloudinary) are already absolute; static defaults are root-relative.
+function toAbsoluteUrl(path: string): string {
+  return /^https?:\/\//i.test(path) ? path : `${BASE_URL}${path}`;
+}
+
 interface JsonLdProps {
   type?: 'restaurant' | 'menu' | 'menuItem' | 'breadcrumb' | 'faq';
   data?: Record<string, unknown>;
@@ -42,10 +48,10 @@ export async function JsonLd({ type = 'restaurant', data }: JsonLdProps) {
             longitude: -74.0060,
           },
           image: [
-            `${BASE_URL}/og-image.jpg`,
-            `${BASE_URL}/brandlogo.svg`,
+            toAbsoluteUrl(settings.ogImage || '/og-image.png'),
+            toAbsoluteUrl(settings.heroLogo || '/brandlogo.svg'),
           ],
-          logo: `${BASE_URL}/brandlogo.svg`,
+          logo: toAbsoluteUrl(settings.heroLogo || '/brandlogo.svg'),
           priceRange: '$$',
           servesCuisine: ['Nepali', 'Himalayan', 'Asian', 'Dumplings'],
           hasMenu: `${BASE_URL}/menu`,
@@ -195,7 +201,7 @@ export async function OrganizationJsonLd() {
     '@id': `${BASE_URL}/#organization`,
     name: businessName,
     url: BASE_URL,
-    logo: `${BASE_URL}/brandlogo.svg`,
+    logo: toAbsoluteUrl(settings.heroLogo || '/brandlogo.svg'),
     description: settings.siteDescription,
     contactPoint: {
       '@type': 'ContactPoint',
@@ -254,7 +260,7 @@ export async function LocalBusinessJsonLd() {
     '@type': 'LocalBusiness',
     '@id': `${BASE_URL}/#localbusiness`,
     name: businessName,
-    image: `${BASE_URL}/og-image.jpg`,
+    image: toAbsoluteUrl(settings.ogImage || '/og-image.png'),
     telephone: settings.contactPhone,
     email: settings.contactEmail,
     address: {

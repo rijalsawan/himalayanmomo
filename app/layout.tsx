@@ -85,7 +85,7 @@ export async function generateMetadata(): Promise<Metadata> {
       description: settings.siteDescription,
       images: [
         {
-          url: settings.ogImage || "/og-image.svg",
+          url: settings.ogImage || "/og-image.png",
           width: 1200,
           height: 630,
           alt: settings.ogImageAlt || `${siteName} - Authentic Nepali Momos`,
@@ -96,7 +96,7 @@ export async function generateMetadata(): Promise<Metadata> {
       card: "summary_large_image",
       title: settings.siteTitle || `${siteName} | Authentic Nepali Momos & Dumplings`,
       description: settings.siteDescription,
-      images: [settings.twitterImage || "/twitter-image.svg"],
+      images: [settings.twitterImage || "/twitter-image.png"],
       creator: settings.twitterHandle || "@momostation",
     },
     robots: {
