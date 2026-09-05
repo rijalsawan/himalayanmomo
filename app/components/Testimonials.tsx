@@ -292,7 +292,7 @@ export default function Testimonials() {
                       className="w-12 h-12 rounded-full object-cover ring-2 ring-primary/10"
                     />
                   ) : (
-                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-orange-500 flex items-center justify-center ring-2 ring-primary/10">
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-red-700 flex items-center justify-center ring-2 ring-primary/10">
                       <span className="text-white font-bold">
                         {displayTestimonials[currentIndex]?.name?.charAt(0) || '?'}
                       </span>
@@ -426,7 +426,7 @@ export default function Testimonials() {
                           />
                         ) : (
                           <div className={`
-                            w-11 h-11 rounded-full bg-gradient-to-br from-primary to-orange-500 flex items-center justify-center
+                            w-11 h-11 rounded-full bg-gradient-to-br from-primary to-red-700 flex items-center justify-center
                             ${index === 1 ? 'ring-2 ring-primary/30' : 'ring-2 ring-gray-100'}
                           `}>
                             <span className="text-white font-bold">{testimonial.name?.charAt(0)}</span>
@@ -489,7 +489,7 @@ export default function Testimonials() {
                   ) : (
                     <div
                       key={t.id}
-                      className="w-8 h-8 rounded-full border-2 border-white bg-gradient-to-br from-primary to-orange-500 flex items-center justify-center"
+                      className="w-8 h-8 rounded-full border-2 border-white bg-gradient-to-br from-primary to-red-700 flex items-center justify-center"
                       style={{ zIndex: 4 - i }}
                     >
                       <span className="text-white text-xs font-bold">{t.name?.charAt(0)}</span>

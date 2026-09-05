@@ -213,7 +213,7 @@ export default function Navbar() {
                   </Button>
                 </Link>
                 <Link href="/signup">
-                  <Button className="bg-primary hover:bg-[#B8420A] text-white">
+                  <Button className="bg-primary hover:bg-[#7A0407] text-white">
                     Sign Up
                   </Button>
                 </Link>
@@ -354,7 +354,7 @@ export default function Navbar() {
                       <div className="space-y-3">
                         <Button
                           asChild
-                          className="w-full bg-primary hover:bg-[#B8420A] text-white h-12"
+                          className="w-full bg-primary hover:bg-[#7A0407] text-white h-12"
                           onClick={() => setIsOpen(false)}
                         >
                           <Link href="/login">Sign In</Link>

@@ -327,7 +327,7 @@ export default function SignupPage() {
             <Button
               type="submit"
               disabled={isLoading}
-              className="w-full h-12 rounded-xl bg-primary hover:bg-[#B8420A] text-white font-medium text-base transition-all duration-300 group mt-2"
+              className="w-full h-12 rounded-xl bg-primary hover:bg-[#7A0407] text-white font-medium text-base transition-all duration-300 group mt-2"
             >
               {isLoading ? (
                 <Loader2 className="w-5 h-5 animate-spin" />
@@ -375,7 +375,7 @@ export default function SignupPage() {
             Already have an account?{' '}
             <Link
               href="/login"
-              className="text-primary hover:text-[#B8420A] transition-colors font-semibold"
+              className="text-primary hover:text-[#7A0407] transition-colors font-semibold"
             >
               Sign in
             </Link>

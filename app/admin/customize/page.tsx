@@ -2864,7 +2864,7 @@ export default function CustomizePage() {
                         key={index}
                         className="p-4 bg-white/5 rounded-xl text-center border border-white/10"
                       >
-                        <div className="w-12 h-12 mx-auto rounded-xl bg-gradient-to-br from-primary to-orange-500 flex items-center justify-center shadow-lg shadow-primary/30">
+                        <div className="w-12 h-12 mx-auto rounded-xl bg-gradient-to-br from-primary to-red-700 flex items-center justify-center shadow-lg shadow-primary/30">
                           <Icon className="w-6 h-6 text-white" />
                         </div>
                         <h3 className="font-heading text-sm font-semibold text-white mt-4 line-clamp-1">
@@ -3095,7 +3095,7 @@ export default function CustomizePage() {
                               className="w-14 h-14 rounded-full object-cover border-2 border-primary/20"
                             />
                           ) : (
-                            <div className="w-14 h-14 rounded-full bg-gradient-to-br from-primary/20 to-orange-200 flex items-center justify-center">
+                            <div className="w-14 h-14 rounded-full bg-gradient-to-br from-primary/20 to-red-200 flex items-center justify-center">
                               <span className="text-xl font-bold text-primary">
                                 {testimonial.name.charAt(0).toUpperCase()}
                               </span>
@@ -5867,7 +5867,7 @@ export default function CustomizePage() {
                           className="w-full h-full object-cover" 
                         />
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/20 to-orange-100">
+                        <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/20 to-red-100">
                           <div className="text-center">
                             <Utensils className="w-16 h-16 text-primary/50 mx-auto mb-2" />
                             <span className="text-primary/70 font-heading text-xl">MO:MO Station</span>

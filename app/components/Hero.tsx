@@ -40,6 +40,8 @@ interface SiteSettings {
   stat3Icon: string;
   stat3Value: string;
   stat3Label: string;
+  testimonialStat1Value: string;
+  testimonialStat2Value: string;
 }
 
 const defaultSettings: SiteSettings = {
@@ -58,10 +60,54 @@ const defaultSettings: SiteSettings = {
   stat3Icon: 'Clock',
   stat3Value: '20min',
   stat3Label: 'Avg. Prep Time',
+  testimonialStat1Value: '500+',
+  testimonialStat2Value: '4.9',
 };
+
+interface FeaturedDish {
+  id: string;
+  slug: string;
+  name: string;
+  price: number;
+  image: string;
+}
+
+const FALLBACK_DISH: FeaturedDish = {
+  id: 'fallback',
+  slug: 'menu',
+  name: 'Steamed Momo',
+  price: 12.99,
+  image: '/momo.webp',
+};
+
+// A subtle line-art mountain silhouette echoing the brand mark, used as a
+// low-opacity background accent behind the heading (not a copy of the logo).
+const MountainMotif = () => (
+  <svg
+    viewBox="0 0 400 160"
+    fill="none"
+    className="absolute -top-10 left-0 w-[280px] sm:w-[360px] opacity-[0.06] pointer-events-none select-none"
+    aria-hidden="true"
+  >
+    <path
+      d="M0 150 L60 70 L100 105 L150 30 L200 90 L240 55 L290 120 L330 80 L400 150 Z"
+      stroke="var(--color-brand)"
+      strokeWidth="3"
+      strokeLinejoin="round"
+      fill="none"
+    />
+  </svg>
+);
+
+const DishCardSkeleton = ({ className }: { className: string }) => (
+  <div
+    className={`rounded-3xl bg-gradient-to-br from-primary/10 to-[#F4A261]/10 animate-pulse-soft ${className}`}
+  />
+);
 
 export default function Hero() {
   const [settings, setSettings] = useState<SiteSettings>(defaultSettings);
+  const [dishes, setDishes] = useState<FeaturedDish[] | null>(null);
 
   useEffect(() => {
     const fetchSettings = async () => {
@@ -75,7 +121,24 @@ export default function Hero() {
         console.error('Error fetching site settings:', error);
       }
     };
+
+    const fetchFeaturedDishes = async () => {
+      try {
+        const res = await fetch('/api/menu?isPopular=true&limit=3');
+        if (res.ok) {
+          const data: FeaturedDish[] = await res.json();
+          setDishes(data && data.length > 0 ? data : [FALLBACK_DISH]);
+        } else {
+          setDishes([FALLBACK_DISH]);
+        }
+      } catch (error) {
+        console.error('Error fetching featured dishes:', error);
+        setDishes([FALLBACK_DISH]);
+      }
+    };
+
     fetchSettings();
+    fetchFeaturedDishes();
   }, []);
 
   const scrollToSection = (href: string) => {
@@ -99,6 +162,13 @@ export default function Hero() {
     { icon: getIcon(settings.stat3Icon), value: settings.stat3Value, label: settings.stat3Label },
   ];
 
+  const isLoadingDishes = dishes === null;
+  // Pad out to 3 slots so the collage layout stays stable even with 1-2 items
+  const collageDishes = (dishes ?? []).slice(0, 3);
+  const heroImage = collageDishes[0] ?? FALLBACK_DISH;
+  const secondImage = collageDishes[1];
+  const thirdImage = collageDishes[2];
+
   return (
     <section
       id="home"
@@ -106,18 +176,23 @@ export default function Hero() {
     >
       {/* Animated Gradient Background - CSS only */}
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-[400px] h-[400px] sm:w-[500px] sm:h-[500px] md:w-[600px] md:h-[600px] rounded-full bg-gradient-to-br from-primary/25 via-[#F4A261]/15 to-transparent blur-3xl animate-blob-1" />
-        <div className="absolute -bottom-40 -left-40 w-[350px] h-[350px] sm:w-[400px] sm:h-[400px] md:w-[500px] md:h-[500px] rounded-full bg-gradient-to-tr from-[#F4A261]/25 via-primary/15 to-transparent blur-3xl animate-blob-2" />
+        <div className="absolute -top-40 -right-40 w-[400px] h-[400px] sm:w-[500px] sm:h-[500px] md:w-[600px] md:h-[600px] rounded-full bg-gradient-to-br from-primary/20 via-[#F4A261]/15 to-transparent blur-3xl animate-blob-1" />
+        <div className="absolute -bottom-40 -left-40 w-[350px] h-[350px] sm:w-[400px] sm:h-[400px] md:w-[500px] md:h-[500px] rounded-full bg-gradient-to-tr from-[#F4A261]/20 via-primary/15 to-transparent blur-3xl animate-blob-2" />
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] md:w-[700px] md:h-[700px] rounded-full bg-gradient-to-r from-primary/5 via-[#F4A261]/10 to-primary/5 blur-3xl animate-blob-3" />
-        
-        {/* Subtle grid pattern overlay */}
-        <div 
-          className="absolute inset-0 opacity-[0.02]"
-          style={{
-            backgroundImage: `radial-gradient(circle at 1px 1px, #1A1A1A 1px, transparent 0)`,
-            backgroundSize: '40px 40px'
-          }}
-        />
+
+        {/* Faint topographic contour-line motif (nods to the Himalayan brand mark) */}
+        <svg
+          className="absolute inset-0 w-full h-full opacity-[0.05]"
+          preserveAspectRatio="none"
+          aria-hidden="true"
+        >
+          <pattern id="contours" width="220" height="220" patternUnits="userSpaceOnUse">
+            <path d="M0 110 Q55 60 110 110 T220 110" stroke="#1A1A1A" strokeWidth="1" fill="none" />
+            <path d="M0 150 Q55 100 110 150 T220 150" stroke="#1A1A1A" strokeWidth="1" fill="none" />
+            <path d="M0 70 Q55 20 110 70 T220 70" stroke="#1A1A1A" strokeWidth="1" fill="none" />
+          </pattern>
+          <rect width="100%" height="100%" fill="url(#contours)" />
+        </svg>
       </div>
 
       {/* Floating decorative shapes */}
@@ -126,24 +201,35 @@ export default function Hero() {
       <div className="absolute top-1/2 right-[8%] w-8 h-8 rounded-lg bg-[#2D6A4F]/20 border border-[#2D6A4F]/30 hidden xl:block animate-float-3" />
 
       {/* Main Content */}
-      <div className="container-custom relative z-10 pt-24 pb-16">
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-8 items-center">
+      <div className="container-custom relative z-10 pt-28 pb-16 lg:pt-24">
+        <div className="grid lg:grid-cols-2 gap-16 lg:gap-8 items-center">
           {/* Left Column - Text Content */}
-          <div className="order-2 lg:order-1">
+          <div className="order-2 lg:order-1 relative">
+            <MountainMotif />
+
             {/* Badge */}
-            <div className="animate-fade-up delay-1">
-              <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 text-primary text-sm font-medium">
-                <Sparkles className="w-4 h-4" />
+            <div className="relative inline-flex items-center gap-2 pl-1.5 pr-4 py-1.5 rounded-full bg-white border border-primary/15 shadow-sm animate-fade-up">
+              <span className="relative w-6 h-6 rounded-full overflow-hidden bg-primary/5 flex-shrink-0">
+                <Image src={settings.heroLogo || '/brandlogo.svg'} alt="" fill className="object-contain" />
+              </span>
+              <span className="text-xs font-semibold uppercase tracking-wider text-primary">
                 {settings.heroBadgeText}
               </span>
             </div>
 
             {/* Headline */}
-            <h1 className="font-heading text-4xl sm:text-5xl md:text-6xl lg:text-5xl xl:text-6xl font-bold text-[#1A1A1A] mt-6 leading-[1.1] animate-fade-up delay-2">
+            <h1 className="relative font-heading text-4xl sm:text-5xl md:text-6xl lg:text-5xl xl:text-[4.2rem] font-bold text-[#1A1A1A] mt-6 leading-[1.05] tracking-tight animate-fade-up delay-2">
               {settings.heroHeadingLine1}{' '}
               <span className="relative inline-block">
                 <span className="relative z-10 text-primary">{settings.heroHighlightText}</span>
-                <span className="absolute bottom-2 left-0 right-0 h-3 animate-scale-x delay-4" />
+                <svg
+                  viewBox="0 0 200 20"
+                  preserveAspectRatio="none"
+                  className="absolute -bottom-1 left-0 w-full h-4 text-primary/30 animate-scale-x delay-4"
+                  aria-hidden="true"
+                >
+                  <path d="M2 14 Q50 2 100 12 T198 10" stroke="currentColor" strokeWidth="8" strokeLinecap="round" fill="none" />
+                </svg>
               </span>
               <br />
               <span className="text-[#1A1A1A]">{settings.heroHeadingLine2}</span>
@@ -159,54 +245,127 @@ export default function Hero() {
               <Link href="/menu">
                 <Button
                   size="lg"
-                  className="bg-primary hover:bg-[#B8420A] text-white group px-8 rounded-full shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 transition-all duration-300"
+                  className="w-full sm:w-auto bg-primary hover:bg-[#7A0407] text-white group px-8 rounded-full shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 transition-all duration-300"
                 >
                   Explore Menu
                   <ArrowRight className="w-5 h-5 ml-2 transition-transform group-hover:translate-x-1" />
                 </Button>
               </Link>
-              
+              <Link href="/checkout">
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="w-full sm:w-auto border-2 border-[#1A1A1A]/10 hover:border-primary/40 hover:bg-primary/5 text-[#1A1A1A] px-8 rounded-full transition-all duration-300"
+                >
+                  Order for Pickup
+                </Button>
+              </Link>
             </div>
 
-            {/* Stats Row */}
-            <div className="flex flex-wrap gap-6 sm:gap-10 mt-12 animate-fade-up delay-5">
+            {/* Stats Strip */}
+            <div className="flex items-stretch gap-6 sm:gap-10 mt-12 pt-8 border-t border-[#1A1A1A]/10 animate-fade-up delay-5">
               {stats.map((stat, index) => (
-                <div key={index} className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-2xl bg-[#1A1A1A]/5 flex items-center justify-center">
+                <div key={index} className="flex items-center gap-3 relative">
+                  {index > 0 && (
+                    <span className="absolute -left-3 sm:-left-5 top-1/2 -translate-y-1/2 h-8 w-px bg-[#1A1A1A]/10" />
+                  )}
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-primary/5 flex items-center justify-center flex-shrink-0">
                     <stat.icon className="w-5 h-5 text-primary" />
                   </div>
                   <div>
-                    <div className="text-xl font-bold text-[#1A1A1A] font-heading">
+                    <div className="text-lg sm:text-xl font-bold text-[#1A1A1A] font-heading leading-tight">
                       {stat.value}
                     </div>
-                    <div className="text-gray-500 text-sm">{stat.label}</div>
+                    <div className="text-gray-500 text-xs sm:text-sm leading-tight">{stat.label}</div>
                   </div>
                 </div>
               ))}
             </div>
           </div>
 
-          {/* Right Column - Visual Element */}
+          {/* Right Column - Dish Photo Collage */}
           <div className="order-1 lg:order-2 relative animate-fade-in delay-2">
-            {/* Main circular image container */}
-            <div className="relative mx-auto w-[280px] h-[280px] sm:w-[350px] sm:h-[350px] lg:w-[450px] lg:h-[450px]">
-              {/* Decorative rings */}
-              <div className="absolute inset-0 rounded-full border-2 border-dashed border-primary/20 animate-spin-slow" />
-              <div className="absolute inset-4 rounded-full border-2 border-dashed border-[#F4A261]/20 animate-spin-slow-reverse" />
-              
-              {/* Main logo container */}
-              <div className="absolute inset-8 rounded-full overflow-hidden shadow-2xl shadow-primary/20 bg-white flex items-center justify-center">
-                <div className="relative w-[95rem] h-[95rem]">
+            <div className="relative mx-auto w-full max-w-[420px] h-[360px] sm:h-[420px] lg:h-[460px]">
+              {/* Decorative ring accent behind the collage */}
+              <div className="absolute inset-8 rounded-[2.5rem] border-2 border-dashed border-primary/15 animate-spin-slow" />
+
+              {/* Primary dish photo */}
+              {isLoadingDishes ? (
+                <DishCardSkeleton className="absolute inset-x-4 top-0 h-[75%] shadow-xl" />
+              ) : (
+                <div className="absolute inset-x-4 top-0 h-[75%] rounded-[2rem] overflow-hidden shadow-2xl shadow-primary/20 rotate-2 animate-float-card-1 bg-white">
                   <Image
-                    src={settings.heroLogo || '/brandlogo.svg'}
-                    alt="MO:MO Station Logo"
+                    src={heroImage.image}
+                    alt={heroImage.name}
                     fill
-                    className="object-contain"
                     priority
+                    sizes="(max-width: 1024px) 90vw, 420px"
+                    className="object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
+                  <div className="absolute bottom-4 left-4 right-4 text-white">
+                    <p className="font-heading font-semibold text-lg drop-shadow-sm truncate">{heroImage.name}</p>
+                    <p className="text-white/90 text-sm font-medium">${heroImage.price.toFixed(2)}</p>
+                  </div>
+                </div>
+              )}
+
+              {/* Secondary overlapping photo */}
+              {secondImage && (
+                <div className="hidden sm:block absolute -right-6 lg:right-0 bottom-6 w-[46%] h-[42%] rounded-3xl overflow-hidden shadow-xl shadow-primary/15 -rotate-6 border-4 border-white animate-float-card-2 bg-white">
+                  <Image
+                    src={secondImage.image}
+                    alt={secondImage.name}
+                    fill
+                    sizes="200px"
+                    className="object-cover"
                   />
                 </div>
+              )}
+
+              {/* Floating rating badge */}
+              <div className="absolute -left-2 sm:-left-6 top-6 flex items-center gap-2 bg-white/90 backdrop-blur-md rounded-2xl px-4 py-3 shadow-xl shadow-black/5 border border-white animate-float-1">
+                <div className="flex items-center justify-center w-9 h-9 rounded-full bg-primary/10">
+                  <Star className="w-4 h-4 text-primary fill-primary" />
+                </div>
+                <div>
+                  <div className="text-sm font-bold text-[#1A1A1A] leading-tight">
+                    {settings.testimonialStat2Value} <span className="text-gray-400 font-normal text-xs">/ 5</span>
+                  </div>
+                  <div className="text-[11px] text-gray-500 leading-tight whitespace-nowrap">
+                    {settings.testimonialStat1Value} reviews
+                  </div>
+                </div>
               </div>
+
+              {/* Floating "featured dish" chip on the third dish, if present */}
+              {thirdImage && (
+                <div className="hidden lg:flex absolute right-4 top-10 items-center gap-2 bg-white rounded-2xl pl-1.5 pr-3 py-1.5 shadow-lg shadow-black/5 border border-white/80 animate-float-3">
+                  <span className="relative w-9 h-9 rounded-xl overflow-hidden flex-shrink-0">
+                    <Image src={thirdImage.image} alt={thirdImage.name} fill sizes="36px" className="object-cover" />
+                  </span>
+                  <span className="text-xs font-semibold text-[#1A1A1A] truncate max-w-[90px]">{thirdImage.name}</span>
+                </div>
+              )}
             </div>
+          </div>
+        </div>
+
+        {/* Marquee ticker strip */}
+        <div className="mt-16 lg:mt-20 relative overflow-hidden border-y border-[#1A1A1A]/10 py-3 [mask-image:linear-gradient(to_right,transparent,black_10%,black_90%,transparent)]">
+          <div className="flex w-max animate-marquee">
+            {Array.from({ length: 2 }).map((_, loopIndex) => (
+              <div key={loopIndex} className="flex items-center flex-shrink-0" aria-hidden={loopIndex === 1}>
+                {['Steamed', 'Fried', 'Jhol Momo', 'Chili Momo', 'Pickup Only', 'Online Ordering'].map((word) => (
+                  <span key={word} className="flex items-center">
+                    <span className="text-xs sm:text-sm font-semibold uppercase tracking-widest text-[#1A1A1A]/40 px-6">
+                      {word}
+                    </span>
+                    <span className="w-1.5 h-1.5 rounded-full bg-primary/40" />
+                  </span>
+                ))}
+              </div>
+            ))}
           </div>
         </div>
       </div>
@@ -214,10 +373,13 @@ export default function Hero() {
       {/* Scroll Indicator */}
       <button
         onClick={() => scrollToSection('#about')}
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-[#1A1A1A]/40 hover:text-[#1A1A1A] transition-colors animate-fade-in delay-8"
+        className="absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1.5 text-[#1A1A1A]/40 hover:text-primary transition-colors animate-fade-in delay-8"
       >
-        <span className="text-xs uppercase tracking-widest font-medium hidden sm:block">Scroll</span>
-        <ArrowDown className="w-4 h-4 animate-bounce-soft" />
+        <span className="text-[10px] uppercase tracking-widest font-medium hidden sm:block">Scroll</span>
+        <span className="w-6 h-9 rounded-full border-2 border-current flex items-start justify-center p-1">
+          <span className="w-1 h-1.5 rounded-full bg-current animate-bounce-soft" />
+        </span>
+        <ArrowDown className="w-3 h-3 sm:hidden animate-bounce-soft" />
       </button>
     </section>
   );

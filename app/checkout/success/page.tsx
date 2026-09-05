@@ -66,7 +66,7 @@ const Receipt = ({ order, onClose }: { order: OrderData; onClose: () => void }) 
             * { margin: 0; padding: 0; box-sizing: border-box; }
             body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 40px; max-width: 400px; margin: 0 auto; }
             .header { text-align: center; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 2px dashed #e5e7eb; }
-            .logo { font-size: 24px; font-weight: bold; color: #D94F04; margin-bottom: 4px; }
+            .logo { font-size: 24px; font-weight: bold; color: #B3060A; margin-bottom: 4px; }
             .tagline { font-size: 12px; color: #6b7280; }
             .order-info { margin-bottom: 20px; }
             .order-id { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
@@ -111,7 +111,7 @@ const Receipt = ({ order, onClose }: { order: OrderData; onClose: () => void }) 
             * { margin: 0; padding: 0; box-sizing: border-box; }
             body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 40px; max-width: 400px; margin: 0 auto; }
             .header { text-align: center; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 2px dashed #e5e7eb; }
-            .logo { font-size: 24px; font-weight: bold; color: #D94F04; margin-bottom: 4px; }
+            .logo { font-size: 24px; font-weight: bold; color: #B3060A; margin-bottom: 4px; }
             .tagline { font-size: 12px; color: #6b7280; }
             .order-info { margin-bottom: 20px; }
             .order-id { font-size: 14px; font-weight: 600; margin-bottom: 4px; }

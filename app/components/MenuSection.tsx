@@ -197,7 +197,7 @@ const PopularMenuCard = ({ item, index }: { item: MenuItem; index: number }) => 
             <SpiceIndicator level={item.spiceLevel} />
             <Link 
               href={`/menu/${item.slug}`}
-              className="text-sm font-medium text-primary hover:text-[#B8420A] transition-colors"
+              className="text-sm font-medium text-primary hover:text-[#7A0407] transition-colors"
             >
               Learn More →
             </Link>
@@ -339,7 +339,7 @@ export default function MenuSection() {
           <Button
             asChild
             size="lg"
-            className="bg-primary hover:bg-[#B8420A] text-white px-8 py-6 text-base font-semibold rounded-full shadow-lg shadow-primary/30 hover:shadow-xl hover:shadow-primary/40 transition-all"
+            className="bg-primary hover:bg-[#7A0407] text-white px-8 py-6 text-base font-semibold rounded-full shadow-lg shadow-primary/30 hover:shadow-xl hover:shadow-primary/40 transition-all"
           >
             <Link href="/menu">
               View Full Menu

@@ -151,7 +151,7 @@ function UnauthorizedAccess() {
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
           <Link href="/">
             <Button 
-              className="w-full sm:w-auto bg-primary hover:bg-[#B8420A] text-white font-medium px-6 py-2.5 rounded-xl shadow-lg shadow-primary/30 transition-all duration-200"
+              className="w-full sm:w-auto bg-primary hover:bg-[#7A0407] text-white font-medium px-6 py-2.5 rounded-xl shadow-lg shadow-primary/30 transition-all duration-200"
             >
               <Home className="w-4 h-4 mr-2" />
               Go to Homepage
@@ -181,7 +181,7 @@ function AdminLoading() {
   return (
     <div className="min-h-screen bg-[#FDF8F3] flex items-center justify-center">
       <div className="text-center">
-        <div className="w-16 h-16 mx-auto mb-4 rounded-xl bg-gradient-to-br from-primary to-[#B8420A] flex items-center justify-center animate-pulse">
+        <div className="w-16 h-16 mx-auto mb-4 rounded-xl bg-gradient-to-br from-primary to-[#7A0407] flex items-center justify-center animate-pulse">
           <span className="text-white font-bold text-xl">HM</span>
         </div>
         <p className="text-gray-600 font-medium">Loading admin panel...</p>
@@ -325,7 +325,7 @@ export default function AdminLayout({
             "flex items-center gap-3 flex-1 min-w-0",
             !sidebarOpen && "justify-center"
           )}>
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-[#B8420A] flex items-center justify-center text-white font-bold text-lg shadow-lg flex-shrink-0">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-[#7A0407] flex items-center justify-center text-white font-bold text-lg shadow-lg flex-shrink-0">
               HM
             </div>
             <span className={cn(

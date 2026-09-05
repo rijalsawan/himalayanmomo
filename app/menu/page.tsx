@@ -325,7 +325,7 @@ const MenuCard = ({ item, index }: { item: MenuItem; index: number }) => {
             {/* Learn More Link */}
             <Link
               href={`/menu/${item.slug}`}
-              className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:text-[#B8420A] transition-colors group/link"
+              className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:text-[#7A0407] transition-colors group/link"
             >
               Details
               <motion.span

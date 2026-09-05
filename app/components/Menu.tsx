@@ -83,7 +83,7 @@ const MenuCard = ({ item, index }: { item: MenuItem; index: number }) => {
 
           <div className="flex items-center justify-between">
             <SpiceIndicator level={item.spiceLevel} />
-            <button className="text-sm font-medium text-primary hover:text-[#B8420A] transition-colors">
+            <button className="text-sm font-medium text-primary hover:text-[#7A0407] transition-colors">
               Add to Order →
             </button>
           </div>

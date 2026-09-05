@@ -259,7 +259,7 @@ export default function SettingsPage() {
       {/* Profile Card */}
       <Card className="border-gray-100 shadow-sm overflow-hidden">
         {/* Profile Header with gradient */}
-        <div className="h-24 sm:h-32 bg-gradient-to-r from-primary via-orange-500 to-amber-500 relative">
+        <div className="h-24 sm:h-32 bg-gradient-to-r from-primary via-red-700 to-amber-500 relative">
           <div className="absolute inset-0 bg-[url('/pattern.svg')] opacity-10" />
         </div>
 

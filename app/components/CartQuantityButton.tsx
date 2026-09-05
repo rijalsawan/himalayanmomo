@@ -69,7 +69,7 @@ export default function CartQuantityButton({
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.9 }}
         onClick={handleIncrement}
-        className={`rounded-full bg-primary text-white flex items-center justify-center shadow-lg hover:bg-[#B8420A] transition-colors ${className}`}
+        className={`rounded-full bg-primary text-white flex items-center justify-center shadow-lg hover:bg-[#7A0407] transition-colors ${className}`}
         style={{ width: currentSize.button, height: currentSize.button }}
       >
         <Plus style={{ width: currentSize.icon, height: currentSize.icon }} />
@@ -95,7 +95,7 @@ export default function CartQuantityButton({
       style={{
         height: currentSize.button,
         borderRadius: currentSize.button / 2,
-        backgroundColor: '#D94F04',
+        backgroundColor: '#B3060A',
         boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
         overflow: 'hidden',
       }}

@@ -292,7 +292,7 @@ function LoginForm() {
                 </label>
                 <Link
                   href="/forgot-password"
-                  className="text-xs text-primary hover:text-[#B8420A] transition-colors font-medium"
+                  className="text-xs text-primary hover:text-[#7A0407] transition-colors font-medium"
                 >
                   Forgot password?
                 </Link>
@@ -321,7 +321,7 @@ function LoginForm() {
             <Button
               type="submit"
               disabled={isLoading}
-              className="w-full h-12 rounded-xl bg-primary hover:bg-[#B8420A] text-white font-medium text-base transition-all duration-300 group"
+              className="w-full h-12 rounded-xl bg-primary hover:bg-[#7A0407] text-white font-medium text-base transition-all duration-300 group"
             >
               {isLoading ? (
                 <Loader2 className="w-5 h-5 animate-spin" />
@@ -369,7 +369,7 @@ function LoginForm() {
             Don&apos;t have an account?{' '}
             <Link
               href="/signup"
-              className="text-primary hover:text-[#B8420A] transition-colors font-semibold"
+              className="text-primary hover:text-[#7A0407] transition-colors font-semibold"
             >
               Create one
             </Link>
