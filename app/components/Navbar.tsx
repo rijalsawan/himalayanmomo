@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { Menu, ShoppingCart, User, LogOut, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -29,6 +30,7 @@ const navLinks = [
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
+  const [brandLogo, setBrandLogo] = useState('/brandlogo.svg');
   const { totalItems, openCart } = useCart();
   const { data: session, status } = useSession();
   const pathname = usePathname();
@@ -40,6 +42,15 @@ export default function Navbar() {
     };
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  useEffect(() => {
+    fetch('/api/site-settings')
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data?.heroLogo) setBrandLogo(data.heroLogo);
+      })
+      .catch(() => {});
   }, []);
 
   const handleNavClick = (href: string) => {
@@ -63,37 +74,31 @@ export default function Navbar() {
     return false;
   };
 
-  // All pages now use light backgrounds, so always use dark text
-  const useDarkText = true;
-
   return (
     <>
       <AnnouncementBar />
       <nav
         style={{ top: 'var(--announcement-h, 0px)' }}
-        className={`fixed left-0 right-0 z-50 transition-all duration-300 animate-slide-down ${
+        className="fixed left-0 right-0 z-50 animate-slide-down px-3 sm:px-5 lg:px-8 pt-3"
+      >
+      <div
+        className={`mx-auto max-w-6xl rounded-full border transition-all duration-300 ${
           scrolled
-            ? 'bg-white/95 backdrop-blur-md shadow-lg border-b border-border'
-            : 'bg-white/80 backdrop-blur-sm'
+            ? 'bg-[#FDF8F3]/95 backdrop-blur-md shadow-lg shadow-primary/10 border-[#1A1A1A]/10'
+            : 'bg-[#FDF8F3]/85 backdrop-blur-sm shadow-sm border-[#1A1A1A]/5'
         }`}
       >
-      <div className="container-custom overflow-hidden">
-        <div className="flex items-center justify-between h-16 md:h-20">
-          {/* Logo */}
-          <Link href="/" className="flex items-center gap-2 group">
-            <div className="flex flex-col">
-              <span
-                className={`font-dancing text-2xl -mt-2 transition-colors ${
-                  useDarkText ? 'text-primary' : 'text-[#F4A261]'
-                }`}
-              >
+        <div className="flex items-center justify-between h-14 md:h-16 px-4 sm:px-6">
+          {/* Brand */}
+          <Link href="/" className="flex items-center gap-2.5 group flex-shrink-0 min-w-0">
+            <span className="relative w-9 h-9 md:w-10 md:h-10 rounded-full overflow-hidden bg-white ring-1 ring-[#1A1A1A]/10 flex-shrink-0 transition-transform duration-300 group-hover:scale-105">
+              <Image src={brandLogo} alt="MO:MO Station logo" fill sizes="40px" className="object-contain" />
+            </span>
+            <div className="flex flex-col min-w-0">
+              <span className="font-dancing text-lg md:text-xl leading-none text-primary transition-colors">
                 Himalayan Express
               </span>
-              <span
-                className={`font-playfair text-lg font-bold transition-colors ${
-                  useDarkText ? 'text-foreground' : 'text-white'
-                }`}
-              >
+              <span className="font-playfair text-sm md:text-base font-bold text-foreground leading-tight">
                 MO:MO Station
               </span>
             </div>
@@ -106,12 +111,10 @@ export default function Navbar() {
                 <Link
                   key={link.name}
                   href={link.href}
-                  className={`text-sm font-medium transition-colors hover:text-primary ${
+                  className={`relative text-sm font-medium transition-colors hover:text-primary after:absolute after:-bottom-1 after:left-0 after:h-0.5 after:rounded-full after:bg-primary after:transition-all after:duration-300 ${
                     isActiveLink(link.href)
-                      ? 'text-primary'
-                      : useDarkText
-                      ? 'text-foreground/80'
-                      : 'text-white/90'
+                      ? 'text-primary after:w-full'
+                      : 'text-foreground/75 after:w-0 hover:after:w-full'
                   }`}
                 >
                   {link.name}
@@ -120,9 +123,7 @@ export default function Navbar() {
                 <button
                   key={link.name}
                   onClick={() => handleNavClick(link.href)}
-                  className={`text-sm font-medium transition-colors hover:text-primary ${
-                    useDarkText ? 'text-foreground/80' : 'text-white/90'
-                  }`}
+                  className="relative text-sm font-medium text-foreground/75 transition-colors hover:text-primary after:absolute after:-bottom-1 after:left-0 after:h-0.5 after:w-0 after:rounded-full after:bg-primary after:transition-all after:duration-300 hover:after:w-full"
                 >
                   {link.name}
                 </button>
@@ -132,11 +133,7 @@ export default function Navbar() {
             {/* Cart Button */}
             <button
               onClick={openCart}
-              className={`relative p-2 rounded-full transition-all duration-200 hover:scale-105 active:scale-95 ${
-                useDarkText
-                  ? 'text-foreground hover:bg-gray-100'
-                  : 'text-white hover:bg-white/10'
-              }`}
+              className="relative p-2 rounded-full transition-all duration-200 hover:scale-105 active:scale-95 text-foreground hover:bg-primary/10"
             >
               <ShoppingCart className="w-5 h-5" />
               {totalItems > 0 && (
@@ -213,7 +210,7 @@ export default function Navbar() {
                   </Button>
                 </Link>
                 <Link href="/signup">
-                  <Button className="bg-primary hover:bg-[#7A0407] text-white">
+                  <Button className="bg-primary hover:bg-[#7A0407] text-white rounded-full px-6 shadow-md shadow-primary/20">
                     Sign Up
                   </Button>
                 </Link>
@@ -226,11 +223,7 @@ export default function Navbar() {
             {/* Mobile Cart Button */}
             <button
               onClick={openCart}
-              className={`relative p-2 rounded-full transition-all duration-200 active:scale-95 flex-shrink-0 ${
-                useDarkText
-                  ? 'text-foreground hover:bg-gray-100'
-                  : 'text-white hover:bg-white/10'
-              }`}
+              className="relative p-2 rounded-full transition-all duration-200 active:scale-95 flex-shrink-0 text-foreground hover:bg-primary/10"
             >
               <ShoppingCart className="w-5 h-5" />
               {totalItems > 0 && (
@@ -247,7 +240,7 @@ export default function Navbar() {
                 <Button
                   variant="ghost"
                   size="icon"
-                  className={`flex-shrink-0 w-10 h-10 ${useDarkText ? 'text-foreground' : 'text-white'}`}
+                  className="flex-shrink-0 w-10 h-10 text-foreground"
                 >
                   <Menu className="w-5 h-5" />
                   <span className="sr-only">Toggle menu</span>
@@ -257,14 +250,19 @@ export default function Navbar() {
                 <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
                 <div className="flex flex-col h-full">
                   {/* Header */}
-                  <div className="p-6 border-b border-gray-100">
-                    <div className="flex flex-col">
-                      <span className="font-playfair text-xl font-bold text-foreground">
-                        Himalayan
+                  <div className="p-6 border-b border-gray-100 bg-[#FDF8F3]">
+                    <div className="flex items-center gap-3">
+                      <span className="relative w-11 h-11 rounded-full overflow-hidden bg-white ring-1 ring-[#1A1A1A]/10 flex-shrink-0">
+                        <Image src={brandLogo} alt="MO:MO Station logo" fill sizes="44px" className="object-contain" />
                       </span>
-                      <span className="font-dancing text-base text-primary -mt-1">
-                        Momos
-                      </span>
+                      <div className="flex flex-col min-w-0">
+                        <span className="font-dancing text-lg leading-none text-primary">
+                          Himalayan Express
+                        </span>
+                        <span className="font-playfair text-base font-bold text-foreground leading-tight">
+                          MO:MO Station
+                        </span>
+                      </div>
                     </div>
                   </div>
                   

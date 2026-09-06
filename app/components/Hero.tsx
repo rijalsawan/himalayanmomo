@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { ArrowRight, ArrowDown, Sparkles, Clock, Award, Users, Timer, Star, Trophy, Heart, Zap, Target, TrendingUp, Shield, ThumbsUp, CheckCircle, LucideIcon } from 'lucide-react';
+import { ArrowRight, ArrowDown, Sparkles, Clock, Award, Users, Timer, Star, Trophy, Heart, Zap, Target, TrendingUp, Shield, ThumbsUp, CheckCircle, Percent, LucideIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -64,22 +64,6 @@ const defaultSettings: SiteSettings = {
   testimonialStat2Value: '4.9',
 };
 
-interface FeaturedDish {
-  id: string;
-  slug: string;
-  name: string;
-  price: number;
-  image: string;
-}
-
-const FALLBACK_DISH: FeaturedDish = {
-  id: 'fallback',
-  slug: 'menu',
-  name: 'Steamed Momo',
-  price: 12.99,
-  image: '/momo.webp',
-};
-
 // A subtle line-art mountain silhouette echoing the brand mark, used as a
 // low-opacity background accent behind the heading (not a copy of the logo).
 const MountainMotif = () => (
@@ -99,15 +83,9 @@ const MountainMotif = () => (
   </svg>
 );
 
-const DishCardSkeleton = ({ className }: { className: string }) => (
-  <div
-    className={`rounded-3xl bg-gradient-to-br from-primary/10 to-[#F4A261]/10 animate-pulse-soft ${className}`}
-  />
-);
-
 export default function Hero() {
   const [settings, setSettings] = useState<SiteSettings>(defaultSettings);
-  const [dishes, setDishes] = useState<FeaturedDish[] | null>(null);
+  const [settingsLoaded, setSettingsLoaded] = useState(false);
 
   useEffect(() => {
     const fetchSettings = async () => {
@@ -119,26 +97,12 @@ export default function Hero() {
         }
       } catch (error) {
         console.error('Error fetching site settings:', error);
-      }
-    };
-
-    const fetchFeaturedDishes = async () => {
-      try {
-        const res = await fetch('/api/menu?isPopular=true&limit=3');
-        if (res.ok) {
-          const data: FeaturedDish[] = await res.json();
-          setDishes(data && data.length > 0 ? data : [FALLBACK_DISH]);
-        } else {
-          setDishes([FALLBACK_DISH]);
-        }
-      } catch (error) {
-        console.error('Error fetching featured dishes:', error);
-        setDishes([FALLBACK_DISH]);
+      } finally {
+        setSettingsLoaded(true);
       }
     };
 
     fetchSettings();
-    fetchFeaturedDishes();
   }, []);
 
   const scrollToSection = (href: string) => {
@@ -161,13 +125,6 @@ export default function Hero() {
     { icon: getIcon(settings.stat2Icon), value: settings.stat2Value, label: settings.stat2Label },
     { icon: getIcon(settings.stat3Icon), value: settings.stat3Value, label: settings.stat3Label },
   ];
-
-  const isLoadingDishes = dishes === null;
-  // Pad out to 3 slots so the collage layout stays stable even with 1-2 items
-  const collageDishes = (dishes ?? []).slice(0, 3);
-  const heroImage = collageDishes[0] ?? FALLBACK_DISH;
-  const secondImage = collageDishes[1];
-  const thirdImage = collageDishes[2];
 
   return (
     <section
@@ -283,48 +240,36 @@ export default function Hero() {
             </div>
           </div>
 
-          {/* Right Column - Dish Photo Collage */}
+          {/* Right Column - Brand Badge Showcase */}
           <div className="order-1 lg:order-2 relative animate-fade-in delay-2">
-            <div className="relative mx-auto w-full max-w-[420px] h-[360px] sm:h-[420px] lg:h-[460px]">
-              {/* Decorative ring accent behind the collage */}
-              <div className="absolute inset-8 rounded-[2.5rem] border-2 border-dashed border-primary/15 animate-spin-slow" />
+            <div className="relative mx-auto w-full max-w-[280px] sm:max-w-[360px] lg:max-w-[440px] aspect-square">
+              {/* Soft red halo behind the badge */}
+              <div className="absolute -inset-8 sm:-inset-12 rounded-full bg-[radial-gradient(circle_at_center,rgba(179,6,10,0.16),transparent_65%)]" />
 
-              {/* Primary dish photo */}
-              {isLoadingDishes ? (
-                <DishCardSkeleton className="absolute inset-x-4 top-0 h-[75%] shadow-xl" />
-              ) : (
-                <div className="absolute inset-x-4 top-0 h-[75%] rounded-[2rem] overflow-hidden shadow-2xl shadow-primary/20 rotate-2 animate-float-card-1 bg-white">
+              {/* Rotating dashed ring */}
+              <div className="absolute inset-0 rounded-full border-2 border-dashed border-primary/25 animate-spin-slow" />
+
+              {/* Thin inner ring for depth */}
+              <div className="absolute inset-5 sm:inset-7 rounded-full border border-primary/10" />
+
+              {/* Logo badge */}
+              <div className="absolute inset-9 sm:inset-12 rounded-full bg-white border-4 border-white shadow-2xl shadow-primary/25 overflow-hidden animate-float-card-1">
+                {!settingsLoaded ? (
+                  <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary/10 to-[#F4A261]/10 animate-pulse-soft" />
+                ) : (
                   <Image
-                    src={heroImage.image}
-                    alt={heroImage.name}
+                    src={settings.heroLogo || '/brandlogo.svg'}
+                    alt="MO:MO Station logo"
                     fill
                     priority
-                    sizes="(max-width: 1024px) 90vw, 420px"
-                    className="object-cover"
+                    sizes="(max-width: 640px) 240px, (max-width: 1024px) 320px, 400px"
+                    className="object-contain p-3 sm:p-4"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
-                  <div className="absolute bottom-4 left-4 right-4 text-white">
-                    <p className="font-heading font-semibold text-lg drop-shadow-sm truncate">{heroImage.name}</p>
-                    <p className="text-white/90 text-sm font-medium">${heroImage.price.toFixed(2)}</p>
-                  </div>
-                </div>
-              )}
+                )}
+              </div>
 
-              {/* Secondary overlapping photo */}
-              {secondImage && (
-                <div className="hidden sm:block absolute -right-6 lg:right-0 bottom-6 w-[46%] h-[42%] rounded-3xl overflow-hidden shadow-xl shadow-primary/15 -rotate-6 border-4 border-white animate-float-card-2 bg-white">
-                  <Image
-                    src={secondImage.image}
-                    alt={secondImage.name}
-                    fill
-                    sizes="200px"
-                    className="object-cover"
-                  />
-                </div>
-              )}
-
-              {/* Floating rating badge */}
-              <div className="absolute -left-2 sm:-left-6 top-6 flex items-center gap-2 bg-white/90 backdrop-blur-md rounded-2xl px-4 py-3 shadow-xl shadow-black/5 border border-white animate-float-1">
+              {/* Floating rating chip */}
+              <div className="absolute -left-2 sm:-left-8 top-4 flex items-center gap-2 bg-white/95 backdrop-blur-md rounded-2xl px-3.5 py-2.5 shadow-xl shadow-black/5 border border-white animate-float-1">
                 <div className="flex items-center justify-center w-9 h-9 rounded-full bg-primary/10">
                   <Star className="w-4 h-4 text-primary fill-primary" />
                 </div>
@@ -338,21 +283,27 @@ export default function Hero() {
                 </div>
               </div>
 
-              {/* Floating "featured dish" chip on the third dish, if present */}
-              {thirdImage && (
-                <div className="hidden lg:flex absolute right-4 top-10 items-center gap-2 bg-white rounded-2xl pl-1.5 pr-3 py-1.5 shadow-lg shadow-black/5 border border-white/80 animate-float-3">
-                  <span className="relative w-9 h-9 rounded-xl overflow-hidden flex-shrink-0">
-                    <Image src={thirdImage.image} alt={thirdImage.name} fill sizes="36px" className="object-cover" />
-                  </span>
-                  <span className="text-xs font-semibold text-[#1A1A1A] truncate max-w-[90px]">{thirdImage.name}</span>
-                </div>
-              )}
+              {/* Floating promo chip */}
+              <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 sm:left-auto sm:translate-x-0 sm:-right-4 sm:bottom-10 flex items-center gap-2 bg-primary text-white rounded-full pl-2 pr-4 py-2 shadow-xl shadow-primary/30 animate-float-2 whitespace-nowrap">
+                <span className="flex items-center justify-center w-7 h-7 rounded-full bg-white/15">
+                  <Percent className="w-3.5 h-3.5" />
+                </span>
+                <span className="text-xs font-bold tracking-wide">10% Off Online Orders</span>
+              </div>
+
+              {/* Floating fresh-daily chip */}
+              <div className="hidden sm:flex absolute -right-2 top-1/3 items-center gap-2 bg-white/95 backdrop-blur-md rounded-2xl px-3.5 py-2.5 shadow-lg shadow-black/5 border border-white animate-float-3">
+                <span className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10">
+                  <Sparkles className="w-4 h-4 text-primary" />
+                </span>
+                <span className="text-xs font-semibold text-[#1A1A1A] whitespace-nowrap">Made Fresh Daily</span>
+              </div>
             </div>
           </div>
         </div>
 
         {/* Marquee ticker strip */}
-        <div className="mt-16 lg:mt-20 relative overflow-hidden border-y border-[#1A1A1A]/10 py-3 [mask-image:linear-gradient(to_right,transparent,black_10%,black_90%,transparent)]">
+        <div className="mt-10 lg:mt-20 relative overflow-hidden border-y border-[#1A1A1A]/10 py-3 [mask-image:linear-gradient(to_right,transparent,black_10%,black_90%,transparent)]">
           <div className="flex w-max animate-marquee">
             {Array.from({ length: 2 }).map((_, loopIndex) => (
               <div key={loopIndex} className="flex items-center flex-shrink-0" aria-hidden={loopIndex === 1}>

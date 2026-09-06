@@ -35,6 +35,12 @@ import {
   DropdownMenuTrigger,
   DropdownMenuCheckboxItem,
 } from '@/components/ui/dropdown-menu';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { categories } from '../data/menuItems';
 import { useCart } from '../context/CartContext';
 import Navbar from '../components/Navbar';
@@ -220,21 +226,6 @@ const SkeletonCard = ({ index }: { index: number }) => {
   );
 };
 
-const SpiceIndicator = ({ level }: { level: number }) => {
-  return (
-    <div className="flex items-center gap-0.5">
-      {[1, 2, 3].map((i) => (
-        <Flame
-          key={i}
-          className={`w-3.5 h-3.5 ${
-            i <= level ? 'text-red-500 fill-red-500' : 'text-gray-300'
-          }`}
-        />
-      ))}
-    </div>
-  );
-};
-
 const MenuCard = ({ item, index }: { item: MenuItem; index: number }) => {
   return (
     <motion.div
@@ -244,95 +235,83 @@ const MenuCard = ({ item, index }: { item: MenuItem; index: number }) => {
       exit={{ opacity: 0, scale: 0.9 }}
       transition={{ duration: 0.4, delay: index * 0.05 }}
     >
-      <Card className="group overflow-hidden border-0 shadow-lg hover:shadow-2xl transition-all duration-500 bg-white h-full rounded-2xl max-sm:w-77 max-sm:mx-auto">
-        {/* Image Container with Overlay */}
-        <div className="relative">
-          {/* Main Image */}
-          <div className="relative h-48 overflow-hidden">
-            <Image
-              src={item.image}
-              alt={item.name}
-              fill
-              className="object-cover transition-transform duration-700 group-hover:scale-110"
-            />
-            {/* Gradient Overlay */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-            
-            {/* Price Tag - Floating */}
-            <div className="absolute top-4 right-4">
-              <div className="bg-white/95 backdrop-blur-sm rounded-full px-3 py-1.5 shadow-lg">
-                <span className="text-lg font-bold text-primary">
-                  ${item.price.toFixed(2)}
-                </span>
-              </div>
-            </div>
+      <Card className="group overflow-hidden rounded-[1.75rem] border border-[#1A1A1A]/5 bg-white shadow-sm hover:shadow-xl hover:shadow-primary/10 hover:-translate-y-1.5 transition-all duration-500 h-full max-sm:w-77 max-sm:mx-auto">
+        {/* Image */}
+        <div className="relative h-44 overflow-hidden">
+          <Image
+            src={item.image}
+            alt={item.name}
+            fill
+            className="object-cover transition-transform duration-700 group-hover:scale-108"
+          />
+          {/* Brand-red wash on hover */}
+          <div className="absolute inset-0 bg-gradient-to-t from-primary/35 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
-            {/* Badges - Bottom Left of Image */}
-            <div className="absolute bottom-4 left-4 flex flex-wrap gap-2">
-              {item.isVegetarian && (
-                <span className="inline-flex items-center gap-1 bg-emerald-500/90 backdrop-blur-sm text-white text-xs font-medium px-2.5 py-1 rounded-full">
-                  <Leaf className="w-3 h-3" />
-                  Veg
-                </span>
-              )}
-              {item.isPopular && (
-                <span className="inline-flex items-center gap-1 bg-primary/90 backdrop-blur-sm text-white text-xs font-medium px-2.5 py-1 rounded-full">
-                  <Star className="w-3 h-3 fill-white" />
-                  Popular
-                </span>
-              )}
-              {item.isNew && (
-                <span className="inline-flex items-center gap-1 bg-amber-500/90 backdrop-blur-sm text-white text-xs font-medium px-2.5 py-1 rounded-full">
-                  <Sparkles className="w-3 h-3" />
-                  New
-                </span>
-              )}
+          {/* Price - solid brand pill */}
+          <div className="absolute top-3 right-3">
+            <div className="bg-primary text-white rounded-full px-3.5 py-1.5 shadow-lg shadow-primary/30">
+              <span className="text-sm font-bold tracking-tight">
+                ${item.price.toFixed(2)}
+              </span>
             </div>
+          </div>
 
-            {/* Cart Button - Always visible on mobile, hover on desktop */}
-            <div className="absolute bottom-4 right-4 transform md:translate-y-2 md:opacity-0 md:group-hover:translate-y-0 md:group-hover:opacity-100 transition-all duration-300">
-              <CartQuantityButton item={item} size="sm" />
-            </div>
+          {/* Badges - outline glass pills */}
+          <div className="absolute bottom-3 left-3 flex flex-wrap gap-1.5">
+            {item.isVegetarian && (
+              <span className="inline-flex items-center gap-1 bg-white/90 backdrop-blur-sm border border-emerald-500/40 text-emerald-700 text-[11px] font-semibold px-2.5 py-1 rounded-full">
+                <Leaf className="w-3 h-3" />
+                Veg
+              </span>
+            )}
+            {item.isPopular && (
+              <span className="inline-flex items-center gap-1 bg-white/90 backdrop-blur-sm border border-primary/30 text-primary text-[11px] font-semibold px-2.5 py-1 rounded-full">
+                <Star className="w-3 h-3 fill-primary" />
+                Popular
+              </span>
+            )}
+            {item.isNew && (
+              <span className="inline-flex items-center gap-1 bg-white/90 backdrop-blur-sm border border-amber-500/40 text-amber-700 text-[11px] font-semibold px-2.5 py-1 rounded-full">
+                <Sparkles className="w-3 h-3" />
+                New
+              </span>
+            )}
+          </div>
+
+          {/* Cart Button - Always visible on mobile, hover on desktop */}
+          <div className="absolute bottom-3 right-3 transform md:translate-y-2 md:opacity-0 md:group-hover:translate-y-0 md:group-hover:opacity-100 transition-all duration-300">
+            <CartQuantityButton item={item} size="sm" />
           </div>
         </div>
 
         {/* Content */}
-        <CardContent className="p-5 space-y-3">
-          {/* Title */}
-          <div>
-            <h3 className="font-heading text-lg font-semibold text-gray-900 group-hover:text-primary transition-colors duration-300 line-clamp-1">
-              {item.name}
-            </h3>
-          </div>
-
-          {/* Description */}
-          <p className="text-gray-500 text-sm line-clamp-2 leading-relaxed">
+        <CardContent className="p-5">
+          <h3 className="font-heading text-lg font-semibold text-gray-900 group-hover:text-primary transition-colors duration-300 line-clamp-1">
+            {item.name}
+          </h3>
+          <p className="text-gray-500 text-sm line-clamp-2 leading-relaxed mt-1.5">
             {item.description}
           </p>
 
           {/* Bottom Row */}
-          <div className="flex items-center justify-between pt-2 border-t border-gray-100">
-            {/* Spice Level */}
-            <div className="flex items-center gap-2">
-              <SpiceIndicator level={item.spiceLevel} />
-              <span className="text-xs text-gray-400">
+          <div className="flex items-center justify-between mt-4 pt-3 border-t border-dashed border-gray-200">
+            <div className="flex items-center gap-1.5">
+              <Flame className={`w-3.5 h-3.5 ${
+                item.spiceLevel === 0 ? 'text-gray-300' :
+                item.spiceLevel === 1 ? 'text-yellow-500' :
+                item.spiceLevel === 2 ? 'text-orange-500' : 'text-primary fill-primary/20'
+              }`} />
+              <span className="text-xs font-medium text-gray-500">
                 {item.spiceLevel === 0 ? 'Mild' : item.spiceLevel === 1 ? 'Light' : item.spiceLevel === 2 ? 'Medium' : 'Spicy'}
               </span>
             </div>
-            
-            {/* Learn More Link */}
+
             <Link
               href={`/menu/${item.slug}`}
-              className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:text-[#7A0407] transition-colors group/link"
+              className="inline-flex items-center gap-1 text-sm font-semibold text-primary hover:text-[#7A0407] transition-colors"
             >
               Details
-              <motion.span
-                className="inline-block"
-                initial={{ x: 0 }}
-                whileHover={{ x: 3 }}
-              >
-                →
-              </motion.span>
+              <span className="inline-block transition-transform duration-300 group-hover:translate-x-1">→</span>
             </Link>
           </div>
         </CardContent>
@@ -347,16 +326,16 @@ const MobileMenuListItem = ({ item }: { item: MenuItem }) => {
     <div className="p-4 border-b border-gray-100">
       <div className="flex gap-3">
         {/* Image */}
-        <div className="relative w-16 h-16 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
+        <div className="relative w-16 h-16 rounded-2xl overflow-hidden bg-gray-100 flex-shrink-0 ring-1 ring-[#1A1A1A]/5">
           <Image src={item.image} alt={item.name} fill className="object-cover" />
         </div>
-        
+
         {/* Content */}
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between gap-2">
             <div className="min-w-0">
               <div className="flex items-center gap-1.5">
-                <h3 className="font-medium text-[#1A1A1A] truncate">{item.name}</h3>
+                <h3 className="font-heading font-semibold text-[#1A1A1A] truncate">{item.name}</h3>
                 {item.isVegetarian && <Leaf className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" />}
               </div>
               <p className="text-sm text-gray-500 capitalize">{item.category}</p>
@@ -364,7 +343,7 @@ const MobileMenuListItem = ({ item }: { item: MenuItem }) => {
             {/* Actions Dropdown */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="w-8 h-8 flex-shrink-0">
+                <Button variant="ghost" size="icon" className="w-8 h-8 flex-shrink-0 rounded-full">
                   <MoreHorizontal className="w-4 h-4" />
                 </Button>
               </DropdownMenuTrigger>
@@ -378,30 +357,32 @@ const MobileMenuListItem = ({ item }: { item: MenuItem }) => {
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
-          
+
           {/* Price and badges */}
           <div className="flex items-center justify-between mt-2">
-            <span className="font-semibold text-[#1A1A1A]">${item.price.toFixed(2)}</span>
+            <span className="inline-flex items-center bg-primary text-white text-xs font-bold rounded-full px-2.5 py-1 shadow-sm shadow-primary/25">
+              ${item.price.toFixed(2)}
+            </span>
             <div className="flex items-center gap-1.5">
               {item.isPopular && (
-                <Badge className="bg-primary/10 text-primary text-[10px] px-1.5 py-0 h-4">Popular</Badge>
+                <Badge variant="outline" className="border-primary/30 text-primary text-[10px] px-1.5 py-0 h-4">Popular</Badge>
               )}
               {item.isNew && (
-                <Badge className="bg-amber-100 text-amber-700 text-[10px] px-1.5 py-0 h-4">New</Badge>
+                <Badge variant="outline" className="border-amber-400/50 text-amber-700 text-[10px] px-1.5 py-0 h-4">New</Badge>
               )}
             </div>
           </div>
 
           {/* Bottom row - Spice & Cart */}
-          <div className="flex items-center justify-between mt-2 pt-2 border-t border-gray-100">
-            <Badge variant="outline" className={`font-normal gap-1 text-[10px] ${
-              item.spiceLevel === 0 ? 'text-gray-600' :
+          <div className="flex items-center justify-between mt-2 pt-2 border-t border-dashed border-gray-200">
+            <span className={`inline-flex items-center gap-1 text-[11px] font-medium ${
+              item.spiceLevel === 0 ? 'text-gray-500' :
               item.spiceLevel === 1 ? 'text-yellow-600' :
-              item.spiceLevel === 2 ? 'text-orange-600' : 'text-red-600'
+              item.spiceLevel === 2 ? 'text-orange-600' : 'text-primary'
             }`}>
-              {item.spiceLevel > 0 && <Flame className="w-2.5 h-2.5" />}
+              <Flame className={`w-3 h-3 ${item.spiceLevel === 0 ? 'text-gray-300' : ''}`} />
               {item.spiceLevel === 0 ? 'Mild' : item.spiceLevel === 1 ? 'Light' : item.spiceLevel === 2 ? 'Medium' : 'Spicy'}
-            </Badge>
+            </span>
             <CartQuantityButton item={item} size="sm" />
           </div>
         </div>
@@ -420,7 +401,7 @@ export default function MenuPage() {
   const [showFilters, setShowFilters] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isFiltering, setIsFiltering] = useState(false);
-  const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
+  const [modalCategory, setModalCategory] = useState<string | null>(null);
   const { totalItems, openCart } = useCart();
   const PREVIEW_COUNT = 8;
   
@@ -553,22 +534,17 @@ export default function MenuPage() {
     return counts;
   }, [menuItems]);
 
-  // Collapse "show more" state whenever the active category or filters change
+  // Close the category modal whenever the active category or filters change
   useEffect(() => {
-    setExpandedCategories(new Set());
+    setModalCategory(null);
   }, [activeCategory, searchQuery, sortBy, dietaryFilter, spiceFilter]);
 
-  const toggleCategoryExpand = (categoryId: string) => {
-    setExpandedCategories((prev) => {
-      const next = new Set(prev);
-      if (next.has(categoryId)) {
-        next.delete(categoryId);
-      } else {
-        next.add(categoryId);
-      }
-      return next;
-    });
-  };
+  const modalCategoryData = modalCategory
+    ? categories.find((c) => c.id === modalCategory) ?? null
+    : null;
+  const modalItems = modalCategory
+    ? filteredItems.filter((item) => item.category === modalCategory)
+    : [];
 
   const clearAllFilters = () => {
     setSortBy('default');
@@ -879,8 +855,10 @@ export default function MenuPage() {
                         const items = filteredItems.filter((item) => item.category === cat.id);
                         if (items.length === 0) return null;
 
-                        const isExpanded = activeCategory !== 'all' || expandedCategories.has(cat.id);
-                        const visibleItems = isExpanded ? items : items.slice(0, PREVIEW_COUNT);
+                        // When a single category is filtered via the nav pills, show it all
+                        // inline; otherwise show a preview and let "Show all" open a modal.
+                        const showAllInline = activeCategory !== 'all';
+                        const visibleItems = showAllInline ? items : items.slice(0, PREVIEW_COUNT);
 
                         return (
                           <div key={cat.id} id={`category-${cat.id}`} className="scroll-mt-40">
@@ -916,17 +894,15 @@ export default function MenuPage() {
                               ))}
                             </div>
 
-                            {/* Show more / less toggle */}
-                            {items.length > PREVIEW_COUNT && (
+                            {/* Show all modal trigger */}
+                            {!showAllInline && items.length > PREVIEW_COUNT && (
                               <div className="flex justify-center mt-6">
                                 <Button
                                   variant="outline"
-                                  onClick={() => toggleCategoryExpand(cat.id)}
-                                  className="border-gray-200 hover:border-primary hover:text-primary"
+                                  onClick={() => setModalCategory(cat.id)}
+                                  className="rounded-full border-primary/25 text-primary hover:bg-primary hover:text-white hover:border-primary transition-all duration-300 px-6"
                                 >
-                                  {isExpanded
-                                    ? 'Show less'
-                                    : `Show all ${items.length} ${cat.name.toLowerCase()}`}
+                                  Show all {items.length} {cat.name.toLowerCase()}
                                 </Button>
                               </div>
                             )}
@@ -965,6 +941,49 @@ export default function MenuPage() {
           </div>
         </section>
       </main>
+
+      {/* Category "Show all" modal */}
+      <Dialog open={modalCategory !== null} onOpenChange={(open) => !open && setModalCategory(null)}>
+        <DialogContent className="max-w-[95vw] sm:max-w-3xl lg:max-w-5xl max-h-[90vh] p-0 overflow-hidden rounded-3xl border-0 bg-[#FDF8F3] flex flex-col">
+          {modalCategoryData && (
+            <>
+              {/* Cream header strip */}
+              <DialogHeader className="px-6 pt-6 pb-4 border-b border-[#1A1A1A]/10 bg-white/60 flex-shrink-0">
+                <div className="flex items-center gap-3">
+                  <span className="text-3xl leading-none">{modalCategoryData.icon}</span>
+                  <div className="text-left">
+                    <DialogTitle className="font-heading text-2xl font-bold text-gray-900">
+                      {modalCategoryData.name}
+                    </DialogTitle>
+                    <p className="text-sm text-gray-500 mt-0.5">
+                      {modalItems.length} {modalItems.length === 1 ? 'item' : 'items'} · {modalCategoryData.description}
+                    </p>
+                  </div>
+                </div>
+              </DialogHeader>
+
+              {/* Scrollable items body */}
+              <div className="overflow-y-auto px-4 sm:px-6 py-5 flex-1">
+                {/* Mobile list */}
+                <Card className="sm:hidden overflow-hidden rounded-2xl border border-[#1A1A1A]/5">
+                  <div className="divide-y divide-gray-100">
+                    {modalItems.map((item) => (
+                      <MobileMenuListItem key={item.id} item={item} />
+                    ))}
+                  </div>
+                </Card>
+
+                {/* Desktop grid */}
+                <div className="hidden sm:grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {modalItems.map((item, index) => (
+                    <MenuCard key={item.id} item={item} index={index} />
+                  ))}
+                </div>
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
 
       <Footer />
     </div>
