@@ -124,10 +124,20 @@ interface FormData {
 const categories = [
   { value: 'all', label: 'All Categories' },
   { value: 'momos', label: 'Momos' },
+  { value: 'noodlesRice', label: 'Noodles & Fried Rice' },
+  { value: 'kattiRolls', label: 'Katti Rolls' },
+  { value: 'streetSnacks', label: 'Street Snacks' },
+  { value: 'biryanis', label: 'Biryanis' },
+  { value: 'weekendSpecial', label: 'Weekend Special' },
+  { value: 'lassi', label: 'Himalayan Lassi' },
   { value: 'drinks', label: 'Drinks' },
-  { value: 'sides', label: 'Sides' },
+  { value: 'sides', label: 'Sides (legacy)' },
   { value: 'desserts', label: 'Desserts' },
 ];
+
+function getCategoryLabel(category: string): string {
+  return categories.find((c) => c.value === category)?.label ?? category;
+}
 
 const spiceLevels = [
   { value: 0, label: 'None', color: 'bg-gray-50 text-gray-600 border-gray-200' },
@@ -653,7 +663,7 @@ export default function MenuManagementPage() {
                           </div>
                         </td>
                         <td className="py-3 px-6">
-                          <span className="text-gray-600 capitalize">{item.category}</span>
+                          <span className="text-gray-600 capitalize">{getCategoryLabel(item.category)}</span>
                         </td>
                         <td className="py-3 px-6">
                           <span className="font-semibold text-[#1A1A1A]">${item.price.toFixed(2)}</span>
@@ -744,7 +754,7 @@ export default function MenuManagementPage() {
                               <h3 className="font-medium text-[#1A1A1A] truncate">{item.name}</h3>
                               {item.isVegetarian && <Leaf className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" />}
                             </div>
-                            <p className="text-sm text-gray-500 capitalize">{item.category}</p>
+                            <p className="text-sm text-gray-500">{getCategoryLabel(item.category)}</p>
                           </div>
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
@@ -1083,8 +1093,14 @@ export default function MenuManagementPage() {
                       <SelectTrigger className="mt-1.5"><SelectValue /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="momos">Momos</SelectItem>
+                        <SelectItem value="noodlesRice">Noodles & Fried Rice</SelectItem>
+                        <SelectItem value="kattiRolls">Katti Rolls</SelectItem>
+                        <SelectItem value="streetSnacks">Street Snacks</SelectItem>
+                        <SelectItem value="biryanis">Biryanis</SelectItem>
+                        <SelectItem value="weekendSpecial">Weekend Special</SelectItem>
+                        <SelectItem value="lassi">Himalayan Lassi</SelectItem>
                         <SelectItem value="drinks">Drinks</SelectItem>
-                        <SelectItem value="sides">Sides</SelectItem>
+                        <SelectItem value="sides">Sides (legacy)</SelectItem>
                         <SelectItem value="desserts">Desserts</SelectItem>
                       </SelectContent>
                     </Select>

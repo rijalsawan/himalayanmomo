@@ -298,6 +298,12 @@ enum MenuCategory {
   sides
   drinks
   desserts
+  biryanis
+  kattiRolls
+  noodlesRice
+  weekendSpecial
+  streetSnacks
+  lassi
 }
 
 enum NotificationType {

@@ -33,8 +33,6 @@ import {
   Printer
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import {
   DropdownMenu,
@@ -76,13 +74,13 @@ type DateFilter = 'all' | 'today' | 'week' | 'month' | '3months';
 type SortOption = 'newest' | 'oldest' | 'price-high' | 'price-low';
 
 const statusConfig: Record<string, { color: string; bgColor: string; icon: React.ElementType; label: string }> = {
-  PENDING: { color: 'text-yellow-600', bgColor: 'bg-yellow-50 border-yellow-200', icon: Clock, label: 'Pending' },
-  CONFIRMED: { color: 'text-blue-600', bgColor: 'bg-blue-50 border-blue-200', icon: ClipboardCheck, label: 'Confirmed' },
-  PREPARING: { color: 'text-orange-600', bgColor: 'bg-orange-50 border-orange-200', icon: ChefHat, label: 'Preparing' },
-  READY: { color: 'text-purple-600', bgColor: 'bg-purple-50 border-purple-200', icon: Package, label: 'Ready' },
-  OUT_FOR_DELIVERY: { color: 'text-indigo-600', bgColor: 'bg-indigo-50 border-indigo-200', icon: Truck, label: 'On the Way' },
-  DELIVERED: { color: 'text-emerald-600', bgColor: 'bg-emerald-50 border-emerald-200', icon: CheckCircle, label: 'Delivered' },
-  CANCELLED: { color: 'text-red-600', bgColor: 'bg-red-50 border-red-200', icon: XCircle, label: 'Cancelled' },
+  PENDING: { color: 'text-golden', bgColor: 'bg-golden/10 border-golden/40', icon: Clock, label: 'Pending' },
+  CONFIRMED: { color: 'text-dark', bgColor: 'bg-dark/5 border-dark/30', icon: ClipboardCheck, label: 'Confirmed' },
+  PREPARING: { color: 'text-brand', bgColor: 'bg-brand/5 border-brand/40', icon: ChefHat, label: 'Preparing' },
+  READY: { color: 'text-herb', bgColor: 'bg-herb/10 border-herb/40', icon: Package, label: 'Ready' },
+  OUT_FOR_DELIVERY: { color: 'text-dark', bgColor: 'bg-dark/5 border-dark/30', icon: Truck, label: 'On the Way' },
+  DELIVERED: { color: 'text-herb', bgColor: 'bg-herb/10 border-herb/40', icon: CheckCircle, label: 'Delivered' },
+  CANCELLED: { color: 'text-brand', bgColor: 'bg-brand/5 border-brand/40', icon: XCircle, label: 'Cancelled' },
 };
 
 const dateFilterOptions: { value: DateFilter; label: string }[] = [
@@ -104,23 +102,23 @@ const ITEMS_PER_PAGE = 10;
 
 // Loading Skeleton
 const OrderSkeleton = () => (
-  <Card className="border border-gray-200 shadow-sm">
-    <CardContent className="p-4 sm:p-6">
+  <div className="bg-warm-light border-[1.5px] border-dark">
+    <div className="p-4 sm:p-6">
       <div className="flex items-start justify-between gap-4">
         <div className="flex items-start gap-4 flex-1">
-          <div className="w-12 h-12 rounded-xl bg-gray-200 animate-pulse" />
+          <div className="w-12 h-12 bg-dark/10 animate-pulse" />
           <div className="flex-1 space-y-2">
-            <div className="h-5 w-40 bg-gray-200 rounded animate-pulse" />
-            <div className="h-4 w-32 bg-gray-200 rounded animate-pulse" />
+            <div className="h-5 w-40 bg-dark/10 animate-pulse" />
+            <div className="h-4 w-32 bg-dark/10 animate-pulse" />
           </div>
         </div>
         <div className="text-right space-y-2">
-          <div className="h-4 w-16 bg-gray-200 rounded animate-pulse" />
-          <div className="h-6 w-20 bg-gray-200 rounded animate-pulse" />
+          <div className="h-4 w-16 bg-dark/10 animate-pulse ml-auto" />
+          <div className="h-6 w-20 bg-dark/10 animate-pulse" />
         </div>
       </div>
-    </CardContent>
-  </Card>
+    </div>
+  </div>
 );
 
 // Empty placeholder to maintain consistent height (invisible spacer)
@@ -232,18 +230,18 @@ const Receipt = ({ order, onClose }: { order: Order; onClose: () => void }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 overflow-y-auto">
-      <div className="bg-white rounded-2xl max-w-md w-full my-auto">
+    <div className="fixed inset-0 bg-dark/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto animate-in fade-in duration-300">
+      <div className="bg-warm-light border-[1.5px] sm:border-brutal border-dark shadow-brutal-lg max-w-md w-full my-auto animate-in zoom-in-95 slide-in-from-bottom-4 duration-300">
         {/* Receipt Preview */}
         <div ref={receiptRef} className="p-6 max-h-[65vh] overflow-y-auto scrollbar-hide">
-          <div className="header text-center mb-6 pb-4 border-b-2 border-dashed border-gray-200">
-            <div className="logo text-2xl font-bold text-primary">MO:MO Station</div>
-            <div className="tagline text-xs text-gray-500">The taste of Nepal.</div>
+          <div className="header text-center mb-6 pb-4 border-b-2 border-dashed border-dark/20">
+            <div className="logo font-heading text-2xl font-bold text-brand">MO:MO Station</div>
+            <div className="tagline font-mono-brutal text-xs text-dark/50">The taste of Nepal.</div>
           </div>
 
           <div className="order-info mb-5">
-            <div className="order-id text-sm font-semibold">Order #{order.id.slice(-8).toUpperCase()}</div>
-            <div className="order-date text-xs text-gray-500">
+            <div className="order-id text-sm font-bold text-dark">Order #{order.id.slice(-8).toUpperCase()}</div>
+            <div className="order-date font-mono-brutal text-xs text-dark/50">
               {orderDate.toLocaleDateString('en-US', { 
                 weekday: 'long',
                 year: 'numeric', 
@@ -255,62 +253,62 @@ const Receipt = ({ order, onClose }: { order: Order; onClose: () => void }) => {
             </div>
           </div>
 
-          <div className="section-title text-xs font-semibold text-gray-500 uppercase mb-2">Items</div>
-          <div className="items mb-5 pb-4 border-b border-gray-200">
+          <div className="section-title font-mono-brutal text-xs font-bold text-dark/50 uppercase mb-2">Items</div>
+          <div className="items mb-5 pb-4 border-b-[1.5px] border-dark/15">
             {order.items.map((item) => (
               <div key={item.id} className="item flex justify-between mb-2 text-sm">
-                <span className="item-name flex-1">{item.name}</span>
-                <span className="item-qty text-gray-500 mx-2">x{item.quantity}</span>
-                <span className="item-price font-medium">${(item.price * item.quantity).toFixed(2)}</span>
+                <span className="item-name flex-1 text-dark">{item.name}</span>
+                <span className="item-qty text-dark/50 mx-2">x{item.quantity}</span>
+                <span className="item-price font-semibold text-dark">${(item.price * item.quantity).toFixed(2)}</span>
               </div>
             ))}
           </div>
 
           <div className="totals mb-5">
-            <div className="total-row flex justify-between mb-1.5 text-sm">
+            <div className="total-row flex justify-between mb-1.5 text-sm text-dark/70">
               <span>Subtotal</span>
               <span>${order.subtotal.toFixed(2)}</span>
             </div>
-            <div className="total-row flex justify-between mb-1.5 text-sm">
+            <div className="total-row flex justify-between mb-1.5 text-sm text-dark/70">
               <span>Tax</span>
               <span>${order.tax.toFixed(2)}</span>
             </div>
-            <div className="total-row flex justify-between mb-1.5 text-sm">
+            <div className="total-row flex justify-between mb-1.5 text-sm text-dark/70">
               <span>Delivery</span>
               <span>{order.deliveryFee === 0 ? 'FREE' : `$${order.deliveryFee.toFixed(2)}`}</span>
             </div>
-            <div className="total-row final flex justify-between text-lg font-bold pt-2 border-t-2 border-gray-900 mt-2">
+            <div className="total-row final flex justify-between font-heading text-lg font-bold pt-2 border-t-[1.5px] border-dark mt-2 text-dark">
               <span>Total</span>
               <span>${order.total.toFixed(2)}</span>
             </div>
           </div>
 
-          <div className="delivery-info text-xs text-gray-500 mb-5 p-3 bg-gray-50 rounded-lg" style={{ overflow: 'visible' }}>
+          <div className="delivery-info font-mono-brutal text-xs text-dark/60 mb-5 p-3 bg-cream border-[1.5px] border-dark/15" style={{ overflow: 'visible' }}>
             <p className="mb-1"><strong>Delivery Address:</strong></p>
             <p className="mb-2" style={{ wordBreak: 'break-word' }}>{order.address}</p>
             <p style={{ wordBreak: 'break-word' }}><strong>Phone:</strong> {order.phone}</p>
           </div>
 
-          <div className="footer text-center text-xs text-gray-500 pt-4 border-t-2 border-dashed border-gray-200">
-            <p className="thank-you text-sm font-semibold text-gray-900 mb-2">Thank you for your order!</p>
+          <div className="footer text-center text-xs text-dark/50 pt-4 border-t-2 border-dashed border-dark/20">
+            <p className="thank-you text-sm font-bold text-dark mb-2">Thank you for your order!</p>
             <p className="mb-1">Questions? Contact us at support@momostation.com</p>
             <p>www.momostation.com</p>
           </div>
         </div>
 
         {/* Action Buttons */}
-        <div className="p-4 border-t border-gray-200 bg-gray-50 rounded-b-2xl">
+        <div className="p-4 border-t-[1.5px] border-dark bg-cream">
           <div className="flex gap-3">
-            <Button onClick={handlePrint} className="flex-1 bg-primary hover:bg-primary/90">
+            <Button onClick={handlePrint} className="flex-1 rounded-none border-[1.5px] border-dark bg-brand hover:bg-brand-dark text-warm-light font-mono-brutal text-xs uppercase tracking-wide shadow-brutal-sm brutal-hover">
               <Printer className="w-4 h-4 mr-2" />
               Print
             </Button>
-            <Button onClick={handleDownload} variant="outline" className="flex-1">
+            <Button onClick={handleDownload} variant="outline" className="flex-1 rounded-none border-[1.5px] border-dark bg-warm-light hover:bg-dark hover:text-warm-light font-mono-brutal text-xs uppercase tracking-wide">
               <Download className="w-4 h-4 mr-2" />
               Download
             </Button>
           </div>
-          <Button onClick={onClose} variant="ghost" className="w-full mt-2">
+          <Button onClick={onClose} variant="ghost" className="w-full mt-2 rounded-none text-dark/60 hover:text-brand hover:bg-transparent font-mono-brutal text-xs uppercase tracking-wide">
             Close
           </Button>
         </div>
@@ -497,12 +495,12 @@ export default function OrdersPage() {
 
   if (status === 'loading' || isLoading) {
     return (
-      <div className="min-h-screen bg-[#FDF8F3]">
+      <div className="min-h-screen bg-cream">
         <Navbar />
         <main className="pt-20">
-          <div className="bg-white border-b border-gray-100">
+          <div className="bg-warm-light border-b-[1.5px] border-dark">
             <div className="container-custom py-3 sm:py-4">
-              <div className="h-5 w-32 bg-gray-200 rounded animate-pulse" />
+              <div className="h-5 w-32 bg-dark/10 animate-pulse" />
             </div>
           </div>
           <div className="container-custom py-8 sm:py-12">
@@ -520,19 +518,19 @@ export default function OrdersPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#FDF8F3]">
+    <div className="min-h-screen bg-cream">
       <Navbar />
 
       <main className="pt-20">
         {/* Breadcrumb */}
-        <div className="bg-white border-b border-gray-100">
+        <div className="bg-warm-light border-b-[1.5px] border-dark">
           <div className="container-custom py-3 sm:py-4">
-            <nav className="flex items-center gap-2 text-sm text-gray-500">
-              <Link href="/" className="hover:text-primary transition-colors">
+            <nav className="flex items-center gap-2 font-mono-brutal text-xs uppercase tracking-wide text-dark/50">
+              <Link href="/" className="hover:text-brand transition-colors">
                 Home
               </Link>
-              <ChevronRight className="w-4 h-4" />
-              <span className="text-gray-900 font-medium">My Orders</span>
+              <ChevronRight className="w-3.5 h-3.5" />
+              <span className="text-dark font-bold">My Orders</span>
             </nav>
           </div>
         </div>
@@ -543,14 +541,14 @@ export default function OrdersPage() {
             <div className="mb-6 sm:mb-8">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-primary/10 flex items-center justify-center">
-                    <ShoppingBag className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 border-[1.5px] border-dark bg-brand text-warm-light flex items-center justify-center shadow-brutal-sm flex-shrink-0">
+                    <ShoppingBag className="w-5 h-5 sm:w-6 sm:h-6" />
                   </div>
                   <div>
-                    <h1 className="font-heading text-2xl sm:text-3xl font-bold text-gray-900">
+                    <h1 className="font-heading text-2xl sm:text-3xl font-bold text-dark">
                       My Orders
                     </h1>
-                    <p className="text-sm text-gray-500">
+                    <p className="font-mono-brutal text-xs text-dark/50">
                       {orders.length} order{orders.length !== 1 ? 's' : ''} in total
                     </p>
                   </div>
@@ -563,24 +561,24 @@ export default function OrdersPage() {
             </div>
 
             {/* Filters Section */}
-            <Card className="border border-gray-200 shadow-sm mb-6">
-              <CardContent className="p-4">
+            <div className="border-[1.5px] border-dark bg-warm-light shadow-brutal-sm mb-6">
+              <div className="p-4">
                 {/* Search and Filter Row */}
                 <div className="flex flex-col sm:flex-row gap-3">
                   {/* Search */}
                   <div className="relative flex-1">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-dark/40" />
                     <Input
                       type="text"
                       placeholder="Search by order ID or item name..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="pl-10 h-10 border-gray-200 focus:border-primary focus:ring-primary"
+                      className="pl-10 h-10 rounded-none border-brutal-thin focus-visible:border-brand focus-visible:ring-0"
                     />
                     {searchQuery && (
                       <button
                         onClick={() => setSearchQuery('')}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-dark/40 hover:text-brand"
                       >
                         <X className="w-4 h-4" />
                       </button>
@@ -592,23 +590,23 @@ export default function OrdersPage() {
                     {/* Status Filter */}
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="outline" className="h-10 gap-2 border-gray-200">
+                        <Button variant="outline" className="h-10 gap-2 rounded-none border-[1.5px] border-dark bg-warm-light hover:bg-dark hover:text-warm-light font-mono-brutal text-[11px] uppercase tracking-wide">
                           <ClipboardCheck className="w-4 h-4" />
                           Status
                           {statusFilter !== 'all' && (
-                            <Badge className="ml-1 bg-primary/10 text-primary hover:bg-primary/10 px-1.5 py-0 text-xs">
+                            <span className="tag-mono ml-1 !bg-brand !text-warm-light px-1.5 py-0">
                               1
-                            </Badge>
+                            </span>
                           )}
                           <ChevronDown className="w-4 h-4" />
                         </Button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="w-48">
-                        <DropdownMenuLabel>Filter by Status</DropdownMenuLabel>
+                      <DropdownMenuContent align="end" className="w-48 rounded-none border-[1.5px] border-dark shadow-brutal-sm">
+                        <DropdownMenuLabel className="font-mono-brutal text-[11px] uppercase tracking-wide text-dark/50">Filter by Status</DropdownMenuLabel>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem 
                           onClick={() => setStatusFilter('all')}
-                          className={statusFilter === 'all' ? 'bg-primary/10' : ''}
+                          className={statusFilter === 'all' ? 'bg-brand/10 text-brand font-semibold rounded-none' : 'rounded-none'}
                         >
                           All Statuses
                         </DropdownMenuItem>
@@ -616,7 +614,7 @@ export default function OrdersPage() {
                           <DropdownMenuItem
                             key={key}
                             onClick={() => setStatusFilter(key as StatusFilter)}
-                            className={statusFilter === key ? 'bg-primary/10' : ''}
+                            className={statusFilter === key ? 'bg-brand/10 text-brand font-semibold rounded-none' : 'rounded-none'}
                           >
                             <config.icon className={`w-4 h-4 mr-2 ${config.color}`} />
                             {config.label}
@@ -628,25 +626,25 @@ export default function OrdersPage() {
                     {/* Date Filter */}
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="outline" className="h-10 gap-2 border-gray-200">
+                        <Button variant="outline" className="h-10 gap-2 rounded-none border-[1.5px] border-dark bg-warm-light hover:bg-dark hover:text-warm-light font-mono-brutal text-[11px] uppercase tracking-wide">
                           <Calendar className="w-4 h-4" />
                           Date
                           {dateFilter !== 'all' && (
-                            <Badge className="ml-1 bg-primary/10 text-primary hover:bg-primary/10 px-1.5 py-0 text-xs">
+                            <span className="tag-mono ml-1 !bg-brand !text-warm-light px-1.5 py-0">
                               1
-                            </Badge>
+                            </span>
                           )}
                           <ChevronDown className="w-4 h-4" />
                         </Button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="w-44">
-                        <DropdownMenuLabel>Filter by Date</DropdownMenuLabel>
+                      <DropdownMenuContent align="end" className="w-44 rounded-none border-[1.5px] border-dark shadow-brutal-sm">
+                        <DropdownMenuLabel className="font-mono-brutal text-[11px] uppercase tracking-wide text-dark/50">Filter by Date</DropdownMenuLabel>
                         <DropdownMenuSeparator />
                         {dateFilterOptions.map((option) => (
                           <DropdownMenuItem
                             key={option.value}
                             onClick={() => setDateFilter(option.value)}
-                            className={dateFilter === option.value ? 'bg-primary/10' : ''}
+                            className={dateFilter === option.value ? 'bg-brand/10 text-brand font-semibold rounded-none' : 'rounded-none'}
                           >
                             {option.label}
                           </DropdownMenuItem>
@@ -657,20 +655,20 @@ export default function OrdersPage() {
                     {/* Sort */}
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="outline" className="h-10 gap-2 border-gray-200">
+                        <Button variant="outline" className="h-10 gap-2 rounded-none border-[1.5px] border-dark bg-warm-light hover:bg-dark hover:text-warm-light font-mono-brutal text-[11px] uppercase tracking-wide">
                           <ArrowUpDown className="w-4 h-4" />
                           Sort
                           <ChevronDown className="w-4 h-4" />
                         </Button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="w-44">
-                        <DropdownMenuLabel>Sort Orders</DropdownMenuLabel>
+                      <DropdownMenuContent align="end" className="w-44 rounded-none border-[1.5px] border-dark shadow-brutal-sm">
+                        <DropdownMenuLabel className="font-mono-brutal text-[11px] uppercase tracking-wide text-dark/50">Sort Orders</DropdownMenuLabel>
                         <DropdownMenuSeparator />
                         {sortOptions.map((option) => (
                           <DropdownMenuItem
                             key={option.value}
                             onClick={() => setSortBy(option.value)}
-                            className={sortBy === option.value ? 'bg-primary/10' : ''}
+                            className={sortBy === option.value ? 'bg-brand/10 text-brand font-semibold rounded-none' : 'rounded-none'}
                           >
                             {option.label}
                           </DropdownMenuItem>
@@ -682,32 +680,32 @@ export default function OrdersPage() {
                   {/* Mobile Filter Button */}
                   <Button 
                     variant="outline" 
-                    className="sm:hidden h-10 gap-2 border-gray-200"
+                    className="sm:hidden h-10 gap-2 rounded-none border-[1.5px] border-dark bg-warm-light hover:bg-dark hover:text-warm-light font-mono-brutal text-[11px] uppercase tracking-wide"
                     onClick={() => setShowMobileFilters(!showMobileFilters)}
                   >
                     <SlidersHorizontal className="w-4 h-4" />
                     Filters
                     {activeFilterCount > 0 && (
-                      <Badge className="ml-1 bg-primary text-white px-1.5 py-0 text-xs">
+                      <span className="tag-mono ml-1 !bg-brand !text-warm-light px-1.5 py-0">
                         {activeFilterCount}
-                      </Badge>
+                      </span>
                     )}
                   </Button>
                 </div>
 
                 {/* Mobile Filters Panel */}
                 {showMobileFilters && (
-                  <div className="sm:hidden mt-4 pt-4 border-t border-gray-100 space-y-4">
+                  <div className="sm:hidden mt-4 pt-4 border-t-[1.5px] border-dark/15 space-y-4">
                     {/* Status Filter */}
                     <div>
-                      <label className="text-sm font-medium text-gray-700 mb-2 block">Status</label>
+                      <label className="font-mono-brutal text-xs font-bold uppercase tracking-wide text-dark/70 mb-2 block">Status</label>
                       <div className="flex flex-wrap gap-2">
                         <button
                           onClick={() => setStatusFilter('all')}
-                          className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
+                          className={`px-3 py-1.5 border-[1.5px] border-dark font-mono-brutal text-[11px] uppercase tracking-wide font-bold transition-colors ${
                             statusFilter === 'all'
-                              ? 'bg-primary text-white'
-                              : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                              ? 'bg-brand text-warm-light'
+                              : 'bg-warm-light text-dark/60 hover:bg-cream'
                           }`}
                         >
                           All
@@ -716,10 +714,10 @@ export default function OrdersPage() {
                           <button
                             key={key}
                             onClick={() => setStatusFilter(key as StatusFilter)}
-                            className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
+                            className={`px-3 py-1.5 border-[1.5px] border-dark font-mono-brutal text-[11px] uppercase tracking-wide font-bold transition-colors ${
                               statusFilter === key
-                                ? 'bg-primary text-white'
-                                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                                ? 'bg-brand text-warm-light'
+                                : 'bg-warm-light text-dark/60 hover:bg-cream'
                             }`}
                           >
                             {config.label}
@@ -730,16 +728,16 @@ export default function OrdersPage() {
 
                     {/* Date Filter */}
                     <div>
-                      <label className="text-sm font-medium text-gray-700 mb-2 block">Date Range</label>
+                      <label className="font-mono-brutal text-xs font-bold uppercase tracking-wide text-dark/70 mb-2 block">Date Range</label>
                       <div className="flex flex-wrap gap-2">
                         {dateFilterOptions.map((option) => (
                           <button
                             key={option.value}
                             onClick={() => setDateFilter(option.value)}
-                            className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
+                            className={`px-3 py-1.5 border-[1.5px] border-dark font-mono-brutal text-[11px] uppercase tracking-wide font-bold transition-colors ${
                               dateFilter === option.value
-                                ? 'bg-primary text-white'
-                                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                                ? 'bg-brand text-warm-light'
+                                : 'bg-warm-light text-dark/60 hover:bg-cream'
                             }`}
                           >
                             {option.label}
@@ -750,16 +748,16 @@ export default function OrdersPage() {
 
                     {/* Sort */}
                     <div>
-                      <label className="text-sm font-medium text-gray-700 mb-2 block">Sort By</label>
+                      <label className="font-mono-brutal text-xs font-bold uppercase tracking-wide text-dark/70 mb-2 block">Sort By</label>
                       <div className="flex flex-wrap gap-2">
                         {sortOptions.map((option) => (
                           <button
                             key={option.value}
                             onClick={() => setSortBy(option.value)}
-                            className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
+                            className={`px-3 py-1.5 border-[1.5px] border-dark font-mono-brutal text-[11px] uppercase tracking-wide font-bold transition-colors ${
                               sortBy === option.value
-                                ? 'bg-primary text-white'
-                                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                                ? 'bg-brand text-warm-light'
+                                : 'bg-warm-light text-dark/60 hover:bg-cream'
                             }`}
                           >
                             {option.label}
@@ -772,66 +770,66 @@ export default function OrdersPage() {
 
                 {/* Active Filters */}
                 {(activeFilterCount > 0 || searchQuery) && (
-                  <div className="mt-4 pt-4 border-t border-gray-100 flex flex-wrap items-center gap-2">
-                    <span className="text-sm text-gray-500">Active filters:</span>
+                  <div className="mt-4 pt-4 border-t-[1.5px] border-dark/15 flex flex-wrap items-center gap-2">
+                    <span className="font-mono-brutal text-[11px] uppercase tracking-wide text-dark/50">Active filters:</span>
                     {searchQuery && (
-                      <Badge variant="secondary" className="gap-1 bg-gray-100 hover:bg-gray-200">
+                      <span className="inline-flex items-center gap-1 px-2 py-1 border-[1.5px] border-dark/20 bg-cream font-mono-brutal text-[11px] text-dark/70">
                         Search: {searchQuery}
                         <button onClick={() => setSearchQuery('')}>
                           <X className="w-3 h-3" />
                         </button>
-                      </Badge>
+                      </span>
                     )}
                     {statusFilter !== 'all' && (
-                      <Badge variant="secondary" className="gap-1 bg-gray-100 hover:bg-gray-200">
+                      <span className="inline-flex items-center gap-1 px-2 py-1 border-[1.5px] border-dark/20 bg-cream font-mono-brutal text-[11px] text-dark/70">
                         Status: {statusConfig[statusFilter]?.label}
                         <button onClick={() => setStatusFilter('all')}>
                           <X className="w-3 h-3" />
                         </button>
-                      </Badge>
+                      </span>
                     )}
                     {dateFilter !== 'all' && (
-                      <Badge variant="secondary" className="gap-1 bg-gray-100 hover:bg-gray-200">
+                      <span className="inline-flex items-center gap-1 px-2 py-1 border-[1.5px] border-dark/20 bg-cream font-mono-brutal text-[11px] text-dark/70">
                         Date: {dateFilterOptions.find(o => o.value === dateFilter)?.label}
                         <button onClick={() => setDateFilter('all')}>
                           <X className="w-3 h-3" />
                         </button>
-                      </Badge>
+                      </span>
                     )}
                     <button 
                       onClick={clearFilters}
-                      className="text-sm text-primary hover:underline font-medium"
+                      className="font-mono-brutal text-[11px] uppercase tracking-wide text-brand hover:underline font-bold"
                     >
                       Clear all
                     </button>
                   </div>
                 )}
-              </CardContent>
-            </Card>
+              </div>
+            </div>
 
             {/* Results Count */}
             <div className="flex items-center justify-between mb-4">
-              <p className="text-sm text-gray-500">
+              <p className="font-mono-brutal text-xs text-dark/50">
                 {filteredOrders.length === 0 ? (
                   'No orders found'
                 ) : (
                   <>
                     Showing{' '}
-                    <span className="font-medium text-gray-700">
+                    <span className="font-bold text-dark">
                       {Math.min((currentPage - 1) * ITEMS_PER_PAGE + 1, filteredOrders.length)}
                     </span>
                     {' '}-{' '}
-                    <span className="font-medium text-gray-700">
+                    <span className="font-bold text-dark">
                       {Math.min(currentPage * ITEMS_PER_PAGE, filteredOrders.length)}
                     </span>
                     {' '}of{' '}
-                    <span className="font-medium text-gray-700">{filteredOrders.length}</span>
+                    <span className="font-bold text-dark">{filteredOrders.length}</span>
                     {' '}orders
                   </>
                 )}
               </p>
               {totalPages > 1 && (
-                <p className="text-sm text-gray-500">
+                <p className="font-mono-brutal text-xs text-dark/50">
                   Page {currentPage} of {totalPages}
                 </p>
               )}
@@ -840,38 +838,38 @@ export default function OrdersPage() {
             {/* Orders List */}
             <div className="flex-1">
               {filteredOrders.length === 0 ? (
-                <Card className="border border-gray-200 shadow-sm">
-                  <CardContent className="p-8 sm:p-12 text-center">
-                    <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gray-100 flex items-center justify-center">
-                      <Package className="w-8 h-8 text-gray-400" />
+                <div className="border-[1.5px] border-dark bg-warm-light shadow-brutal-sm">
+                  <div className="p-8 sm:p-12 text-center">
+                    <div className="w-16 h-16 mx-auto mb-4 border-[1.5px] border-dark bg-cream flex items-center justify-center">
+                      <Package className="w-8 h-8 text-dark/40" />
                     </div>
                     {orders.length === 0 ? (
                       <>
-                        <h2 className="font-heading text-xl font-semibold text-gray-900 mb-2">
+                        <h2 className="font-heading text-xl font-bold text-dark mb-2">
                           No orders yet
                         </h2>
-                        <p className="text-gray-500 mb-6 max-w-sm mx-auto">
+                        <p className="text-dark/60 mb-6 max-w-sm mx-auto">
                           You haven&apos;t placed any orders yet. Start exploring our delicious momos!
                         </p>
-                        <Button asChild className="bg-primary hover:bg-primary/90">
+                        <Button asChild className="rounded-none border-[1.5px] border-dark bg-brand hover:bg-brand-dark text-warm-light font-mono-brutal text-xs uppercase tracking-wide shadow-brutal-sm brutal-hover">
                           <Link href="/menu">Browse Menu</Link>
                         </Button>
                       </>
                     ) : (
                       <>
-                        <h2 className="font-heading text-xl font-semibold text-gray-900 mb-2">
+                        <h2 className="font-heading text-xl font-bold text-dark mb-2">
                           No orders found
                         </h2>
-                        <p className="text-gray-500 mb-6">
+                        <p className="text-dark/60 mb-6">
                           Try adjusting your search or filters to find what you&apos;re looking for.
                         </p>
-                        <Button onClick={clearFilters} variant="outline">
+                        <Button onClick={clearFilters} variant="outline" className="rounded-none border-[1.5px] border-dark bg-warm-light hover:bg-dark hover:text-warm-light font-mono-brutal text-xs uppercase tracking-wide">
                           Clear Filters
                         </Button>
                       </>
                     )}
-                  </CardContent>
-                </Card>
+                  </div>
+                </div>
               ) : (
                 <div className="space-y-4">
                   {paginatedOrders.map((order) => {
@@ -880,46 +878,46 @@ export default function OrdersPage() {
                     const isExpanded = expandedOrder === order.id;
 
                   return (
-                    <Card key={order.id} className="border border-gray-200 shadow-sm overflow-hidden">
+                    <div key={order.id} className="border-[1.5px] border-dark bg-warm-light shadow-brutal-sm overflow-hidden">
                       {/* Order Header */}
                       <div
                         onClick={() => setExpandedOrder(isExpanded ? null : order.id)}
-                        className="p-4 sm:p-6 cursor-pointer hover:bg-gray-50/50 transition-colors"
+                        className="p-4 sm:p-6 cursor-pointer hover:bg-cream/60 transition-colors"
                       >
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                           <div className="flex items-start gap-3 sm:gap-4">
-                            <div className={`p-2.5 sm:p-3 rounded-xl ${statusInfo.bgColor} border flex-shrink-0`}>
+                            <div className={`p-2.5 sm:p-3 border-[1.5px] ${statusInfo.bgColor} flex-shrink-0`}>
                               <StatusIcon className={`w-4 h-4 sm:w-5 sm:h-5 ${statusInfo.color}`} />
                             </div>
                             <div className="min-w-0">
                               <div className="flex flex-wrap items-center gap-2 mb-1">
-                                <h3 className="font-semibold text-gray-900">
+                                <h3 className="font-heading font-bold text-dark">
                                   Order #{order.id.slice(-8).toUpperCase()}
                                 </h3>
-                                <Badge className={`${statusInfo.bgColor} ${statusInfo.color} border text-xs`}>
+                                <span className={`inline-flex items-center font-mono-brutal text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 border-[1.5px] ${statusInfo.bgColor} ${statusInfo.color}`}>
                                   {statusInfo.label}
-                                </Badge>
+                                </span>
                               </div>
-                              <p className="text-sm text-gray-500">
+                              <p className="font-mono-brutal text-xs text-dark/50">
                                 {formatDate(order.createdAt)}
                               </p>
-                              <p className="text-sm text-gray-500 mt-1">
+                              <p className="font-mono-brutal text-xs text-dark/50 mt-1">
                                 {order.items.length} item{order.items.length !== 1 ? 's' : ''}
                               </p>
                             </div>
                           </div>
                           <div className="flex items-center gap-4">
                             <div className="text-right">
-                              <p className="text-xs text-gray-500 uppercase">Total</p>
-                              <p className="font-heading text-lg font-bold text-primary">
+                              <p className="font-mono-brutal text-[10px] text-dark/50 uppercase">Total</p>
+                              <p className="font-heading text-lg font-bold text-brand">
                                 ${order.total.toFixed(2)}
                               </p>
                             </div>
-                            <div className="p-2 rounded-lg bg-gray-100 hidden sm:block">
+                            <div className="p-2 border-[1.5px] border-dark bg-cream hidden sm:block">
                               {isExpanded ? (
-                                <ChevronUp className="w-5 h-5 text-gray-600" />
+                                <ChevronUp className="w-5 h-5 text-dark" />
                               ) : (
-                                <ChevronDown className="w-5 h-5 text-gray-600" />
+                                <ChevronDown className="w-5 h-5 text-dark" />
                               )}
                             </div>
                           </div>
@@ -928,10 +926,10 @@ export default function OrdersPage() {
 
                       {/* Order Details */}
                       {isExpanded && (
-                        <div className="px-4 sm:px-6 pb-6 border-t border-gray-100">
+                        <div className="px-4 sm:px-6 pb-6 border-t-[1.5px] border-dark/15">
                           {/* Order Items */}
                           <div className="pt-4">
-                            <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">
+                            <h4 className="font-mono-brutal text-[11px] font-bold text-dark/50 uppercase tracking-wide mb-3">
                               Items
                             </h4>
                             <div className="space-y-3">
@@ -940,7 +938,7 @@ export default function OrdersPage() {
                                   key={item.id}
                                   className="flex items-center gap-3"
                                 >
-                                  <div className="w-12 h-12 rounded-lg bg-gray-100 overflow-hidden flex-shrink-0">
+                                  <div className="w-12 h-12 border-[1.5px] border-dark/15 bg-cream overflow-hidden flex-shrink-0">
                                     {item.image ? (
                                       <Image
                                         src={item.image}
@@ -951,17 +949,17 @@ export default function OrdersPage() {
                                       />
                                     ) : (
                                       <div className="w-full h-full flex items-center justify-center">
-                                        <Package className="w-5 h-5 text-gray-400" />
+                                        <Package className="w-5 h-5 text-dark/30" />
                                       </div>
                                     )}
                                   </div>
                                   <div className="flex-1 min-w-0">
-                                    <p className="font-medium text-gray-900 truncate">{item.name}</p>
-                                    <p className="text-sm text-gray-500">
+                                    <p className="font-semibold text-dark truncate">{item.name}</p>
+                                    <p className="text-sm text-dark/50">
                                       ${item.price.toFixed(2)} × {item.quantity}
                                     </p>
                                   </div>
-                                  <p className="font-semibold text-gray-900">
+                                  <p className="font-semibold text-dark">
                                     ${(item.price * item.quantity).toFixed(2)}
                                   </p>
                                 </div>
@@ -970,44 +968,44 @@ export default function OrdersPage() {
                           </div>
 
                           {/* Order Summary */}
-                          <div className="mt-4 pt-4 border-t border-gray-100 space-y-2">
+                          <div className="mt-4 pt-4 border-t-[1.5px] border-dark/15 space-y-2">
                             <div className="flex justify-between text-sm">
-                              <span className="text-gray-500">Subtotal</span>
-                              <span className="text-gray-700">${order.subtotal.toFixed(2)}</span>
+                              <span className="text-dark/50">Subtotal</span>
+                              <span className="text-dark/80">${order.subtotal.toFixed(2)}</span>
                             </div>
                             <div className="flex justify-between text-sm">
-                              <span className="text-gray-500">Tax</span>
-                              <span className="text-gray-700">${order.tax.toFixed(2)}</span>
+                              <span className="text-dark/50">Tax</span>
+                              <span className="text-dark/80">${order.tax.toFixed(2)}</span>
                             </div>
                             <div className="flex justify-between text-sm">
-                              <span className="text-gray-500">Delivery Fee</span>
-                              <span className="text-gray-700">
+                              <span className="text-dark/50">Delivery Fee</span>
+                              <span className="text-dark/80">
                                 {order.deliveryFee === 0 ? (
-                                  <span className="text-emerald-600">FREE</span>
+                                  <span className="text-herb font-semibold">FREE</span>
                                 ) : (
                                   `$${order.deliveryFee.toFixed(2)}`
                                 )}
                               </span>
                             </div>
-                            <div className="flex justify-between pt-2 border-t border-gray-200">
-                              <span className="font-semibold text-gray-900">Total</span>
-                              <span className="font-bold text-primary">${order.total.toFixed(2)}</span>
+                            <div className="flex justify-between pt-2 border-t-[1.5px] border-dark/15">
+                              <span className="font-bold text-dark">Total</span>
+                              <span className="font-bold text-brand">${order.total.toFixed(2)}</span>
                             </div>
                           </div>
 
                           {/* Delivery Info */}
-                          <div className="mt-6 p-4 rounded-xl">
-                            <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">
+                          <div className="mt-6 p-4 border-[1.5px] border-dark/15 bg-cream">
+                            <h4 className="font-mono-brutal text-[11px] font-bold text-dark/50 uppercase tracking-wide mb-3">
                               Delivery Details
                             </h4>
                             <div className="space-y-2 text-sm">
                               <div className="flex items-start gap-2">
-                                <MapPin className="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0" />
-                                <span className="text-gray-700">{order.address}</span>
+                                <MapPin className="w-4 h-4 text-dark/40 mt-0.5 flex-shrink-0" />
+                                <span className="text-dark/80">{order.address}</span>
                               </div>
                               <div className="flex items-center gap-2">
-                                <Phone className="w-4 h-4 text-gray-400 flex-shrink-0" />
-                                <span className="text-gray-700">{order.phone}</span>
+                                <Phone className="w-4 h-4 text-dark/40 flex-shrink-0" />
+                                <span className="text-dark/80">{order.phone}</span>
                               </div>
                               
                             </div>
@@ -1022,7 +1020,7 @@ export default function OrdersPage() {
                                 setShowReceipt(true);
                               }}
                               variant="outline"
-                              className="flex-1 h-10 border-primary text-primary hover:bg-primary hover:text-white"
+                              className="flex-1 h-10 rounded-none border-[1.5px] border-brand text-brand hover:bg-brand hover:text-warm-light font-mono-brutal text-xs uppercase tracking-wide"
                             >
                               <FileText className="w-4 h-4 mr-2" />
                               View Receipt
@@ -1035,7 +1033,7 @@ export default function OrdersPage() {
                                 }}
                                 disabled={cancellingOrder === order.id}
                                 variant="outline"
-                                className="flex-1 h-10 border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300"
+                                className="flex-1 h-10 rounded-none border-[1.5px] border-brand/40 text-brand hover:bg-brand/5 hover:border-brand font-mono-brutal text-xs uppercase tracking-wide"
                               >
                                 {cancellingOrder === order.id ? (
                                   <Loader2 className="w-4 h-4 animate-spin" />
@@ -1050,7 +1048,7 @@ export default function OrdersPage() {
                           </div>
                         </div>
                       )}
-                    </Card>
+                    </div>
                   );
                 })}
                   {/* Placeholder spacers to maintain consistent height */}
@@ -1079,13 +1077,13 @@ export default function OrdersPage() {
 
             {/* Quick Actions */}
             <div className="mt-8 flex flex-col sm:flex-row gap-3 justify-center">
-              <Button asChild className="bg-primary hover:bg-primary/90">
+              <Button asChild className="rounded-none border-[1.5px] border-dark bg-brand hover:bg-brand-dark text-warm-light font-mono-brutal text-xs uppercase tracking-wide shadow-brutal-sm brutal-hover">
                 <Link href="/menu">
                   <Package className="w-4 h-4 mr-2" />
                   Order More Momos
                 </Link>
               </Button>
-              <Button asChild variant="outline">
+              <Button asChild variant="outline" className="rounded-none border-[1.5px] border-dark bg-warm-light hover:bg-dark hover:text-warm-light font-mono-brutal text-xs uppercase tracking-wide">
                 <Link href="/">
                   <Home className="w-4 h-4 mr-2" />
                   Back to Home

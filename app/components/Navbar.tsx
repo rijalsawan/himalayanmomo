@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
@@ -30,6 +30,7 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [brandLogo, setBrandLogo] = useState('/brandlogo.svg');
+  const navRef = useRef<HTMLElement>(null);
   const { totalItems, openCart } = useCart();
   const { data: session, status } = useSession();
   const pathname = usePathname();
@@ -50,6 +51,27 @@ export default function Navbar() {
         if (data?.heroLogo) setBrandLogo(data.heroLogo);
       })
       .catch(() => {});
+  }, []);
+
+  // Keep --navbar-h in sync with the rendered navbar height so any sticky
+  // element elsewhere on the page (e.g. the /menu filter bar) can offset
+  // itself against the real combined header height instead of a magic number.
+  useEffect(() => {
+    const root = document.documentElement;
+    const el = navRef.current;
+    if (!el) return;
+
+    const updateHeight = () => {
+      root.style.setProperty('--navbar-h', `${el.offsetHeight}px`);
+    };
+
+    updateHeight();
+    const observer = new ResizeObserver(updateHeight);
+    observer.observe(el);
+
+    return () => {
+      observer.disconnect();
+    };
   }, []);
 
   const handleNavClick = (href: string) => {
@@ -77,6 +99,7 @@ export default function Navbar() {
     <>
       <AnnouncementBar />
       <nav
+        ref={navRef}
         style={{ top: 'var(--announcement-h, 0px)' }}
         className={`fixed left-0 right-0 z-50 border-b-[3px] border-dark transition-colors duration-300 ${
           scrolled ? 'bg-cream' : 'bg-warm-light'

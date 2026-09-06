@@ -53,24 +53,23 @@ export default function Pagination({
     )}>
       {/* Items count */}
       {showItemCount && totalItems && (
-        <p className="text-sm text-gray-500 order-2 sm:order-1">
-          Showing <span className="font-medium text-gray-700">{startItem}</span> to{' '}
-          <span className="font-medium text-gray-700">{endItem}</span> of{' '}
-          <span className="font-medium text-gray-700">{totalItems}</span> orders
+        <p className="font-mono-brutal text-xs text-dark/50 order-2 sm:order-1">
+          Showing <span className="font-bold text-dark">{startItem}</span> to{' '}
+          <span className="font-bold text-dark">{endItem}</span> of{' '}
+          <span className="font-bold text-dark">{totalItems}</span> orders
         </p>
       )}
 
       {/* Pagination controls */}
-      <div className="inline-flex items-center bg-white border border-gray-200 rounded-xl p-1 gap-0.5 shadow-sm order-1 sm:order-2">
+      <div className="inline-flex items-center bg-warm-light border-[1.5px] border-dark p-1 gap-0.5 shadow-brutal-sm order-1 sm:order-2">
         {/* First page button - hidden on mobile */}
         <button
           onClick={() => onPageChange(1)}
           disabled={currentPage === 1}
           className={cn(
-            'hidden sm:flex items-center justify-center w-9 h-9 rounded-lg transition-all duration-200',
-            'text-gray-500 hover:text-primary hover:bg-primary/5',
-            'disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-gray-500',
-            'active:scale-95'
+            'hidden sm:flex items-center justify-center w-9 h-9 transition-colors duration-150',
+            'text-dark/50 hover:text-brand hover:bg-brand/5',
+            'disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-dark/50'
           )}
           title="First page"
         >
@@ -82,10 +81,9 @@ export default function Pagination({
           onClick={() => onPageChange(currentPage - 1)}
           disabled={currentPage === 1}
           className={cn(
-            'flex items-center justify-center w-9 h-9 rounded-lg transition-all duration-200',
-            'text-gray-500 hover:text-primary hover:bg-primary/5',
-            'disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-gray-500',
-            'active:scale-95'
+            'flex items-center justify-center w-9 h-9 transition-colors duration-150',
+            'text-dark/50 hover:text-brand hover:bg-brand/5',
+            'disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-dark/50'
           )}
           title="Previous page"
         >
@@ -93,7 +91,7 @@ export default function Pagination({
         </button>
 
         {/* Divider */}
-        <div className="w-px h-5 bg-gray-200 mx-1" />
+        <div className="w-px h-5 bg-dark/15 mx-1" />
 
         {/* Page numbers */}
         <div className="flex items-center gap-0.5">
@@ -103,17 +101,16 @@ export default function Pagination({
                 key={index}
                 onClick={() => onPageChange(page)}
                 className={cn(
-                  'flex items-center justify-center min-w-[36px] h-9 px-2 rounded-lg text-sm font-medium transition-all duration-200',
+                  'flex items-center justify-center min-w-[36px] h-9 px-2 font-mono-brutal text-sm font-bold transition-colors duration-150',
                   currentPage === page
-                    ? 'bg-primary text-white shadow-md shadow-primary/30'
-                    : 'text-gray-600 hover:text-primary hover:bg-primary/5',
-                  'active:scale-95'
+                    ? 'bg-brand text-warm-light border-[1.5px] border-dark'
+                    : 'text-dark/70 hover:text-brand hover:bg-brand/5'
                 )}
               >
                 {page}
               </button>
             ) : (
-              <span key={index} className="flex items-center justify-center w-8 h-9 text-gray-400 text-sm">
+              <span key={index} className="flex items-center justify-center w-8 h-9 text-dark/30 text-sm">
                 {page}
               </span>
             )
@@ -121,17 +118,16 @@ export default function Pagination({
         </div>
 
         {/* Divider */}
-        <div className="w-px h-5 bg-gray-200 mx-1" />
+        <div className="w-px h-5 bg-dark/15 mx-1" />
 
         {/* Next button */}
         <button
           onClick={() => onPageChange(currentPage + 1)}
           disabled={currentPage === totalPages}
           className={cn(
-            'flex items-center justify-center w-9 h-9 rounded-lg transition-all duration-200',
-            'text-gray-500 hover:text-primary hover:bg-primary/5',
-            'disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-gray-500',
-            'active:scale-95'
+            'flex items-center justify-center w-9 h-9 transition-colors duration-150',
+            'text-dark/50 hover:text-brand hover:bg-brand/5',
+            'disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-dark/50'
           )}
           title="Next page"
         >
@@ -143,10 +139,9 @@ export default function Pagination({
           onClick={() => onPageChange(totalPages)}
           disabled={currentPage === totalPages}
           className={cn(
-            'hidden sm:flex items-center justify-center w-9 h-9 rounded-lg transition-all duration-200',
-            'text-gray-500 hover:text-primary hover:bg-primary/5',
-            'disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-gray-500',
-            'active:scale-95'
+            'hidden sm:flex items-center justify-center w-9 h-9 transition-colors duration-150',
+            'text-dark/50 hover:text-brand hover:bg-brand/5',
+            'disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-dark/50'
           )}
           title="Last page"
         >

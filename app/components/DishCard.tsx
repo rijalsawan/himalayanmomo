@@ -98,13 +98,15 @@ export function DishCard({ item, index = 0 }: { item: DishCardItem; index?: numb
           </div>
         </div>
 
-        {/* Quick-add - floats above the bottom content, hover-revealed on desktop */}
-        <div className="absolute bottom-[5.5rem] right-3 transform md:translate-y-2 md:opacity-0 md:group-hover:translate-y-0 md:group-hover:opacity-100 transition-all duration-300">
+        {/* Quick-add - floats above the bottom content, hover-revealed on desktop.
+            z-20 keeps it above the bottom text overlay (which renders after it and would
+            otherwise swallow clicks in the overlapping area since it has no handler). */}
+        <div className="absolute z-20 bottom-[5.5rem] right-3 transform md:translate-y-2 md:opacity-0 md:group-hover:translate-y-0 md:group-hover:opacity-100 transition-all duration-300">
           <CartQuantityButton item={item} size="sm" />
         </div>
 
         {/* Bottom overlay content */}
-        <div className="absolute inset-x-0 bottom-0 p-4">
+        <div className="absolute z-10 inset-x-0 bottom-0 p-4">
           <div className="flex items-center gap-1 mb-1.5">
             <Flame
               className={`w-3.5 h-3.5 ${

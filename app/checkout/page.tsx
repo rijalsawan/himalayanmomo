@@ -32,13 +32,12 @@ import {
   Truck,
   Tag,
 } from 'lucide-react';
-import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
 import { useCart } from '../context/CartContext';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import AuthRequiredModal from '../components/AuthRequiredModal';
 
 type FulfillmentType = 'PICKUP' | 'DINE_IN' | 'DELIVERY';
 
@@ -78,35 +77,35 @@ const fulfillmentOptions: { value: FulfillmentType; label: string; description: 
 
 // Loading skeleton component
 const LoadingSkeleton = () => (
-  <div className="min-h-screen bg-[#FDF8F3]">
+  <div className="min-h-screen bg-warm-light">
     <Navbar />
-    <main className="pt-20">
-      <div className="bg-white border-b border-gray-100">
+    <main className="pt-16 md:pt-20">
+      <div className="bg-cream border-b-[1.5px] border-dark/10">
         <div className="container-custom py-4">
-          <div className="h-4 w-32 bg-gray-200 rounded animate-pulse" />
+          <div className="h-4 w-32 bg-dark/10" />
         </div>
       </div>
       <div className="container-custom py-6 sm:py-8 lg:py-12">
         <div className="grid lg:grid-cols-3 gap-6 lg:gap-8">
           <div className="lg:col-span-2 space-y-6">
-            <div className="h-8 w-48 bg-gray-200 rounded animate-pulse" />
-            <div className="bg-white rounded-xl p-6 space-y-4">
-              <div className="h-6 w-40 bg-gray-200 rounded animate-pulse" />
+            <div className="h-8 w-48 bg-dark/10" />
+            <div className="bg-warm-light border-[1.5px] border-dark/15 p-6 space-y-4">
+              <div className="h-6 w-40 bg-dark/10" />
               <div className="grid grid-cols-2 gap-4">
-                <div className="h-12 bg-gray-200 rounded animate-pulse" />
-                <div className="h-12 bg-gray-200 rounded animate-pulse" />
+                <div className="h-12 bg-dark/10" />
+                <div className="h-12 bg-dark/10" />
               </div>
               <div className="grid grid-cols-2 gap-4">
-                <div className="h-12 bg-gray-200 rounded animate-pulse" />
-                <div className="h-12 bg-gray-200 rounded animate-pulse" />
+                <div className="h-12 bg-dark/10" />
+                <div className="h-12 bg-dark/10" />
               </div>
             </div>
           </div>
-          <div className="bg-white rounded-xl p-6 h-fit">
+          <div className="bg-warm-light border-[1.5px] border-dark/15 p-6 h-fit">
             <div className="space-y-4">
-              <div className="h-6 w-32 bg-gray-200 rounded animate-pulse" />
-              <div className="h-20 bg-gray-100 rounded animate-pulse" />
-              <div className="h-20 bg-gray-100 rounded animate-pulse" />
+              <div className="h-6 w-32 bg-dark/10" />
+              <div className="h-20 bg-dark/5" />
+              <div className="h-20 bg-dark/5" />
             </div>
           </div>
         </div>
@@ -116,27 +115,62 @@ const LoadingSkeleton = () => (
   </div>
 );
 
-// Empty cart component
-const EmptyCart = () => (
-  <div className="min-h-screen bg-[#FDF8F3]">
+// Sign-in-required screen, shown instead of a silent redirect so the user
+// understands why and can act from a modal without losing their cart.
+const SignInRequired = ({ open, onClose }: { open: boolean; onClose: () => void }) => (
+  <div className="min-h-screen bg-warm-light">
     <Navbar />
-    <main className="pt-20">
+    <main className="pt-16 md:pt-20">
       <div className="container-custom py-12 sm:py-16 lg:py-20">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="text-center max-w-md mx-auto"
         >
-          <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-6">
-            <ShoppingBag className="w-10 h-10 sm:w-12 sm:h-12 text-gray-300" />
+          <div className="w-20 h-20 sm:w-24 sm:h-24 border-[1.5px] border-dark bg-cream shadow-brutal-sm flex items-center justify-center mx-auto mb-6">
+            <Lock className="w-10 h-10 sm:w-12 sm:h-12 text-dark/30" />
           </div>
-          <h1 className="font-heading text-2xl sm:text-3xl font-bold text-gray-900 mb-3">
+          <h1 className="font-heading text-2xl sm:text-3xl font-bold text-dark mb-3">
+            Sign in to check out
+          </h1>
+          <p className="text-dark/50 mb-8">
+            Your cart is saved. Sign in or create an account to continue to checkout.
+          </p>
+          <Button asChild size="lg" className="rounded-none border-[1.5px] border-dark bg-brand hover:bg-brand-dark text-warm-light font-mono-brutal font-bold uppercase tracking-[0.04em] shadow-brutal-sm hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all">
+            <Link href="/menu">
+              Browse Menu
+              <ArrowRight className="w-4 h-4 ml-2" />
+            </Link>
+          </Button>
+        </motion.div>
+      </div>
+    </main>
+    <Footer />
+    <AuthRequiredModal open={open} onClose={onClose} callbackUrl="/checkout" />
+  </div>
+);
+
+// Empty cart component
+const EmptyCart = () => (
+  <div className="min-h-screen bg-warm-light">
+    <Navbar />
+    <main className="pt-16 md:pt-20">
+      <div className="container-custom py-12 sm:py-16 lg:py-20">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-center max-w-md mx-auto"
+        >
+          <div className="w-20 h-20 sm:w-24 sm:h-24 border-[1.5px] border-dark bg-cream shadow-brutal-sm flex items-center justify-center mx-auto mb-6">
+            <ShoppingBag className="w-10 h-10 sm:w-12 sm:h-12 text-dark/30" />
+          </div>
+          <h1 className="font-heading text-2xl sm:text-3xl font-bold text-dark mb-3">
             Your cart is empty
           </h1>
-          <p className="text-gray-500 mb-8">
+          <p className="text-dark/50 mb-8">
             Add some delicious momos to your cart before checking out!
           </p>
-          <Button asChild size="lg" className="bg-primary hover:bg-primary/90">
+          <Button asChild size="lg" className="rounded-none border-[1.5px] border-dark bg-brand hover:bg-brand-dark text-warm-light font-mono-brutal font-bold uppercase tracking-[0.04em] shadow-brutal-sm hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all">
             <Link href="/menu">
               Browse Menu
               <ArrowRight className="w-4 h-4 ml-2" />
@@ -307,11 +341,13 @@ export default function CheckoutPage() {
     fetchProfile();
   }, [status]);
 
+  const [showAuthModal, setShowAuthModal] = useState(false);
+
   useEffect(() => {
     if (status === 'unauthenticated') {
-      router.push('/login?callbackUrl=/checkout');
+      setShowAuthModal(true);
     }
-  }, [status, router]);
+  }, [status]);
 
   const isDelivery = fulfillmentType === 'DELIVERY';
   const deliveryFee = isDelivery ? (subtotal > 30 ? 0 : 4.99) : 0;
@@ -445,25 +481,28 @@ export default function CheckoutPage() {
   };
 
   if (status === 'loading' || isLoadingProfile) return <LoadingSkeleton />;
+  if (status === 'unauthenticated') {
+    return <SignInRequired open={showAuthModal} onClose={() => setShowAuthModal(false)} />;
+  }
   if (items.length === 0) return <EmptyCart />;
 
   const showError = (field: keyof FormErrors) =>
     errors[field] && (touched[field] || submitAttempted);
 
   return (
-    <div className="min-h-screen bg-[#FDF8F3]">
+    <div className="min-h-screen bg-warm-light">
       <Navbar />
 
-      <main className="pt-20">
+      <main className="pt-16 md:pt-20">
         {/* Breadcrumb */}
-        <div className="bg-white border-b border-gray-100">
+        <div className="bg-cream border-b-[1.5px] border-dark/10">
           <div className="container-custom py-3 sm:py-4">
-            <nav className="flex items-center gap-2 text-sm text-gray-500">
-              <Link href="/menu" className="hover:text-primary transition-colors">
+            <nav className="flex items-center gap-2 font-mono-brutal text-xs uppercase tracking-wide text-dark/50">
+              <Link href="/menu" className="hover:text-brand transition-colors">
                 Menu
               </Link>
-              <ChevronRight className="w-4 h-4" />
-              <span className="text-gray-900 font-medium">Checkout</span>
+              <ChevronRight className="w-3.5 h-3.5" />
+              <span className="text-dark font-bold">Checkout</span>
             </nav>
           </div>
         </div>
@@ -471,10 +510,10 @@ export default function CheckoutPage() {
         <div className="container-custom py-6 sm:py-8 lg:py-12">
           {/* Page Header */}
           <div className="mb-6 sm:mb-8">
-            <h1 className="font-heading text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-2">
+            <h1 className="font-heading text-2xl sm:text-3xl lg:text-4xl font-bold text-dark mb-2">
               Checkout
             </h1>
-            {/* Progress Steps - Pill Style */}
+            {/* Progress Steps - Brutal Style */}
             <div className="flex items-center gap-2 mt-4 sm:mt-6">
               {steps.map((step, index) => {
                 const isActive = currentStep === step.id;
@@ -485,12 +524,12 @@ export default function CheckoutPage() {
                     <button
                       onClick={() => isComplete && setCurrentStep(step.id)}
                       disabled={!isComplete}
-                      className={`flex items-center gap-2 px-3 sm:px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                      className={`flex items-center gap-2 px-3 sm:px-4 py-2 border-[1.5px] border-dark font-mono-brutal text-xs font-bold uppercase tracking-wide transition-all ${
                         isComplete
-                          ? 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200 cursor-pointer'
+                          ? 'bg-herb text-warm-light hover:bg-herb/90 cursor-pointer shadow-brutal-sm'
                           : isActive
-                          ? 'bg-primary text-white'
-                          : 'bg-gray-100 text-gray-400'
+                          ? 'bg-brand text-warm-light shadow-brutal-sm'
+                          : 'bg-warm-light text-dark/40'
                       }`}
                     >
                       {isComplete ? (
@@ -502,7 +541,7 @@ export default function CheckoutPage() {
                       <span className="sm:hidden">{step.id}</span>
                     </button>
                     {index < steps.length - 1 && (
-                      <div className={`w-8 sm:w-12 h-0.5 ${isComplete ? 'bg-emerald-300' : 'bg-gray-200'}`} />
+                      <div className={`w-8 sm:w-12 h-[2px] ${isComplete ? 'bg-herb' : 'bg-dark/15'}`} />
                     )}
                   </div>
                 );
@@ -525,11 +564,11 @@ export default function CheckoutPage() {
                     className="space-y-4 sm:space-y-6"
                   >
                     {/* Fulfillment Method Selector */}
-                    <Card className="border border-gray-200 shadow-sm">
-                      <CardContent className="p-4 sm:p-6">
+                    <div className="border-[1.5px] border-dark bg-warm-light shadow-brutal-sm max-sm:w-85">
+                      <div className="p-4 sm:p-6">
                         <div className="flex items-center gap-2 mb-4">
-                          <Store className="w-5 h-5 text-primary" />
-                          <h2 className="font-heading text-lg font-semibold text-gray-900">
+                          <Store className="w-5 h-5 text-brand" />
+                          <h2 className="font-heading text-lg font-bold text-dark">
                             How would you like your order?
                           </h2>
                         </div>
@@ -543,44 +582,44 @@ export default function CheckoutPage() {
                                   key={option.value}
                                   type="button"
                                   onClick={() => setFulfillmentType(option.value)}
-                                  className={`flex items-start gap-3 p-4 rounded-xl border-2 text-left transition-all ${
+                                  className={`flex items-start gap-3 p-4 border-[1.5px] text-left transition-all ${
                                     isSelected
-                                      ? 'border-primary bg-primary/5'
-                                      : 'border-gray-200 hover:border-gray-300'
+                                      ? 'border-dark bg-brand/5 shadow-brutal-sm'
+                                      : 'border-dark/20 hover:border-dark/40'
                                   }`}
                                 >
                                   <div
-                                    className={`w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 ${
-                                      isSelected ? 'bg-primary text-white' : 'bg-gray-100 text-gray-500'
+                                    className={`w-9 h-9 border-[1.5px] border-dark flex items-center justify-center flex-shrink-0 ${
+                                      isSelected ? 'bg-brand text-warm-light' : 'bg-cream text-dark/50'
                                     }`}
                                   >
                                     <option.icon className="w-4 h-4" />
                                   </div>
                                   <div>
-                                    <p className={`text-sm font-semibold ${isSelected ? 'text-primary' : 'text-gray-900'}`}>
+                                    <p className={`text-sm font-heading font-bold ${isSelected ? 'text-brand' : 'text-dark'}`}>
                                       {option.label}
                                     </p>
-                                    <p className="text-xs text-gray-500 mt-0.5">{option.description}</p>
+                                    <p className="text-xs text-dark/50 mt-0.5">{option.description}</p>
                                   </div>
                                 </button>
                               );
                             })}
                         </div>
                         {!orderingSettings.deliveryEnabled && (
-                          <p className="text-xs text-gray-500 mt-3 flex items-center gap-1.5">
-                            <AlertCircle className="w-3.5 h-3.5 text-amber-500 flex-shrink-0" />
+                          <p className="font-mono-brutal text-xs uppercase tracking-wide text-dark/50 mt-3 flex items-center gap-1.5">
+                            <AlertCircle className="w-3.5 h-3.5 text-golden flex-shrink-0" />
                             Delivery isn&apos;t available just yet — pickup and dine-in orders get 10% off!
                           </p>
                         )}
-                      </CardContent>
-                    </Card>
+                      </div>
+                    </div>
 
                     {/* Delivery Form Card */}
-                    <Card className="border border-gray-200 shadow-sm">
-                      <CardContent className="p-4 sm:p-6">
+                    <div className="border-[1.5px] border-dark bg-warm-light shadow-brutal-sm max-sm:w-85">
+                      <div className="p-4 sm:p-6">
                         <div className="flex items-center gap-2 mb-5">
-                          <MapPin className="w-5 h-5 text-primary" />
-                          <h2 className="font-heading text-lg font-semibold text-gray-900">
+                          <MapPin className="w-5 h-5 text-brand" />
+                          <h2 className="font-heading text-lg font-bold text-dark">
                             {isDelivery ? 'Delivery Information' : 'Contact Information'}
                           </h2>
                         </div>
@@ -589,11 +628,11 @@ export default function CheckoutPage() {
                           {/* Name Fields */}
                           <div className="grid sm:grid-cols-2 gap-4">
                             <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                                First Name <span className="text-red-500">*</span>
+                              <label className="block font-mono-brutal text-xs font-bold uppercase tracking-wide text-dark mb-1.5">
+                                First Name <span className="text-brand">*</span>
                               </label>
                               <div className="relative">
-                                <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                                <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-dark/30" />
                                 <Input
                                   name="firstName"
                                   placeholder="John"
@@ -601,19 +640,19 @@ export default function CheckoutPage() {
                                   onChange={(e) => handleInputChange('firstName', e.target.value)}
                                   onFocus={() => handleFocus('firstName')}
                                   onBlur={() => handleBlur('firstName')}
-                                  className={`pl-10 h-11 ${showError('firstName') ? 'border-red-400 bg-red-50/50' : 'border-gray-200'}`}
+                                  className={`pl-10 h-11 rounded-none focus-visible:ring-0 ${showError('firstName') ? 'border-[1.5px] border-brand bg-brand/5' : 'border-brutal-thin focus-visible:border-brand'}`}
                                 />
                               </div>
                               {showError('firstName') && (
-                                <p className="text-red-500 text-xs mt-1 flex items-center gap-1">
+                                <p className="text-brand text-xs mt-1 flex items-center gap-1 font-mono-brutal">
                                   <AlertCircle className="w-3 h-3" />
                                   {errors.firstName}
                                 </p>
                               )}
                             </div>
                             <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                                Last Name <span className="text-red-500">*</span>
+                              <label className="block font-mono-brutal text-xs font-bold uppercase tracking-wide text-dark mb-1.5">
+                                Last Name <span className="text-brand">*</span>
                               </label>
                               <Input
                                 name="lastName"
@@ -622,10 +661,10 @@ export default function CheckoutPage() {
                                 onChange={(e) => handleInputChange('lastName', e.target.value)}
                                 onFocus={() => handleFocus('lastName')}
                                 onBlur={() => handleBlur('lastName')}
-                                className={`h-11 ${showError('lastName') ? 'border-red-400 bg-red-50/50' : 'border-gray-200'}`}
+                                className={`h-11 rounded-none focus-visible:ring-0 ${showError('lastName') ? 'border-[1.5px] border-brand bg-brand/5' : 'border-brutal-thin focus-visible:border-brand'}`}
                               />
                               {showError('lastName') && (
-                                <p className="text-red-500 text-xs mt-1 flex items-center gap-1">
+                                <p className="text-brand text-xs mt-1 flex items-center gap-1 font-mono-brutal">
                                   <AlertCircle className="w-3 h-3" />
                                   {errors.lastName}
                                 </p>
@@ -636,11 +675,11 @@ export default function CheckoutPage() {
                           {/* Contact Fields */}
                           <div className="grid sm:grid-cols-2 gap-4">
                             <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                                Email <span className="text-red-500">*</span>
+                              <label className="block font-mono-brutal text-xs font-bold uppercase tracking-wide text-dark mb-1.5">
+                                Email <span className="text-brand">*</span>
                               </label>
                               <div className="relative">
-                                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-dark/30" />
                                 <Input
                                   name="email"
                                   type="email"
@@ -649,22 +688,22 @@ export default function CheckoutPage() {
                                   onChange={(e) => handleInputChange('email', e.target.value)}
                                   onFocus={() => handleFocus('email')}
                                   onBlur={() => handleBlur('email')}
-                                  className={`pl-10 h-11 ${showError('email') ? 'border-red-400 bg-red-50/50' : 'border-gray-200'}`}
+                                  className={`pl-10 h-11 rounded-none focus-visible:ring-0 ${showError('email') ? 'border-[1.5px] border-brand bg-brand/5' : 'border-brutal-thin focus-visible:border-brand'}`}
                                 />
                               </div>
                               {showError('email') && (
-                                <p className="text-red-500 text-xs mt-1 flex items-center gap-1">
+                                <p className="text-brand text-xs mt-1 flex items-center gap-1 font-mono-brutal">
                                   <AlertCircle className="w-3 h-3" />
                                   {errors.email}
                                 </p>
                               )}
                             </div>
                             <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                                Phone <span className="text-red-500">*</span>
+                              <label className="block font-mono-brutal text-xs font-bold uppercase tracking-wide text-dark mb-1.5">
+                                Phone <span className="text-brand">*</span>
                               </label>
                               <div className="relative">
-                                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-dark/30" />
                                 <Input
                                   name="phone"
                                   type="tel"
@@ -673,11 +712,11 @@ export default function CheckoutPage() {
                                   onChange={(e) => handleInputChange('phone', e.target.value)}
                                   onFocus={() => handleFocus('phone')}
                                   onBlur={() => handleBlur('phone')}
-                                  className={`pl-10 h-11 ${showError('phone') ? 'border-red-400 bg-red-50/50' : 'border-gray-200'}`}
+                                  className={`pl-10 h-11 rounded-none focus-visible:ring-0 ${showError('phone') ? 'border-[1.5px] border-brand bg-brand/5' : 'border-brutal-thin focus-visible:border-brand'}`}
                                 />
                               </div>
                               {showError('phone') && (
-                                <p className="text-red-500 text-xs mt-1 flex items-center gap-1">
+                                <p className="text-brand text-xs mt-1 flex items-center gap-1 font-mono-brutal">
                                   <AlertCircle className="w-3 h-3" />
                                   {errors.phone}
                                 </p>
@@ -689,11 +728,11 @@ export default function CheckoutPage() {
                           {isDelivery && (
                             <>
                           <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                              Street Address <span className="text-red-500">*</span>
+                            <label className="block font-mono-brutal text-xs font-bold uppercase tracking-wide text-dark mb-1.5">
+                              Street Address <span className="text-brand">*</span>
                             </label>
                             <div className="relative">
-                              <Home className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                              <Home className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-dark/30" />
                               <Input
                                 name="address"
                                 placeholder="123 Main Street"
@@ -701,11 +740,11 @@ export default function CheckoutPage() {
                                 onChange={(e) => handleInputChange('address', e.target.value)}
                                 onFocus={() => handleFocus('address')}
                                 onBlur={() => handleBlur('address')}
-                                className={`pl-10 h-11 ${showError('address') ? 'border-red-400 bg-red-50/50' : 'border-gray-200'}`}
+                                className={`pl-10 h-11 rounded-none focus-visible:ring-0 ${showError('address') ? 'border-[1.5px] border-brand bg-brand/5' : 'border-brutal-thin focus-visible:border-brand'}`}
                               />
                             </div>
                             {showError('address') && (
-                              <p className="text-red-500 text-xs mt-1 flex items-center gap-1">
+                              <p className="text-brand text-xs mt-1 flex items-center gap-1 font-mono-brutal">
                                 <AlertCircle className="w-3 h-3" />
                                 {errors.address}
                               </p>
@@ -717,14 +756,14 @@ export default function CheckoutPage() {
                             placeholder="Apartment, suite, etc. (optional)"
                             value={formData.apartment}
                             onChange={(e) => handleInputChange('apartment', e.target.value)}
-                            className="h-11 border-gray-200"
+                            className="h-11 rounded-none border-brutal-thin focus-visible:border-brand focus-visible:ring-0"
                           />
 
                           {/* City, State, ZIP */}
                           <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                             <div className="col-span-2 sm:col-span-1">
-                              <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                                City <span className="text-red-500">*</span>
+                              <label className="block font-mono-brutal text-xs font-bold uppercase tracking-wide text-dark mb-1.5">
+                                City <span className="text-brand">*</span>
                               </label>
                               <Input
                                 name="city"
@@ -733,29 +772,29 @@ export default function CheckoutPage() {
                                 onChange={(e) => handleInputChange('city', e.target.value)}
                                 onFocus={() => handleFocus('city')}
                                 onBlur={() => handleBlur('city')}
-                                className={`h-11 ${showError('city') ? 'border-red-400 bg-red-50/50' : 'border-gray-200'}`}
+                                className={`h-11 rounded-none focus-visible:ring-0 ${showError('city') ? 'border-[1.5px] border-brand bg-brand/5' : 'border-brutal-thin focus-visible:border-brand'}`}
                               />
                               {showError('city') && (
-                                <p className="text-red-500 text-xs mt-1 flex items-center gap-1">
+                                <p className="text-brand text-xs mt-1 flex items-center gap-1 font-mono-brutal">
                                   <AlertCircle className="w-3 h-3" />
                                   {errors.city}
                                 </p>
                               )}
                             </div>
                             <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                              <label className="block font-mono-brutal text-xs font-bold uppercase tracking-wide text-dark mb-1.5">
                                 State
                               </label>
                               <Input
                                 placeholder="NY"
                                 value={formData.state}
                                 onChange={(e) => handleInputChange('state', e.target.value)}
-                                className="h-11 border-gray-200"
+                                className="h-11 rounded-none border-brutal-thin focus-visible:border-brand focus-visible:ring-0"
                               />
                             </div>
                             <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                                ZIP <span className="text-red-500">*</span>
+                              <label className="block font-mono-brutal text-xs font-bold uppercase tracking-wide text-dark mb-1.5">
+                                ZIP <span className="text-brand">*</span>
                               </label>
                               <Input
                                 name="zipCode"
@@ -764,10 +803,10 @@ export default function CheckoutPage() {
                                 onChange={(e) => handleInputChange('zipCode', e.target.value)}
                                 onFocus={() => handleFocus('zipCode')}
                                 onBlur={() => handleBlur('zipCode')}
-                                className={`h-11 ${showError('zipCode') ? 'border-red-400 bg-red-50/50' : 'border-gray-200'}`}
+                                className={`h-11 rounded-none focus-visible:ring-0 ${showError('zipCode') ? 'border-[1.5px] border-brand bg-brand/5' : 'border-brutal-thin focus-visible:border-brand'}`}
                               />
                               {showError('zipCode') && (
-                                <p className="text-red-500 text-xs mt-1 flex items-center gap-1">
+                                <p className="text-brand text-xs mt-1 flex items-center gap-1 font-mono-brutal">
                                   <AlertCircle className="w-3 h-3" />
                                   {errors.zipCode}
                                 </p>
@@ -779,13 +818,13 @@ export default function CheckoutPage() {
 
                           {/* Pickup / Dine-In notice */}
                           {!isDelivery && (
-                            <div className="flex items-start gap-3 p-4 bg-primary/5 border border-primary/10 rounded-xl">
-                              <Store className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
-                              <div className="text-sm text-gray-700">
-                                <p className="font-medium text-gray-900">
+                            <div className="flex items-start gap-3 p-4 bg-brand/5 border-[1.5px] border-brand/20">
+                              <Store className="w-5 h-5 text-brand flex-shrink-0 mt-0.5" />
+                              <div className="text-sm text-dark/70">
+                                <p className="font-heading font-bold text-dark">
                                   {fulfillmentType === 'DINE_IN' ? 'Dine-In at' : 'Pickup at'} {orderingSettings.businessName}
                                 </p>
-                                <p className="text-gray-500 mt-0.5">
+                                <p className="text-dark/50 mt-0.5">
                                   {orderingSettings.businessAddress.street}, {orderingSettings.businessAddress.city}, {orderingSettings.businessAddress.state} {orderingSettings.businessAddress.zip}
                                 </p>
                               </div>
@@ -794,7 +833,7 @@ export default function CheckoutPage() {
 
                           {/* Instructions */}
                           <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                            <label className="block font-mono-brutal text-xs font-bold uppercase tracking-wide text-dark mb-1.5">
                               {isDelivery ? 'Delivery Instructions (optional)' : 'Notes for the kitchen (optional)'}
                             </label>
                             <textarea
@@ -802,12 +841,12 @@ export default function CheckoutPage() {
                               value={formData.deliveryInstructions}
                               onChange={(e) => handleInputChange('deliveryInstructions', e.target.value)}
                               rows={3}
-                              className="w-full rounded-md border border-gray-200 px-3 py-2.5 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary resize-none"
+                              className="w-full rounded-none border-brutal-thin px-3 py-2.5 text-sm placeholder:text-dark/30 focus:outline-none focus:border-brand resize-none"
                             />
                           </div>
                         </div>
-                      </CardContent>
-                    </Card>
+                      </div>
+                    </div>
 
                     {/* Error Summary */}
                     <AnimatePresence>
@@ -816,18 +855,18 @@ export default function CheckoutPage() {
                           initial={{ opacity: 0, y: -10 }}
                           animate={{ opacity: 1, y: 0 }}
                           exit={{ opacity: 0, y: -10 }}
-                          className="bg-red-50 border border-red-200 rounded-xl p-4"
+                          className="bg-brand/5 border-[1.5px] border-brand p-4"
                         >
                           <div className="flex items-start gap-3">
-                            <AlertCircle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
+                            <AlertCircle className="w-5 h-5 text-brand shrink-0 mt-0.5" />
                             <div>
-                              <p className="font-medium text-red-700 text-sm">
+                              <p className="font-mono-brutal font-bold uppercase tracking-wide text-brand text-xs">
                                 Please fix the following errors:
                               </p>
                               <ul className="mt-2 space-y-1">
                                 {Object.values(errors).map((error, index) => (
-                                  <li key={index} className="text-red-600 text-xs flex items-center gap-1">
-                                    <span className="w-1 h-1 bg-red-400 rounded-full" />
+                                  <li key={index} className="text-brand/80 text-xs flex items-center gap-1">
+                                    <span className="w-1 h-1 bg-brand" />
                                     {error}
                                   </li>
                                 ))}
@@ -839,14 +878,14 @@ export default function CheckoutPage() {
                     </AnimatePresence>
 
                     {/* Navigation */}
-                    <div className="flex justify-between pt-2">
-                      <Button asChild variant="outline" className="border-gray-200">
+                    <div className="flex justify-between pt-2 max-sm:w-85">
+                      <Button asChild variant="outline" className="rounded-none border-[1.5px] border-dark bg-warm-light hover:bg-cream text-dark font-mono-brutal font-bold uppercase tracking-wide text-xs">
                         <Link href="/menu">
                           <ArrowLeft className="w-4 h-4 mr-2" />
                           Continue Shopping
                         </Link>
                       </Button>
-                      <Button onClick={nextStep} className="bg-primary hover:bg-primary/90">
+                      <Button onClick={nextStep} className="rounded-none border-[1.5px] border-dark bg-brand hover:bg-brand-dark text-warm-light font-mono-brutal font-bold uppercase tracking-wide text-xs shadow-brutal-sm hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all">
                         Review Order
                         <ArrowRight className="w-4 h-4 ml-2" />
                       </Button>
@@ -864,26 +903,26 @@ export default function CheckoutPage() {
                     transition={{ duration: 0.3 }}
                     className="space-y-5 sm:space-y-6"
                   >
-                    {/* Delivery Details Card - Minimalist */}
+                    {/* Delivery Details Card */}
                     <motion.div
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 0.1 }}
-                      className="bg-white rounded-2xl border border-gray-100 overflow-hidden"
+                      className="bg-warm-light border-[1.5px] border-dark shadow-brutal-sm overflow-hidden"
                     >
                       {/* Header */}
-                      <div className="px-5 sm:px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+                      <div className="px-5 sm:px-6 py-4 border-b-[1.5px] border-dark/15 flex items-center justify-between bg-cream">
                         <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-full bg-emerald-50 flex items-center justify-center">
-                            <Check className="w-4 h-4 text-emerald-600" />
+                          <div className="w-8 h-8 border-[1.5px] border-dark bg-herb flex items-center justify-center">
+                            <Check className="w-4 h-4 text-warm-light" />
                           </div>
-                          <h2 className="font-heading text-base sm:text-lg font-semibold text-gray-900">
+                          <h2 className="font-heading text-base sm:text-lg font-bold text-dark">
                             {fulfillmentType === 'DELIVERY' ? 'Delivery Details' : fulfillmentType === 'DINE_IN' ? 'Dine-In Details' : 'Pickup Details'}
                           </h2>
                         </div>
                         <button
                           onClick={prevStep}
-                          className="text-sm text-primary font-medium hover:underline underline-offset-2 transition-all"
+                          className="font-mono-brutal text-xs font-bold uppercase tracking-wide text-brand hover:underline underline-offset-2 transition-all"
                         >
                           Edit
                         </button>
@@ -894,12 +933,12 @@ export default function CheckoutPage() {
                         <div className="grid sm:grid-cols-2 gap-5 sm:gap-6">
                           {/* Delivery / Pickup Address */}
                           <div className="space-y-2">
-                            <div className="flex items-center gap-2 text-xs font-medium text-gray-400 uppercase tracking-wider">
+                            <div className="flex items-center gap-2 font-mono-brutal text-[11px] font-bold text-dark/40 uppercase tracking-wide">
                               <MapPin className="w-3.5 h-3.5" />
                               {isDelivery ? 'Delivery Address' : fulfillmentType === 'DINE_IN' ? 'Dine-In Location' : 'Pickup Location'}
                             </div>
-                            <div className="text-sm text-gray-700 leading-relaxed">
-                              <p className="font-medium text-gray-900">{formData.firstName} {formData.lastName}</p>
+                            <div className="text-sm text-dark/70 leading-relaxed">
+                              <p className="font-heading font-bold text-dark">{formData.firstName} {formData.lastName}</p>
                               {isDelivery ? (
                                 <>
                                   <p>{formData.address}{formData.apartment && `, ${formData.apartment}`}</p>
@@ -916,17 +955,17 @@ export default function CheckoutPage() {
 
                           {/* Contact Info */}
                           <div className="space-y-2">
-                            <div className="flex items-center gap-2 text-xs font-medium text-gray-400 uppercase tracking-wider">
+                            <div className="flex items-center gap-2 font-mono-brutal text-[11px] font-bold text-dark/40 uppercase tracking-wide">
                               <User className="w-3.5 h-3.5" />
                               Contact
                             </div>
-                            <div className="text-sm text-gray-700 space-y-1">
+                            <div className="text-sm text-dark/70 space-y-1">
                               <p className="flex items-center gap-2">
-                                <Mail className="w-3.5 h-3.5 text-gray-400" />
+                                <Mail className="w-3.5 h-3.5 text-dark/30" />
                                 {formData.email}
                               </p>
                               <p className="flex items-center gap-2">
-                                <Phone className="w-3.5 h-3.5 text-gray-400" />
+                                <Phone className="w-3.5 h-3.5 text-dark/30" />
                                 {formData.phone}
                               </p>
                             </div>
@@ -935,12 +974,12 @@ export default function CheckoutPage() {
 
                         {/* Delivery Instructions */}
                         {formData.deliveryInstructions && (
-                          <div className="mt-5 pt-5 border-t border-gray-100">
-                            <div className="flex items-center gap-2 text-xs font-medium text-gray-400 uppercase tracking-wider mb-2">
+                          <div className="mt-5 pt-5 border-t-[1.5px] border-dashed border-dark/15">
+                            <div className="flex items-center gap-2 font-mono-brutal text-[11px] font-bold text-dark/40 uppercase tracking-wide mb-2">
                               <Home className="w-3.5 h-3.5" />
                               {isDelivery ? 'Instructions' : 'Notes'}
                             </div>
-                            <p className="text-sm text-gray-600 italic">&ldquo;{formData.deliveryInstructions}&rdquo;</p>
+                            <p className="text-sm text-dark/60 italic">&ldquo;{formData.deliveryInstructions}&rdquo;</p>
                           </div>
                         )}
 
@@ -949,49 +988,45 @@ export default function CheckoutPage() {
                           initial={{ opacity: 0, scale: 0.95 }}
                           animate={{ opacity: 1, scale: 1 }}
                           transition={{ delay: 0.2 }}
-                          className="mt-5 flex items-center gap-4 p-4 bg-gradient-to-r from-emerald-50 to-teal-50 rounded-xl border border-emerald-100/50"
+                          className="mt-5 flex items-center gap-4 p-4 bg-herb/10 border-[1.5px] border-herb/30"
                         >
-                          <div className="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center">
-                            <Clock className="w-5 h-5 text-emerald-600" />
+                          <div className="w-10 h-10 border-[1.5px] border-dark bg-warm-light shadow-brutal-sm flex items-center justify-center">
+                            <Clock className="w-5 h-5 text-herb" />
                           </div>
                           <div>
-                            <p className="text-xs text-emerald-600 font-medium uppercase tracking-wide">
+                            <p className="font-mono-brutal text-[11px] font-bold text-herb uppercase tracking-wide">
                               {isDelivery ? 'Est. Delivery' : 'Est. Ready Time'}
                             </p>
-                            <p className="text-lg font-bold text-gray-900">{isDelivery ? '30–45 min' : '15–20 min'}</p>
+                            <p className="text-lg font-heading font-bold text-dark">{isDelivery ? '30–45 min' : '15–20 min'}</p>
                           </div>
                         </motion.div>
                       </div>
                     </motion.div>
 
-                    {/* Payment Section - Premium Design */}
+                    {/* Payment Section */}
                     <motion.div
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 0.2 }}
-                      className="bg-white rounded-2xl border border-gray-100 overflow-hidden"
+                      className="bg-warm-light border-[1.5px] border-dark shadow-brutal-sm overflow-hidden"
                     >
                       {/* Dark Header */}
-                      <div className="relative bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 px-5 sm:px-6 py-5">
-                        <div className="absolute inset-0 opacity-30">
-                          <div className="absolute top-0 right-0 w-32 h-32 bg-primary/20 rounded-full blur-3xl" />
-                          <div className="absolute bottom-0 left-0 w-24 h-24 bg-[#635BFF]/20 rounded-full blur-2xl" />
-                        </div>
+                      <div className="relative bg-dark px-5 sm:px-6 py-5 border-b-[3px] border-brand">
                         <div className="relative flex items-center justify-between">
                           <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-xl bg-white/10 backdrop-blur flex items-center justify-center">
-                              <Lock className="w-5 h-5 text-white" />
+                            <div className="w-10 h-10 border-[1.5px] border-warm-light/30 bg-warm-light/10 flex items-center justify-center">
+                              <Lock className="w-5 h-5 text-warm-light" />
                             </div>
                             <div>
-                              <h2 className="font-heading text-base sm:text-lg font-semibold text-white">
+                              <h2 className="font-heading text-base sm:text-lg font-bold text-warm-light">
                                 Secure Checkout
                               </h2>
-                              <p className="text-xs text-gray-400">End-to-end encrypted</p>
+                              <p className="font-mono-brutal text-[11px] uppercase tracking-wide text-warm-light/40">End-to-end encrypted</p>
                             </div>
                           </div>
                           <div className="flex items-center gap-1.5">
-                            <Shield className="w-4 h-4 text-emerald-400" />
-                            <span className="text-xs text-emerald-400 font-medium hidden sm:inline">Protected</span>
+                            <Shield className="w-4 h-4 text-golden" />
+                            <span className="font-mono-brutal text-[11px] uppercase tracking-wide text-golden hidden sm:inline">Protected</span>
                           </div>
                         </div>
                       </div>
@@ -999,17 +1034,17 @@ export default function CheckoutPage() {
                       {/* Payment Content */}
                       <div className="p-5 sm:p-6 space-y-5">
                         {/* Order Total - Highlighted */}
-                        <div className="relative p-5 rounded-xl bg-gradient-to-br from-gray-50 to-white border border-gray-100">
+                        <div className="relative p-5 border-[1.5px] border-dark bg-cream">
                           <div className="flex items-center justify-between">
                             <div>
-                              <p className="text-xs text-gray-500 uppercase tracking-wider font-medium">Total Amount</p>
-                              <p className="text-3xl sm:text-4xl font-bold text-gray-900 mt-1">
+                              <p className="font-mono-brutal text-[11px] text-dark/40 uppercase tracking-wide font-bold">Total Amount</p>
+                              <p className="text-3xl sm:text-4xl font-heading font-bold text-dark mt-1">
                                 ${total.toFixed(2)}
                               </p>
                             </div>
                             <div className="text-right">
-                              <p className="text-xs text-gray-400">Includes</p>
-                              <p className="text-sm text-gray-600">
+                              <p className="font-mono-brutal text-[11px] text-dark/30 uppercase tracking-wide">Includes</p>
+                              <p className="text-sm text-dark/60">
                                 Tax{isDelivery ? ` & ${deliveryFee === 0 ? 'Free' : ''} Delivery` : ''}{discountAmount > 0 ? ' & 10% Off' : ''}
                               </p>
                             </div>
@@ -1018,44 +1053,44 @@ export default function CheckoutPage() {
 
                         {/* Payment Methods */}
                         <div className="space-y-3">
-                          <p className="text-xs text-gray-500 uppercase tracking-wider font-medium">
+                          <p className="font-mono-brutal text-[11px] text-dark/40 uppercase tracking-wide font-bold">
                             Accepted Payment Methods
                           </p>
                           <div className="flex flex-wrap items-center gap-2">
                             {/* Visa */}
-                            <div className="flex items-center gap-1.5 px-3 py-2 bg-gray-50 rounded-lg border border-gray-100 hover:border-gray-200 transition-colors">
+                            <div className="flex items-center gap-1.5 px-3 py-2 bg-cream border-[1.5px] border-dark/15 hover:border-dark/40 transition-colors">
                               <svg width="28" height="18" viewBox="0 0 40 24" fill="none">
                                 <rect width="40" height="24" rx="3" fill="#1A1F71" />
                                 <path d="M17.5 16l2-8h2l-2 8h-2zm8-8l-3 8h-2l1.5-3.5-2-4.5h2l1.5 3 1-3h2zm-12 8l-.5-1.5h-2.5L10 16H8l3-8h2l2.5 8H13zm-1.5-3h1.5l-.75-2.5-.75 2.5z" fill="white" />
                               </svg>
-                              <span className="text-xs font-medium text-gray-600">Visa</span>
+                              <span className="text-xs font-medium text-dark/60">Visa</span>
                             </div>
                             {/* Mastercard */}
-                            <div className="flex items-center gap-1.5 px-3 py-2 bg-gray-50 rounded-lg border border-gray-100 hover:border-gray-200 transition-colors">
+                            <div className="flex items-center gap-1.5 px-3 py-2 bg-cream border-[1.5px] border-dark/15 hover:border-dark/40 transition-colors">
                               <svg width="28" height="18" viewBox="0 0 40 24" fill="none">
                                 <rect width="40" height="24" rx="3" fill="#F7F7F7" />
                                 <circle cx="15" cy="12" r="6" fill="#EB001B" />
                                 <circle cx="25" cy="12" r="6" fill="#F79E1B" />
                                 <path d="M20 7a5.98 5.98 0 012 5 5.98 5.98 0 01-2 5 5.98 5.98 0 01-2-5 5.98 5.98 0 012-5z" fill="#FF5F00" />
                               </svg>
-                              <span className="text-xs font-medium text-gray-600">Mastercard</span>
+                              <span className="text-xs font-medium text-dark/60">Mastercard</span>
                             </div>
                             {/* Amex */}
-                            <div className="flex items-center gap-1.5 px-3 py-2 bg-gray-50 rounded-lg border border-gray-100 hover:border-gray-200 transition-colors">
+                            <div className="flex items-center gap-1.5 px-3 py-2 bg-cream border-[1.5px] border-dark/15 hover:border-dark/40 transition-colors">
                               <svg width="28" height="18" viewBox="0 0 40 24" fill="none">
                                 <rect width="40" height="24" rx="3" fill="#006FCF" />
                                 <path d="M8 15h3l.5-1.5h1l.5 1.5h7v-1l.5 1h3l.5-1v1h3V9h-3l-.5 1-.5-1h-7v1l-.5-1H12l-.5 1-.5-1H8v6z" fill="white" />
                               </svg>
-                              <span className="text-xs font-medium text-gray-600">Amex</span>
+                              <span className="text-xs font-medium text-dark/60">Amex</span>
                             </div>
                             {/* Apple Pay */}
-                            <div className="flex items-center gap-1.5 px-3 py-2 bg-gray-50 rounded-lg border border-gray-100 hover:border-gray-200 transition-colors">
+                            <div className="flex items-center gap-1.5 px-3 py-2 bg-cream border-[1.5px] border-dark/15 hover:border-dark/40 transition-colors">
                               <svg width="28" height="18" viewBox="0 0 40 24" fill="none">
                                 <rect width="40" height="24" rx="3" fill="#000" />
                                 <path d="M14 8.5c.5-.6 1.2-1 1.8-1 .1.8-.2 1.5-.7 2-.5.6-1.1 1-1.8.9-.1-.7.3-1.4.7-1.9zm.8 2.2c1 0 1.5.7 1.5.7s-.8.5-.8 1.5c0 1.2 1 1.6 1 1.6s-.7 2-1.7 2c-.5 0-.8-.3-1.3-.3-.5 0-.9.3-1.3.3-.9 0-2-1.9-2-3.4 0-1.5 1-2.3 1.8-2.3.5 0 1 .3 1.3.3.4 0 .9-.4 1.5-.4z" fill="white" />
                                 <path d="M21 9h1.2l2.3 5.5 2.3-5.5H28l-3.2 7h-1.3L21 9z" fill="white" />
                               </svg>
-                              <span className="text-xs font-medium text-gray-600">Apple Pay</span>
+                              <span className="text-xs font-medium text-dark/60">Apple Pay</span>
                             </div>
                           </div>
                         </div>
@@ -1063,53 +1098,47 @@ export default function CheckoutPage() {
                         {/* Divider */}
                         <div className="relative">
                           <div className="absolute inset-0 flex items-center">
-                            <div className="w-full border-t border-gray-100"></div>
+                            <div className="w-full border-t-[1.5px] border-dark/15"></div>
                           </div>
                           <div className="relative flex justify-center">
-                            <span className="bg-white px-3 text-xs text-gray-400">Powered by Stripe</span>
+                            <span className="bg-warm-light px-3 font-mono-brutal text-[11px] uppercase tracking-wide text-dark/40">Powered by Stripe</span>
                           </div>
                         </div>
 
-                        {/* Pay Button - Premium */}
-                        <motion.div
-                          whileHover={{ scale: 1.01 }}
-                          whileTap={{ scale: 0.99 }}
+                        {/* Pay Button */}
+                        <Button
+                          onClick={handleStripeCheckout}
+                          disabled={isSubmitting}
+                          className="relative w-full h-14 sm:h-16 rounded-none border-[1.5px] border-dark bg-brand hover:bg-brand-dark text-warm-light text-base sm:text-lg font-mono-brutal font-bold uppercase tracking-wide shadow-brutal hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all group"
                         >
-                          <Button
-                            onClick={handleStripeCheckout}
-                            disabled={isSubmitting}
-                            className="relative w-full h-14 sm:h-16 bg-gradient-to-r from-[#635BFF] via-[#7C75FF] to-[#635BFF] hover:from-[#5851DB] hover:via-[#6B64FF] hover:to-[#5851DB] text-white text-base sm:text-lg font-semibold rounded-xl shadow-lg shadow-[#635BFF]/25 transition-all duration-300 overflow-hidden group"
-                          >
-                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
-                            {isSubmitting ? (
-                              <div className="relative flex items-center justify-center gap-3">
-                                <Loader2 className="w-5 h-5 animate-spin" />
-                                <span>Processing Payment...</span>
-                              </div>
-                            ) : (
-                              <div className="relative flex items-center justify-center gap-3">
-                                <Lock className="w-5 h-5" />
-                                <span>Pay ${total.toFixed(2)}</span>
-                                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                              </div>
-                            )}
-                          </Button>
-                        </motion.div>
+                          {isSubmitting ? (
+                            <div className="relative flex items-center justify-center gap-3">
+                              <Loader2 className="w-5 h-5 animate-spin" />
+                              <span>Processing Payment...</span>
+                            </div>
+                          ) : (
+                            <div className="relative flex items-center justify-center gap-3">
+                              <Lock className="w-5 h-5" />
+                              <span>Pay ${total.toFixed(2)}</span>
+                              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                            </div>
+                          )}
+                        </Button>
 
                         {/* Security Badges */}
                         <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6 pt-2">
-                          <div className="flex items-center gap-1.5 text-xs text-gray-500">
-                            <Shield className="w-4 h-4 text-emerald-500" />
+                          <div className="flex items-center gap-1.5 font-mono-brutal text-[11px] uppercase tracking-wide text-dark/40">
+                            <Shield className="w-4 h-4 text-herb" />
                             <span>256-bit SSL Encryption</span>
                           </div>
-                          <div className="hidden sm:block w-1 h-1 rounded-full bg-gray-300" />
-                          <div className="flex items-center gap-1.5 text-xs text-gray-500">
-                            <Lock className="w-4 h-4 text-emerald-500" />
+                          <div className="hidden sm:block w-1 h-1 bg-dark/20" />
+                          <div className="flex items-center gap-1.5 font-mono-brutal text-[11px] uppercase tracking-wide text-dark/40">
+                            <Lock className="w-4 h-4 text-herb" />
                             <span>PCI DSS Compliant</span>
                           </div>
-                          <div className="hidden sm:block w-1 h-1 rounded-full bg-gray-300" />
-                          <div className="flex items-center gap-1.5 text-xs text-gray-500">
-                            <Check className="w-4 h-4 text-emerald-500" />
+                          <div className="hidden sm:block w-1 h-1 bg-dark/20" />
+                          <div className="flex items-center gap-1.5 font-mono-brutal text-[11px] uppercase tracking-wide text-dark/40">
+                            <Check className="w-4 h-4 text-herb" />
                             <span>Money-back Guarantee</span>
                           </div>
                         </div>
@@ -1126,12 +1155,12 @@ export default function CheckoutPage() {
                       <Button 
                         variant="ghost" 
                         onClick={prevStep} 
-                        className="text-gray-600 hover:text-gray-900 hover:bg-gray-50 gap-2"
+                        className="rounded-none text-dark/60 hover:text-dark hover:bg-cream gap-2 font-mono-brutal text-xs font-bold uppercase tracking-wide"
                       >
                         <ArrowLeft className="w-4 h-4" />
                         Back to Delivery
                       </Button>
-                      <p className="text-xs text-gray-400 hidden sm:block">
+                      <p className="font-mono-brutal text-[11px] uppercase tracking-wide text-dark/30 hidden sm:block">
                         By placing your order, you agree to our Terms of Service
                       </p>
                     </motion.div>
@@ -1141,14 +1170,14 @@ export default function CheckoutPage() {
             </div>
 
             {/* Order Summary Sidebar */}
-            <div className="lg:col-span-1">
-              <Card className="border border-gray-200 shadow-sm sticky top-28">
-                <CardContent className="p-4 sm:p-6">
+            <div className="lg:col-span-1 max-sm:w-85">
+              <div className="border-[1.5px] border-dark bg-warm-light shadow-brutal-sm sticky top-28">
+                <div className="p-4 sm:p-6">
                   <div className="flex items-center justify-between mb-4">
-                    <h2 className="font-heading text-lg font-semibold text-gray-900">Order Summary</h2>
-                    <Badge variant="secondary" className="bg-gray-100 text-gray-700">
+                    <h2 className="font-heading text-lg font-bold text-dark">Order Summary</h2>
+                    <span className="tag-mono bg-cream border-[1.5px] border-dark/20 text-dark/60">
                       {totalItems} {totalItems === 1 ? 'item' : 'items'}
-                    </Badge>
+                    </span>
                   </div>
 
                   {/* Items List */}
@@ -1157,9 +1186,9 @@ export default function CheckoutPage() {
                       <motion.div
                         key={item.id}
                         layout
-                        className="flex gap-3 p-3 bg-gray-50 rounded-xl"
+                        className="flex gap-3 p-3 bg-cream border-[1.5px] border-dark/10"
                       >
-                        <div className="relative w-14 h-14 rounded-lg overflow-hidden flex-shrink-0 bg-gray-200">
+                        <div className="relative w-14 h-14 border-[1.5px] border-dark/15 overflow-hidden flex-shrink-0 bg-dark/5">
                           <Image
                             src={item.image}
                             alt={item.name}
@@ -1168,25 +1197,25 @@ export default function CheckoutPage() {
                           />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <h4 className="text-sm font-medium text-gray-900 truncate">{item.name}</h4>
-                          <p className="text-sm font-semibold text-primary">${item.price.toFixed(2)}</p>
+                          <h4 className="text-sm font-heading font-bold text-dark truncate">{item.name}</h4>
+                          <p className="text-sm font-mono-brutal font-bold text-brand">${item.price.toFixed(2)}</p>
                           <div className="flex items-center gap-2 mt-1.5">
                             <button
                               onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                              className="w-6 h-6 rounded-full bg-white border border-gray-200 flex items-center justify-center hover:bg-gray-100 transition-colors"
+                              className="w-6 h-6 border-[1.5px] border-dark bg-warm-light flex items-center justify-center hover:bg-cream transition-colors"
                             >
                               <Minus className="w-3 h-3" />
                             </button>
-                            <span className="text-sm font-medium w-4 text-center">{item.quantity}</span>
+                            <span className="text-sm font-mono-brutal font-bold w-4 text-center">{item.quantity}</span>
                             <button
                               onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                              className="w-6 h-6 rounded-full bg-white border border-gray-200 flex items-center justify-center hover:bg-gray-100 transition-colors"
+                              className="w-6 h-6 border-[1.5px] border-dark bg-warm-light flex items-center justify-center hover:bg-cream transition-colors"
                             >
                               <Plus className="w-3 h-3" />
                             </button>
                             <button
                               onClick={() => removeItem(item.id)}
-                              className="ml-auto text-gray-400 hover:text-red-500 transition-colors"
+                              className="ml-auto text-dark/30 hover:text-brand transition-colors"
                             >
                               <Trash2 className="w-4 h-4" />
                             </button>
@@ -1196,67 +1225,67 @@ export default function CheckoutPage() {
                     ))}
                   </div>
 
-                  <div className="h-px bg-gray-200 my-4" />
+                  <div className="h-[1.5px] bg-dark/15 my-4" />
 
                   {/* Totals */}
                   <div className="space-y-2.5 text-sm">
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Subtotal</span>
-                      <span className="font-medium text-gray-900">${subtotal.toFixed(2)}</span>
+                      <span className="text-dark/50">Subtotal</span>
+                      <span className="font-mono-brutal font-bold text-dark">${subtotal.toFixed(2)}</span>
                     </div>
                     {discountAmount > 0 && (
                       <div className="flex justify-between">
-                        <span className="text-emerald-600 flex items-center gap-1">
+                        <span className="text-herb flex items-center gap-1">
                           <Tag className="w-3.5 h-3.5" />
                           Pickup &amp; Dine-In Promo (10%)
                         </span>
-                        <span className="font-medium text-emerald-600">-${discountAmount.toFixed(2)}</span>
+                        <span className="font-mono-brutal font-bold text-herb">-${discountAmount.toFixed(2)}</span>
                       </div>
                     )}
                     {isDelivery && (
                       <div className="flex justify-between">
-                        <span className="text-gray-600">Delivery</span>
-                        <span className="font-medium">
+                        <span className="text-dark/50">Delivery</span>
+                        <span className="font-mono-brutal font-bold">
                           {deliveryFee === 0 ? (
-                            <span className="text-emerald-600">FREE</span>
+                            <span className="text-herb">FREE</span>
                           ) : (
-                            <span className="text-gray-900">${deliveryFee.toFixed(2)}</span>
+                            <span className="text-dark">${deliveryFee.toFixed(2)}</span>
                           )}
                         </span>
                       </div>
                     )}
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Tax</span>
-                      <span className="font-medium text-gray-900">${tax.toFixed(2)}</span>
+                      <span className="text-dark/50">Tax</span>
+                      <span className="font-mono-brutal font-bold text-dark">${tax.toFixed(2)}</span>
                     </div>
                   </div>
 
-                  <div className="h-px bg-gray-200 my-4" />
+                  <div className="h-[1.5px] bg-dark/15 my-4" />
 
                   <div className="flex justify-between items-center">
-                    <span className="font-semibold text-gray-900">Total</span>
-                    <span className="text-xl sm:text-2xl font-bold text-primary">${total.toFixed(2)}</span>
+                    <span className="font-heading font-bold text-dark">Total</span>
+                    <span className="text-xl sm:text-2xl font-heading font-bold text-brand">${total.toFixed(2)}</span>
                   </div>
 
                   {/* Free Delivery Notice */}
                   {isDelivery && subtotal < 30 && (
-                    <div className="mt-4 p-3 bg-amber-50 border border-amber-100 rounded-xl">
-                      <p className="text-xs text-amber-700">
-                        <Package className="w-4 h-4 inline mr-1.5" />
+                    <div className="mt-4 p-3 bg-golden/10 border-[1.5px] border-golden/40">
+                      <p className="text-xs text-dark/70">
+                        <Package className="w-4 h-4 inline mr-1.5 text-golden" />
                         Add ${(30 - subtotal).toFixed(2)} more for free delivery!
                       </p>
                     </div>
                   )}
                   {!isDelivery && orderingSettings.promoEnabled && (
-                    <div className="mt-4 p-3 bg-emerald-50 border border-emerald-100 rounded-xl">
-                      <p className="text-xs text-emerald-700">
-                        <Tag className="w-4 h-4 inline mr-1.5" />
+                    <div className="mt-4 p-3 bg-herb/10 border-[1.5px] border-herb/40">
+                      <p className="text-xs text-dark/70">
+                        <Tag className="w-4 h-4 inline mr-1.5 text-herb" />
                         10% off applied for Pickup &amp; Dine-In orders!
                       </p>
                     </div>
                   )}
-                </CardContent>
-              </Card>
+                </div>
+              </div>
             </div>
           </div>
         </div>

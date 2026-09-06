@@ -12,7 +12,6 @@ import {
 } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { Badge } from '@/components/ui/badge';
 import {
   X,
   Plus,
@@ -24,6 +23,8 @@ import {
 } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useEffect, useState } from 'react';
+import { useSession } from 'next-auth/react';
+import AuthRequiredModal from './AuthRequiredModal';
 
 export default function CartSidebar() {
   const {
@@ -36,6 +37,9 @@ export default function CartSidebar() {
     subtotal,
     clearCart,
   } = useCart();
+
+  const { status } = useSession();
+  const [showAuthModal, setShowAuthModal] = useState(false);
 
   const [orderingSettings, setOrderingSettings] = useState({
     deliveryEnabled: false,
@@ -61,25 +65,36 @@ export default function CartSidebar() {
   const total = subtotal - discountAmount + deliveryFee;
 
   return (
+    <>
     <Sheet open={isOpen} onOpenChange={closeCart}>
-      <SheetContent className="w-full sm:max-w-lg bg-[#FDF8F3] border-l border-primary/10 flex flex-col p-0">
+      <SheetContent className="w-full sm:max-w-md bg-warm-light border-l-[3px] border-dark shadow-brutal-lg flex flex-col p-0 gap-0 [&>button]:hidden">
         {/* Header */}
-        <SheetHeader className="px-6 py-4 border-b border-primary/10">
-          <div className="flex items-center justify-between">
-            <SheetTitle className="font-playfair text-xl flex items-center gap-2">
-              <ShoppingBag className="w-5 h-5 text-primary" />
-              Your Cart
-              {totalItems > 0 && (
-                <Badge className="bg-primary text-white ml-2">
-                  {totalItems}
-                </Badge>
-              )}
-            </SheetTitle>
+        <SheetHeader className="px-5 sm:px-6 py-5 border-b-[1.5px] border-dark/15 bg-cream flex-shrink-0 flex-row items-center justify-between gap-3 space-y-0">
+          <div className="flex items-center gap-3 min-w-0">
+            <span className="flex items-center justify-center w-11 h-11 border-[1.5px] border-dark bg-brand text-warm-light shadow-brutal-sm flex-shrink-0">
+              <ShoppingBag className="w-5 h-5" />
+            </span>
+            <div className="text-left min-w-0">
+              <SheetTitle className="font-heading text-xl font-bold text-dark">
+                Your Cart
+              </SheetTitle>
+              <p className="font-mono-brutal text-[11px] uppercase tracking-wide text-dark/55 mt-0.5">
+                {totalItems > 0 ? `${totalItems} ${totalItems === 1 ? 'item' : 'items'}` : 'Empty'}
+              </p>
+            </div>
           </div>
+          <button
+            type="button"
+            onClick={closeCart}
+            className="brutal-hover flex items-center justify-center w-9 h-9 border-[1.5px] border-dark bg-dark text-warm-light shadow-brutal-sm flex-shrink-0"
+            aria-label="Close cart"
+          >
+            <X className="w-4 h-4" />
+          </button>
         </SheetHeader>
 
         {/* Cart Items */}
-        <div className="flex-1 overflow-y-auto px-6 py-4">
+        <div className="flex-1 overflow-y-auto overscroll-contain px-5 sm:px-6 py-5">
           <AnimatePresence mode="popLayout">
             {items.length === 0 ? (
               <motion.div
@@ -88,18 +103,18 @@ export default function CartSidebar() {
                 exit={{ opacity: 0, y: -20 }}
                 className="flex flex-col items-center justify-center h-full text-center py-12"
               >
-                <div className="w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center mb-4">
-                  <ShoppingBag className="w-12 h-12 text-primary/40" />
+                <div className="w-20 h-20 border-[1.5px] border-dark bg-warm-light shadow-brutal-sm flex items-center justify-center mb-4">
+                  <ShoppingBag className="w-9 h-9 text-dark/30" />
                 </div>
-                <h3 className="font-playfair text-lg font-semibold text-gray-800 mb-2">
+                <h3 className="font-heading text-lg font-bold text-dark mb-2">
                   Your cart is empty
                 </h3>
-                <p className="text-gray-500 text-sm mb-6 max-w-xs">
+                <p className="text-dark/50 text-sm mb-6 max-w-xs">
                   Looks like you haven&apos;t added any delicious momos yet!
                 </p>
                 <Button
                   onClick={closeCart}
-                  className="bg-primary hover:bg-[#7A0407] text-white"
+                  className="rounded-none border-[1.5px] border-dark bg-brand hover:bg-brand-dark text-warm-light font-mono-brutal font-bold uppercase tracking-[0.04em] shadow-brutal-sm hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all"
                   asChild
                 >
                   <Link href="/menu">
@@ -109,7 +124,7 @@ export default function CartSidebar() {
                 </Button>
               </motion.div>
             ) : (
-              <div className="space-y-4">
+              <div className="space-y-3">
                 {items.map((item, index) => (
                   <motion.div
                     key={item.id}
@@ -118,11 +133,11 @@ export default function CartSidebar() {
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: -20 }}
                     transition={{ delay: index * 0.05 }}
-                    className="bg-white rounded-xl p-4 shadow-sm border border-primary/5"
+                    className="bg-warm-light border-[1.5px] border-dark p-3 shadow-brutal-sm"
                   >
-                    <div className="flex gap-4">
+                    <div className="flex gap-3">
                       {/* Image */}
-                      <div className="relative w-20 h-20 rounded-lg overflow-hidden flex-shrink-0 bg-[#FFF8F0]">
+                      <div className="relative w-20 h-20 border-[1.5px] border-dark overflow-hidden flex-shrink-0 bg-cream">
                         <Image
                           src={item.image}
                           alt={item.name}
@@ -130,8 +145,8 @@ export default function CartSidebar() {
                           className="object-cover"
                         />
                         {item.isVegetarian && (
-                          <div className="absolute top-1 left-1 w-4 h-4 rounded-full bg-[#2D6A4F] flex items-center justify-center">
-                            <span className="text-white text-[8px]">V</span>
+                          <div className="absolute top-1 left-1 w-4 h-4 border-[1.5px] border-dark bg-herb flex items-center justify-center">
+                            <span className="text-warm-light text-[8px] font-bold">V</span>
                           </div>
                         )}
                       </div>
@@ -139,33 +154,35 @@ export default function CartSidebar() {
                       {/* Details */}
                       <div className="flex-1 min-w-0">
                         <div className="flex items-start justify-between gap-2">
-                          <h4 className="font-semibold text-gray-800 text-sm truncate">
+                          <h4 className="font-heading font-bold text-dark text-sm truncate">
                             {item.name}
                           </h4>
                           <button
                             onClick={() => removeItem(item.id)}
-                            className="text-gray-400 hover:text-red-500 transition-colors p-1"
+                            className="text-dark/40 hover:text-brand transition-colors p-1 flex-shrink-0"
+                            aria-label={`Remove ${item.name}`}
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>
                         </div>
-                        <p className="text-primary font-semibold text-sm mt-1">
+                        <p className="text-brand font-mono-brutal font-bold text-sm mt-1">
                           ${item.price.toFixed(2)}
                         </p>
 
                         {/* Quantity Controls */}
                         <div className="flex items-center justify-between mt-3">
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center border-[1.5px] border-dark">
                             <motion.button
                               whileTap={{ scale: 0.9 }}
                               onClick={() =>
                                 updateQuantity(item.id, item.quantity - 1)
                               }
-                              className="w-8 h-8 rounded-full bg-[#FDF8F3] flex items-center justify-center hover:bg-primary/10 transition-colors"
+                              className="w-7 h-7 flex items-center justify-center bg-warm-light hover:bg-dark/10 transition-colors"
+                              aria-label="Decrease quantity"
                             >
-                              <Minus className="w-4 h-4 text-gray-600" />
+                              <Minus className="w-3.5 h-3.5 text-dark" />
                             </motion.button>
-                            <span className="w-8 text-center font-semibold text-gray-800">
+                            <span className="w-8 text-center font-mono-brutal font-bold text-sm text-dark border-x-[1.5px] border-dark">
                               {item.quantity}
                             </span>
                             <motion.button
@@ -173,12 +190,13 @@ export default function CartSidebar() {
                               onClick={() =>
                                 updateQuantity(item.id, item.quantity + 1)
                               }
-                              className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center hover:bg-primary/20 transition-colors"
+                              className="w-7 h-7 flex items-center justify-center bg-brand hover:bg-brand-dark transition-colors"
+                              aria-label="Increase quantity"
                             >
-                              <Plus className="w-4 h-4 text-primary" />
+                              <Plus className="w-3.5 h-3.5 text-warm-light" />
                             </motion.button>
                           </div>
-                          <p className="font-semibold text-gray-800">
+                          <p className="font-heading font-bold text-dark">
                             ${(item.price * item.quantity).toFixed(2)}
                           </p>
                         </div>
@@ -193,7 +211,7 @@ export default function CartSidebar() {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     onClick={clearCart}
-                    className="text-sm text-gray-500 hover:text-red-500 transition-colors flex items-center gap-1 mt-2"
+                    className="font-mono-brutal text-xs uppercase tracking-wide text-dark/50 hover:text-brand transition-colors flex items-center gap-1.5 mt-2"
                   >
                     <Trash2 className="w-3 h-3" />
                     Clear cart
@@ -206,31 +224,31 @@ export default function CartSidebar() {
 
         {/* Footer with Summary */}
         {items.length > 0 && (
-          <SheetFooter className="border-t border-primary/10 p-6 bg-white">
+          <SheetFooter className="border-t-[1.5px] border-dark/15 p-5 sm:p-6 bg-cream mt-0">
             <div className="w-full space-y-4">
               {/* Order Summary */}
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Subtotal</span>
-                  <span className="font-semibold">${subtotal.toFixed(2)}</span>
+                  <span className="text-dark/60 font-mono-brutal text-xs uppercase tracking-wide">Subtotal</span>
+                  <span className="font-heading font-bold text-dark">${subtotal.toFixed(2)}</span>
                 </div>
                 {discountAmount > 0 && (
                   <div className="flex justify-between text-sm">
-                    <span className="text-[#2D6A4F] flex items-center gap-1">
+                    <span className="text-herb flex items-center gap-1 font-mono-brutal text-xs uppercase tracking-wide">
                       <Tag className="w-3.5 h-3.5" />
                       Pickup &amp; Dine-In Promo (10%)
                     </span>
-                    <span className="font-semibold text-[#2D6A4F]">
+                    <span className="font-heading font-bold text-herb">
                       -${discountAmount.toFixed(2)}
                     </span>
                   </div>
                 )}
                 {orderingSettings.deliveryEnabled && (
                   <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">Delivery</span>
-                    <span className="font-semibold">
+                    <span className="text-dark/60 font-mono-brutal text-xs uppercase tracking-wide">Delivery</span>
+                    <span className="font-heading font-bold text-dark">
                       {deliveryFee === 0 ? (
-                        <span className="text-[#2D6A4F]">FREE</span>
+                        <span className="text-herb">FREE</span>
                       ) : (
                         `$${deliveryFee.toFixed(2)}`
                       )}
@@ -238,42 +256,56 @@ export default function CartSidebar() {
                   </div>
                 )}
                 {orderingSettings.deliveryEnabled && deliveryFee > 0 && (
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs text-dark/45">
                     Free delivery on orders over $30
                   </p>
                 )}
                 {!orderingSettings.deliveryEnabled && orderingSettings.promoEnabled && (
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs text-dark/45">
                     Pickup &amp; Dine-In only for now — enjoy 10% off!
                   </p>
                 )}
               </div>
 
-              <Separator />
+              <Separator className="bg-dark/15" />
 
-              <div className="flex justify-between">
-                <span className="font-semibold text-gray-800">Total</span>
-                <span className="font-bold text-lg text-primary">
+              <div className="flex justify-between items-center">
+                <span className="font-mono-brutal text-xs uppercase tracking-wide font-bold text-dark">Total</span>
+                <span className="font-heading font-bold text-xl text-brand">
                   ${total.toFixed(2)}
                 </span>
               </div>
 
               {/* Checkout Button */}
               <Button
-                asChild
-                className="w-full bg-primary hover:bg-[#7A0407] text-white h-12 text-base font-semibold"
-                onClick={closeCart}
+                asChild={status !== 'unauthenticated'}
+                className="w-full rounded-none border-[1.5px] border-dark bg-brand hover:bg-brand-dark text-warm-light h-12 font-mono-brutal font-bold uppercase tracking-[0.04em] shadow-brutal-sm hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all"
+                onClick={(e) => {
+                  if (status === 'unauthenticated') {
+                    e.preventDefault();
+                    setShowAuthModal(true);
+                    return;
+                  }
+                  closeCart();
+                }}
               >
-                <Link href="/checkout">
-                  Proceed to Checkout
-                  <ArrowRight className="w-5 h-5 ml-2" />
-                </Link>
+                {status === 'unauthenticated' ? (
+                  <>
+                    Proceed to Checkout
+                    <ArrowRight className="w-5 h-5 ml-2" />
+                  </>
+                ) : (
+                  <Link href="/checkout">
+                    Proceed to Checkout
+                    <ArrowRight className="w-5 h-5 ml-2" />
+                  </Link>
+                )}
               </Button>
 
               {/* Continue Shopping */}
               <Button
                 variant="outline"
-                className="w-full border-primary/20 text-gray-700 hover:bg-primary/5"
+                className="w-full rounded-none border-[1.5px] border-dark bg-warm-light text-dark hover:bg-dark hover:text-warm-light font-mono-brutal font-bold uppercase tracking-[0.04em] transition-all"
                 onClick={closeCart}
               >
                 Continue Shopping
@@ -283,5 +315,12 @@ export default function CartSidebar() {
         )}
       </SheetContent>
     </Sheet>
+
+    <AuthRequiredModal
+      open={showAuthModal}
+      onClose={() => setShowAuthModal(false)}
+      callbackUrl="/checkout"
+    />
+    </>
   );
 }

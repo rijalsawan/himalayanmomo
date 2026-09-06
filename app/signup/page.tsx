@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { signIn } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
@@ -37,8 +37,10 @@ interface SiteSettings {
   siteName: string;
 }
 
-export default function SignupPage() {
+function SignupForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get('callbackUrl') || '/';
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -85,7 +87,7 @@ export default function SignupPage() {
 
   const passwordStrength = getPasswordStrength(formData.password);
   const strengthLabels = ['Very Weak', 'Weak', 'Fair', 'Strong', 'Very Strong'];
-  const strengthColors = ['bg-red-500', 'bg-orange-500', 'bg-yellow-500', 'bg-lime-500', 'bg-green-500'];
+  const strengthColors = ['bg-brand', 'bg-golden', 'bg-golden', 'bg-herb', 'bg-herb'];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -122,7 +124,7 @@ export default function SignupPage() {
       }
 
       // Redirect to login with success message
-      router.push('/login?registered=true');
+      router.push(`/login?registered=true&callbackUrl=${encodeURIComponent(callbackUrl)}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong');
     } finally {
@@ -134,7 +136,7 @@ export default function SignupPage() {
     setIsGoogleLoading(true);
     setError('');
     try {
-      await signIn('google', { callbackUrl: '/' });
+      await signIn('google', { callbackUrl });
     } catch {
       setError('Failed to sign up with Google. Please try again.');
       setIsGoogleLoading(false);
@@ -142,31 +144,31 @@ export default function SignupPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#FDF8F3] flex">
+    <div className="min-h-screen bg-warm-light flex">
       {/* Left Side - Form */}
-      <div className="w-full lg:w-[55%] xl:w-1/2 flex items-center justify-center px-6 py-12 sm:px-12 lg:px-16 xl:px-24">
+      <div className="w-full lg:w-[55%] xl:w-1/2 flex items-center justify-center px-6 py-12 sm:px-12 lg:px-16 xl:px-24 bg-warm-light">
         <motion.div
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.5 }}
-          className="w-full max-w-[400px]"
+          className="w-full max-w-[420px]"
         >
           {/* Mobile Logo */}
           <div className="lg:hidden mb-10 text-center">
             <Link href="/" className="inline-flex items-center gap-3 justify-center">
-              <div className="relative w-10 h-10 rounded-xl overflow-hidden bg-primary/10 p-1.5">
-                <Image 
-                  src={settings.heroLogo || '/brandlogo.svg'} 
-                  alt="Logo" 
-                  fill 
-                  className="object-contain"
+              <div className="relative w-11 h-11 border-brutal bg-white shadow-brutal-sm p-1.5">
+                <Image
+                  src={settings.heroLogo || '/brandlogo.svg'}
+                  alt="Logo"
+                  fill
+                  className="object-contain p-1"
                 />
               </div>
               <div className="flex flex-col items-start">
-                <span className="font-heading text-lg font-bold text-[#1A1A1A]">
+                <span className="font-heading text-lg font-extrabold text-dark">
                   {settings.siteName?.split(' ')[0] || 'Himalayan'}
                 </span>
-                <span className="font-accent text-xs text-primary -mt-0.5">
+                <span className="font-accent text-xs text-brand -mt-0.5">
                   {settings.siteName?.split(' ').slice(1).join(' ') || 'Momos'}
                 </span>
               </div>
@@ -175,10 +177,11 @@ export default function SignupPage() {
 
           {/* Header */}
           <div className="text-center lg:text-left mb-8">
-            <h2 className="font-heading text-2xl sm:text-3xl font-bold text-[#1A1A1A]">
+            <span className="eyebrow-brutal mb-4">New Account</span>
+            <h2 className="font-heading text-2xl sm:text-3xl font-extrabold text-dark">
               Create your account
             </h2>
-            <p className="text-gray-500 mt-2 text-sm sm:text-base">
+            <p className="text-dark/60 mt-2 text-sm sm:text-base">
               Join us for a delicious experience
             </p>
           </div>
@@ -188,7 +191,7 @@ export default function SignupPage() {
             <motion.div
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl text-red-600 text-sm"
+              className="mb-6 p-4 border-brutal-thin bg-brand/10 text-brand text-sm font-medium"
             >
               {error}
             </motion.div>
@@ -197,7 +200,7 @@ export default function SignupPage() {
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Name Field */}
             <div className="space-y-2">
-              <label className="text-sm font-medium text-[#1A1A1A]">
+              <label className="font-mono-brutal text-xs font-bold uppercase tracking-wide text-dark">
                 Full Name
               </label>
               <Input
@@ -206,14 +209,14 @@ export default function SignupPage() {
                 placeholder="John Doe"
                 value={formData.name}
                 onChange={handleChange}
-                className="h-12 rounded-xl border-gray-200 focus:border-primary focus:ring-primary/20 bg-white text-base placeholder:text-gray-400"
+                className="h-12 rounded-none border-brutal-thin focus-visible:border-brand focus-visible:ring-0 bg-white text-base placeholder:text-dark/30"
                 required
               />
             </div>
 
             {/* Email Field */}
             <div className="space-y-2">
-              <label className="text-sm font-medium text-[#1A1A1A]">
+              <label className="font-mono-brutal text-xs font-bold uppercase tracking-wide text-dark">
                 Email
               </label>
               <Input
@@ -222,14 +225,14 @@ export default function SignupPage() {
                 placeholder="you@example.com"
                 value={formData.email}
                 onChange={handleChange}
-                className="h-12 rounded-xl border-gray-200 focus:border-primary focus:ring-primary/20 bg-white text-base placeholder:text-gray-400"
+                className="h-12 rounded-none border-brutal-thin focus-visible:border-brand focus-visible:ring-0 bg-white text-base placeholder:text-dark/30"
                 required
               />
             </div>
 
             {/* Password Field */}
             <div className="space-y-2">
-              <label className="text-sm font-medium text-[#1A1A1A]">
+              <label className="font-mono-brutal text-xs font-bold uppercase tracking-wide text-dark">
                 Password
               </label>
               <div className="relative">
@@ -239,13 +242,13 @@ export default function SignupPage() {
                   placeholder="••••••••"
                   value={formData.password}
                   onChange={handleChange}
-                  className="h-12 pr-12 rounded-xl border-gray-200 focus:border-primary focus:ring-primary/20 bg-white text-base placeholder:text-gray-400"
+                  className="h-12 pr-12 rounded-none border-brutal-thin focus-visible:border-brand focus-visible:ring-0 bg-white text-base placeholder:text-dark/30"
                   required
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-dark/40 hover:text-dark transition-colors"
                 >
                   {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
@@ -258,15 +261,15 @@ export default function SignupPage() {
                     {[1, 2, 3, 4, 5].map((i) => (
                       <div
                         key={i}
-                        className={`h-1 flex-1 rounded-full transition-colors ${
+                        className={`h-1.5 flex-1 border-[1.5px] border-dark transition-colors ${
                           i <= passwordStrength
                             ? strengthColors[passwordStrength - 1]
-                            : 'bg-gray-200'
+                            : 'bg-cream'
                         }`}
                       />
                     ))}
                   </div>
-                  <p className="text-xs text-gray-500">
+                  <p className="font-mono-brutal text-[11px] uppercase tracking-wide text-dark/50">
                     {strengthLabels[passwordStrength - 1] || 'Too short'}
                   </p>
                 </div>
@@ -275,7 +278,7 @@ export default function SignupPage() {
 
             {/* Confirm Password Field */}
             <div className="space-y-2">
-              <label className="text-sm font-medium text-[#1A1A1A]">
+              <label className="font-mono-brutal text-xs font-bold uppercase tracking-wide text-dark">
                 Confirm Password
               </label>
               <div className="relative">
@@ -285,22 +288,22 @@ export default function SignupPage() {
                   placeholder="••••••••"
                   value={formData.confirmPassword}
                   onChange={handleChange}
-                  className={`h-12 pr-12 rounded-xl border-gray-200 focus:border-primary focus:ring-primary/20 bg-white text-base placeholder:text-gray-400 ${
+                  className={`h-12 pr-12 rounded-none border-brutal-thin focus-visible:ring-0 bg-white text-base placeholder:text-dark/30 ${
                     formData.confirmPassword &&
                     formData.password === formData.confirmPassword
-                      ? 'border-green-500 focus:border-green-500'
-                      : ''
+                      ? 'border-herb focus-visible:border-herb'
+                      : 'focus-visible:border-brand'
                   }`}
                   required
                 />
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-dark/40 hover:text-dark transition-colors"
                 >
                   {formData.confirmPassword &&
                   formData.password === formData.confirmPassword ? (
-                    <CheckCircle className="w-5 h-5 text-green-500" />
+                    <CheckCircle className="w-5 h-5 text-herb" />
                   ) : showConfirmPassword ? (
                     <EyeOff className="w-5 h-5" />
                   ) : (
@@ -311,13 +314,13 @@ export default function SignupPage() {
             </div>
 
             {/* Terms */}
-            <p className="text-xs text-gray-500 pt-1">
+            <p className="text-xs text-dark/50 pt-1">
               By creating an account, you agree to our{' '}
-              <Link href="/terms" className="text-primary hover:underline">
+              <Link href="/terms" className="text-brand hover:underline font-semibold">
                 Terms of Service
               </Link>{' '}
               and{' '}
-              <Link href="/privacy" className="text-primary hover:underline">
+              <Link href="/privacy" className="text-brand hover:underline font-semibold">
                 Privacy Policy
               </Link>
               .
@@ -327,7 +330,7 @@ export default function SignupPage() {
             <Button
               type="submit"
               disabled={isLoading}
-              className="w-full h-12 rounded-xl bg-primary hover:bg-[#7A0407] text-white font-medium text-base transition-all duration-300 group mt-2"
+              className="w-full h-12 rounded-none border-brutal bg-dark hover:bg-dark text-warm-light font-heading font-bold text-sm uppercase tracking-wide shadow-brutal-sm hover:shadow-brutal hover:-translate-y-0.5 hover:-translate-x-0.5 transition-all duration-200 group mt-2"
             >
               {isLoading ? (
                 <Loader2 className="w-5 h-5 animate-spin" />
@@ -343,10 +346,10 @@ export default function SignupPage() {
           {/* Divider */}
           <div className="relative my-6">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-200"></div>
+              <div className="w-full border-t-[1.5px] border-dark/15"></div>
             </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="px-4 bg-[#FDF8F3] text-gray-400 text-xs uppercase tracking-wider">
+            <div className="relative flex justify-center">
+              <span className="px-4 bg-warm-light font-mono-brutal text-dark/40 text-[11px] uppercase tracking-[0.08em]">
                 Or continue with
               </span>
             </div>
@@ -358,7 +361,7 @@ export default function SignupPage() {
             variant="outline"
             onClick={handleGoogleSignUp}
             disabled={isGoogleLoading}
-            className="w-full h-12 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 text-[#1A1A1A] font-medium text-base transition-all duration-300 flex items-center justify-center gap-3 hover:border-gray-300"
+            className="w-full h-12 rounded-none border-brutal-thin bg-white hover:bg-cream text-dark font-heading font-bold text-sm transition-all duration-200 flex items-center justify-center gap-3"
           >
             {isGoogleLoading ? (
               <Loader2 className="w-5 h-5 animate-spin" />
@@ -371,21 +374,21 @@ export default function SignupPage() {
           </Button>
 
           {/* Sign In Link */}
-          <p className="text-center mt-8 text-gray-500 text-sm">
+          <p className="text-center mt-8 text-dark/60 text-sm">
             Already have an account?{' '}
             <Link
               href="/login"
-              className="text-primary hover:text-[#7A0407] transition-colors font-semibold"
+              className="text-brand hover:text-brand-dark transition-colors font-bold"
             >
               Sign in
             </Link>
           </p>
 
           {/* Back to Home */}
-          <p className="text-center mt-4 text-gray-400 text-xs">
+          <p className="text-center mt-4 text-dark/40 text-xs font-mono-brutal uppercase tracking-wide">
             <Link
               href="/"
-              className="hover:text-gray-600 transition-colors"
+              className="hover:text-dark transition-colors"
             >
               ← Back to Home
             </Link>
@@ -393,24 +396,13 @@ export default function SignupPage() {
         </motion.div>
       </div>
 
-      {/* Right Side - Decorative Panel */}
-      <div className="hidden lg:flex lg:w-[45%] xl:w-1/2 relative overflow-hidden">
-        {/* Background with gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-bl from-[#1A1A1A] via-[#2A2A2A] to-[#1A1A1A]" />
-        
-        {/* Subtle pattern overlay */}
-        <div 
-          className="absolute inset-0 opacity-[0.03]"
-          style={{
-            backgroundImage: `radial-gradient(circle at 1px 1px, #fff 1px, transparent 0)`,
-            backgroundSize: '32px 32px'
-          }}
-        />
-        
-        {/* Animated gradient orbs */}
-        <div className="absolute -top-32 -left-32 w-[400px] h-[400px] rounded-full bg-gradient-to-br from-primary/30 via-[#F4A261]/20 to-transparent blur-3xl animate-blob-1" />
-        <div className="absolute -bottom-32 -right-32 w-[350px] h-[350px] rounded-full bg-gradient-to-tr from-[#F4A261]/30 via-primary/20 to-transparent blur-3xl animate-blob-2" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] rounded-full bg-primary/10 blur-3xl animate-blob-3" />
+      {/* Right Side - Decorative brutalist panel */}
+      <div className="hidden lg:flex lg:w-[45%] xl:w-1/2 relative overflow-hidden bg-dark">
+        <div className="absolute inset-0 bg-dot-grid opacity-40" />
+
+        {/* Offset accent blocks */}
+        <div className="absolute -top-20 -left-20 w-72 h-72 border-brutal bg-golden/80 -rotate-12" />
+        <div className="absolute -bottom-24 -right-16 w-64 h-64 border-brutal bg-brand/90 rotate-6" />
 
         {/* Content */}
         <div className="relative z-10 flex flex-col justify-between p-10 xl:p-16 w-full">
@@ -423,19 +415,19 @@ export default function SignupPage() {
           >
             <Link href="/" className="inline-flex items-center gap-3 group">
               <div className="flex flex-col items-end">
-                <span className="font-heading text-xl font-bold text-white">
+                <span className="font-heading text-xl font-extrabold text-warm-light">
                   {settings.siteName?.split(' ')[0] || 'Himalayan'}
                 </span>
-                <span className="font-accent text-sm text-[#F4A261] -mt-0.5">
+                <span className="font-accent text-sm text-golden -mt-0.5">
                   {settings.siteName?.split(' ').slice(1).join(' ') || 'Momos'}
                 </span>
               </div>
-              <div className="relative w-12 h-12 rounded-xl overflow-hidden bg-white/10 backdrop-blur-sm border border-white/10 p-2 transition-transform group-hover:scale-105">
-                <Image 
-                  src={settings.heroLogo || '/brandlogo.svg'} 
-                  alt="Logo" 
-                  fill 
-                  className="object-contain"
+              <div className="relative w-14 h-14 border-brutal bg-warm-light shadow-brutal-golden overflow-hidden group-hover:-translate-y-0.5 group-hover:translate-x-0.5 transition-transform">
+                <Image
+                  src={settings.heroLogo || '/brandlogo.svg'}
+                  alt="Logo"
+                  fill
+                  className="object-contain p-1.5"
                 />
               </div>
             </Link>
@@ -448,19 +440,17 @@ export default function SignupPage() {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="space-y-8 text-right"
           >
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-sm ml-auto">
-              <span className="text-sm text-gray-300">Join the Family</span>
-              <Sparkles className="w-4 h-4 text-[#F4A261]" />
-            </div>
-            
-            <h1 className="font-heading text-4xl xl:text-5xl font-bold text-white leading-tight">
+            <span className="eyebrow-brutal ml-auto">
+              Join the Family
+              <Sparkles className="w-3.5 h-3.5" />
+            </span>
+
+            <h1 className="font-heading text-4xl xl:text-5xl font-extrabold text-warm-light leading-[1.05]">
               Start your<br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#F4A261] to-primary">
-                flavorful journey
-              </span>
+              <span className="font-accent text-golden">flavorful journey</span>
             </h1>
 
-            <p className="text-gray-400 text-lg max-w-sm leading-relaxed ml-auto">
+            <p className="text-warm-light/60 text-lg max-w-sm leading-relaxed ml-auto">
               Create an account to order faster, track deliveries, and unlock exclusive member rewards.
             </p>
           </motion.div>
@@ -470,7 +460,7 @@ export default function SignupPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.6, delay: 0.4 }}
-            className="space-y-4"
+            className="space-y-3"
           >
             {[
               'Fast checkout experience',
@@ -478,9 +468,9 @@ export default function SignupPage() {
               'Exclusive member discounts',
             ].map((feature, i) => (
               <div key={i} className="flex items-center gap-3 justify-end">
-                <span className="text-gray-400 text-sm">{feature}</span>
-                <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center">
-                  <CheckCircle className="w-3.5 h-3.5 text-primary" />
+                <span className="text-warm-light/60 text-sm">{feature}</span>
+                <div className="w-6 h-6 border-[1.5px] border-warm-light/30 bg-warm-light/5 flex items-center justify-center flex-shrink-0">
+                  <CheckCircle className="w-3.5 h-3.5 text-golden" />
                 </div>
               </div>
             ))}
@@ -488,5 +478,26 @@ export default function SignupPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+function SignupLoading() {
+  return (
+    <div className="min-h-screen bg-warm-light flex items-center justify-center">
+      <div className="text-center">
+        <div className="w-12 h-12 border-brutal bg-cream flex items-center justify-center mx-auto mb-4 shadow-brutal-sm">
+          <Loader2 className="w-6 h-6 animate-spin text-brand" />
+        </div>
+        <p className="text-dark/60 text-sm font-mono-brutal uppercase tracking-wide">Loading...</p>
+      </div>
+    </div>
+  );
+}
+
+export default function SignupPage() {
+  return (
+    <Suspense fallback={<SignupLoading />}>
+      <SignupForm />
+    </Suspense>
   );
 }

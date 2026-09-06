@@ -62,14 +62,14 @@ export default function CartQuantityButton({
     }
   };
 
-  // If item is not in cart, show simple add button
+  // If item is not in cart, show simple square brutalist add button
   if (quantity === 0) {
     return (
       <motion.button
-        whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.9 }}
+        whileHover={{ scale: 1.06 }}
+        whileTap={{ scale: 0.92 }}
         onClick={handleIncrement}
-        className={`rounded-full bg-primary text-white flex items-center justify-center shadow-lg hover:bg-[#7A0407] transition-colors ${className}`}
+        className={`border-[1.5px] border-dark bg-brand text-warm-light flex items-center justify-center shadow-brutal-sm hover:bg-brand-dark transition-colors ${className}`}
         style={{ width: currentSize.button, height: currentSize.button }}
       >
         <Plus style={{ width: currentSize.icon, height: currentSize.icon }} />
@@ -80,7 +80,7 @@ export default function CartQuantityButton({
   // If item is in cart, show quantity with hover expand
   return (
     <motion.div
-      className={`relative flex items-center justify-center ${className}`}
+      className={`relative flex items-center justify-center border-[1.5px] border-dark bg-brand shadow-brutal-sm ${className}`}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       initial={false}
@@ -94,9 +94,6 @@ export default function CartQuantityButton({
       }}
       style={{
         height: currentSize.button,
-        borderRadius: currentSize.button / 2,
-        backgroundColor: '#B3060A',
-        boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
         overflow: 'hidden',
       }}
     >
@@ -109,7 +106,7 @@ export default function CartQuantityButton({
         }}
         transition={{ duration: 0.15 }}
         onClick={handleDecrement}
-        className="absolute left-0 h-full flex items-center justify-center text-white hover:bg-black/10 transition-colors"
+        className="absolute left-0 h-full flex items-center justify-center text-warm-light hover:bg-black/15 transition-colors"
         style={{ width: currentSize.button }}
         disabled={!isHovered}
       >
@@ -118,8 +115,8 @@ export default function CartQuantityButton({
 
       {/* Quantity Display - Always centered */}
       <motion.span
-        className="font-semibold text-white pointer-events-none"
-        style={{ fontSize: size === 'sm' ? 14 : size === 'md' ? 16 : 18 }}
+        className="font-mono-brutal font-bold text-warm-light pointer-events-none"
+        style={{ fontSize: size === 'sm' ? 13 : size === 'md' ? 15 : 17 }}
       >
         {quantity}
       </motion.span>
@@ -133,7 +130,7 @@ export default function CartQuantityButton({
         }}
         transition={{ duration: 0.15 }}
         onClick={handleIncrement}
-        className="absolute right-0 h-full flex items-center justify-center text-white hover:bg-black/10 transition-colors"
+        className="absolute right-0 h-full flex items-center justify-center text-warm-light hover:bg-black/15 transition-colors"
         style={{ width: currentSize.button }}
         disabled={!isHovered}
       >
