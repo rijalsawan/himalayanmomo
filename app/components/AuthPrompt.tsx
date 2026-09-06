@@ -53,7 +53,7 @@ export default function AuthPrompt({ isOpen, onClose }: AuthPromptProps) {
           >
             <div className="bg-white rounded-3xl shadow-2xl overflow-hidden">
               {/* Decorative header */}
-              <div className="relative h-24 bg-gradient-to-r from-primary to-[#B8420A] overflow-hidden">
+              <div className="relative h-24 bg-gradient-to-r from-primary to-[#7A0407] overflow-hidden">
                 <motion.div
                   animate={{ 
                     scale: [1, 1.2, 1],
@@ -138,7 +138,7 @@ export default function AuthPrompt({ isOpen, onClose }: AuthPromptProps) {
                 >
                   <Link href="/login" onClick={onClose} className="block">
                     <Button
-                      className="w-full h-12 rounded-xl bg-primary hover:bg-[#B8420A] text-white font-medium shadow-lg shadow-primary/25 group"
+                      className="w-full h-12 rounded-xl bg-primary hover:bg-[#7A0407] text-white font-medium shadow-lg shadow-primary/25 group"
                     >
                       <LogIn className="w-5 h-5 mr-2" />
                       Sign In

@@ -99,7 +99,7 @@ export default function CartSidebar() {
                 </p>
                 <Button
                   onClick={closeCart}
-                  className="bg-primary hover:bg-[#B8420A] text-white"
+                  className="bg-primary hover:bg-[#7A0407] text-white"
                   asChild
                 >
                   <Link href="/menu">
@@ -261,7 +261,7 @@ export default function CartSidebar() {
               {/* Checkout Button */}
               <Button
                 asChild
-                className="w-full bg-primary hover:bg-[#B8420A] text-white h-12 text-base font-semibold"
+                className="w-full bg-primary hover:bg-[#7A0407] text-white h-12 text-base font-semibold"
                 onClick={closeCart}
               >
                 <Link href="/checkout">

@@ -1,8 +1,8 @@
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Notifications | MO:MO Station',
-  description: 'View your order updates, promotions, and notifications from MO:MO Station.',
+  title: 'Notifications',
+  description: 'View your order updates, promotions, and notifications.',
 };
 
 export default function NotificationsLayout({

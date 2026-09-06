@@ -201,7 +201,7 @@ export default function WhyChooseUs() {
               >
                 <motion.div
                   whileHover={{ scale: 1.1, rotate: 5 }}
-                  className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-br from-primary to-[#FF6B1A] flex items-center justify-center shadow-lg shadow-primary/30"
+                  className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-br from-primary to-[#E5383B] flex items-center justify-center shadow-lg shadow-primary/30"
                 >
                   <Icon className="w-8 h-8 text-white" />
                 </motion.div>
@@ -232,7 +232,7 @@ export default function WhyChooseUs() {
                 const element = document.querySelector('#menu');
                 if (element) element.scrollIntoView({ behavior: 'smooth' });
               }}
-              className="px-8 py-4 rounded-full bg-primary hover:bg-[#B8420A] text-white font-medium transition-colors"
+              className="px-8 py-4 rounded-full bg-primary hover:bg-[#7A0407] text-white font-medium transition-colors"
             >
               Explore Our Menu
             </button>
