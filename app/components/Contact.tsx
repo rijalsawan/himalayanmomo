@@ -26,7 +26,6 @@ import {
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Button } from '@/components/ui/button';
 
 // Social icon mapping
 const socialIconMap: Record<string, LucideIcon> = {
@@ -224,27 +223,15 @@ export default function Contact() {
   ].filter(s => s.icon && s.href);
 
   return (
-    <section id="contact" className="section-padding bg-[#1A1A1A] relative overflow-hidden" ref={ref}>
-      {/* Background Elements */}
-      <div className="absolute inset-0 opacity-5">
-        <div
-          className="absolute inset-0"
-          style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
-          }}
-        />
-      </div>
-      
-      {/* Floating Orbs */}
-      <motion.div
-        animate={{ y: [0, -20, 0], x: [0, 15, 0] }}
-        transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
-        className="absolute top-20 right-[15%] w-64 h-64 rounded-full bg-primary/10 blur-3xl"
-      />
-      <motion.div
-        animate={{ y: [0, 25, 0], x: [0, -15, 0] }}
-        transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut' }}
-        className="absolute bottom-20 left-[10%] w-48 h-48 rounded-full bg-amber-500/10 blur-3xl"
+    <section id="contact" className="section-padding bg-dark border-b-[3px] border-dark relative overflow-hidden" ref={ref}>
+      {/* Background dot grid */}
+      <div
+        className="absolute inset-0 opacity-[0.07]"
+        style={{
+          backgroundImage: 'radial-gradient(circle, var(--color-warm-light) 1px, transparent 1px)',
+          backgroundSize: '22px 22px',
+        }}
+        aria-hidden="true"
       />
 
       <div className="container-custom relative">
@@ -255,23 +242,21 @@ export default function Contact() {
           transition={{ duration: 0.6 }}
           className="text-center max-w-2xl mx-auto mb-12 md:mb-16"
         >
-          <span className="inline-flex items-center gap-2 text-primary font-medium text-sm uppercase tracking-widest">
-            <span className="w-8 h-px bg-primary/50" />
+          <div className="inline-flex items-center gap-2 font-mono-brutal text-[11px] font-medium uppercase tracking-[0.08em] px-3.5 py-2 bg-warm-light text-dark border-[3px] border-warm-light shadow-brutal-golden">
             {settings.contactSubtitle}
-            <span className="w-8 h-px bg-primary/50" />
-          </span>
-          <h2 className="font-heading text-3xl md:text-4xl lg:text-5xl font-bold text-white mt-4">
+          </div>
+          <h2 className="font-heading text-3xl md:text-4xl lg:text-5xl font-extrabold text-warm-light mt-5 tracking-tight">
             {(() => {
               const words = settings.contactHeadline.split(' ');
               const lastWord = words.pop();
               return (
                 <>
-                  {words.join(' ')} <span className="text-primary">{lastWord}</span>
+                  {words.join(' ')} <span className="font-accent italic text-golden">{lastWord}</span>
                 </>
               );
             })()}
           </h2>
-          <p className="text-gray-400 mt-4 text-base md:text-lg">
+          <p className="text-warm-light/60 mt-4 text-base md:text-lg">
             {settings.contactDescription}
           </p>
         </motion.div>
@@ -297,27 +282,27 @@ export default function Contact() {
                       href={item.href}
                       target={item.href.startsWith('http') ? '_blank' : undefined}
                       rel={item.href.startsWith('http') ? 'noopener noreferrer' : undefined}
-                      className="group flex items-start gap-4 p-4 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-primary/30 transition-all duration-300"
+                      className="group flex items-start gap-4 p-4 border-[3px] border-warm-light/15 bg-warm-light/[0.04] hover:bg-warm-light/[0.07] hover:border-golden/40 transition-colors duration-300"
                     >
-                      <div className="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center shrink-0 group-hover:bg-primary/30 transition-colors">
-                        <item.icon className="w-5 h-5 text-primary" />
+                      <div className="w-12 h-12 border-[1.5px] border-golden/50 bg-golden/10 flex items-center justify-center shrink-0 group-hover:border-golden group-hover:bg-golden/20 transition-colors">
+                        <item.icon className="w-5 h-5 text-golden" />
                       </div>
                       <div className="min-w-0 flex-1">
-                        <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">{item.label}</p>
-                        <p className="text-white font-medium group-hover:text-primary transition-colors whitespace-pre-line">
+                        <p className="font-mono-brutal text-[10px] text-warm-light/40 uppercase tracking-wider mb-1">{item.label}</p>
+                        <p className="text-warm-light font-medium group-hover:text-golden transition-colors whitespace-pre-line">
                           {item.value}
                         </p>
                       </div>
-                      <ArrowRight className="w-4 h-4 text-gray-500 group-hover:text-primary group-hover:translate-x-1 transition-all mt-1" />
+                      <ArrowRight className="w-4 h-4 text-warm-light/40 group-hover:text-golden group-hover:translate-x-1 transition-all mt-1" />
                     </a>
                   ) : (
-                    <div className="flex items-start gap-4 p-4 rounded-xl bg-white/5 border border-white/10">
-                      <div className="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center shrink-0">
-                        <item.icon className="w-5 h-5 text-primary" />
+                    <div className="flex items-start gap-4 p-4 border-[3px] border-warm-light/15 bg-warm-light/[0.04]">
+                      <div className="w-12 h-12 border-[1.5px] border-golden/50 bg-golden/10 flex items-center justify-center shrink-0">
+                        <item.icon className="w-5 h-5 text-golden" />
                       </div>
                       <div className="min-w-0 flex-1">
-                        <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">{item.label}</p>
-                        <p className="text-white font-medium whitespace-pre-line">
+                        <p className="font-mono-brutal text-[10px] text-warm-light/40 uppercase tracking-wider mb-1">{item.label}</p>
+                        <p className="text-warm-light font-medium whitespace-pre-line">
                           {item.value}
                         </p>
                       </div>
@@ -334,7 +319,7 @@ export default function Contact() {
               transition={{ duration: 0.4, delay: 0.7 }}
               className="pt-4"
             >
-              <p className="text-gray-500 text-sm mb-3">Follow us on social media</p>
+              <p className="font-mono-brutal text-[11px] uppercase tracking-wide text-warm-light/40 mb-3">Follow us on social media</p>
               <div className="flex gap-3">
                 {socialLinks.map((social, idx) => {
                   const IconComponent = socialIconMap[social.icon] || Globe;
@@ -344,7 +329,7 @@ export default function Contact() {
                       href={social.href}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-gray-400 hover:bg-primary hover:text-white hover:border-primary transition-all duration-300"
+                      className="w-10 h-10 border-[1.5px] border-warm-light/20 flex items-center justify-center text-warm-light/60 hover:bg-brand hover:text-warm-light hover:border-brand transition-all duration-300"
                     >
                       <IconComponent className="w-5 h-5" />
                     </a>
@@ -361,16 +346,16 @@ export default function Contact() {
             transition={{ duration: 0.6, delay: 0.3 }}
             className="lg:col-span-3"
           >
-            <div className="bg-white rounded-2xl p-6 sm:p-8 shadow-2xl">
+            <div className="bg-warm-light border-brutal shadow-brutal-lg p-6 sm:p-8 ">
               <div className="flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
-                  <MessageSquare className="w-5 h-5 text-primary" />
+                <div className="w-10 h-10 border-[1.5px] border-dark bg-golden/30 flex items-center justify-center">
+                  <MessageSquare className="w-5 h-5 text-dark" />
                 </div>
                 <div>
-                  <h3 className="font-heading text-xl font-semibold text-[#1A1A1A]">
+                  <h3 className="font-heading text-xl font-bold text-dark">
                     {settings.contactFormTitle}
                   </h3>
-                  <p className="text-sm text-gray-500">{settings.contactFormSubtitle}</p>
+                  <p className="font-mono-brutal text-[11px] uppercase tracking-wide text-dark/50">{settings.contactFormSubtitle}</p>
                 </div>
               </div>
 
@@ -380,13 +365,13 @@ export default function Contact() {
                   animate={{ opacity: 1, scale: 1 }}
                   className="flex flex-col items-center justify-center py-12 text-center"
                 >
-                  <div className="w-16 h-16 rounded-full bg-emerald-100 flex items-center justify-center mb-4">
-                    <CheckCircle className="w-8 h-8 text-emerald-600" />
+                  <div className="w-16 h-16 border-brutal bg-herb/20 flex items-center justify-center mb-4">
+                    <CheckCircle className="w-8 h-8 text-herb" />
                   </div>
-                  <h4 className="text-xl font-semibold text-[#1A1A1A]">
+                  <h4 className="font-heading text-xl font-bold text-dark">
                     Message Sent!
                   </h4>
-                  <p className="text-gray-500 mt-2 max-w-sm">
+                  <p className="text-dark/60 mt-2 max-w-sm">
                     Thank you for reaching out. We&apos;ll get back to you as soon as possible!
                   </p>
                 </motion.div>
@@ -396,9 +381,9 @@ export default function Contact() {
                     <div>
                       <label
                         htmlFor="name"
-                        className="block text-sm font-medium text-[#1A1A1A] mb-2"
+                        className="block font-mono-brutal text-[11px] uppercase tracking-wide text-dark mb-2"
                       >
-                        Your Name <span className="text-primary">*</span>
+                        Your Name <span className="text-brand">*</span>
                       </label>
                       <Input
                         type="text"
@@ -408,13 +393,13 @@ export default function Contact() {
                         onChange={handleChange}
                         required
                         placeholder="John Doe"
-                        className="h-12 bg-gray-50 border-gray-200 focus:border-primary focus:ring-primary/20"
+                        className="h-12 rounded-none border-[1.5px] border-dark bg-cream focus-visible:border-brand focus-visible:ring-brand/20"
                       />
                     </div>
                     <div>
                       <label
                         htmlFor="phone"
-                        className="block text-sm font-medium text-[#1A1A1A] mb-2"
+                        className="block font-mono-brutal text-[11px] uppercase tracking-wide text-dark mb-2"
                       >
                         Phone Number
                       </label>
@@ -425,7 +410,7 @@ export default function Contact() {
                         value={formState.phone}
                         onChange={handleChange}
                         placeholder="(555) 123-4567"
-                        className="h-12 bg-gray-50 border-gray-200 focus:border-primary focus:ring-primary/20"
+                        className="h-12 rounded-none border-[1.5px] border-dark bg-cream focus-visible:border-brand focus-visible:ring-brand/20"
                       />
                     </div>
                   </div>
@@ -433,9 +418,9 @@ export default function Contact() {
                   <div>
                     <label
                       htmlFor="email"
-                      className="block text-sm font-medium text-[#1A1A1A] mb-2"
+                      className="block font-mono-brutal text-[11px] uppercase tracking-wide text-dark mb-2"
                     >
-                      Email Address <span className="text-primary">*</span>
+                      Email Address <span className="text-brand">*</span>
                     </label>
                     <Input
                       type="email"
@@ -445,16 +430,16 @@ export default function Contact() {
                       onChange={handleChange}
                       required
                       placeholder="john@example.com"
-                      className="h-12 bg-gray-50 border-gray-200 focus:border-primary focus:ring-primary/20"
+                      className="h-12 rounded-none border-[1.5px] border-dark bg-cream focus-visible:border-brand focus-visible:ring-brand/20"
                     />
                   </div>
 
                   <div>
                     <label
                       htmlFor="message"
-                      className="block text-sm font-medium text-[#1A1A1A] mb-2"
+                      className="block font-mono-brutal text-[11px] uppercase tracking-wide text-dark mb-2"
                     >
-                      Your Message <span className="text-primary">*</span>
+                      Your Message <span className="text-brand">*</span>
                     </label>
                     <Textarea
                       id="message"
@@ -464,29 +449,29 @@ export default function Contact() {
                       required
                       rows={4}
                       placeholder="How can we help you today?"
-                      className="resize-none bg-gray-50 border-gray-200 focus:border-primary focus:ring-primary/20"
+                      className="resize-none rounded-none border-[1.5px] border-dark bg-cream focus-visible:border-brand focus-visible:ring-brand/20"
                     />
                   </div>
 
-                  <Button
+                  <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="w-full h-12 bg-primary hover:bg-primary/90 text-white font-medium rounded-xl transition-all duration-300 shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30"
+                    className="w-full inline-flex items-center justify-center gap-2 h-12 font-heading font-bold border-brutal bg-dark text-warm-light shadow-brutal-sm brutal-hover hover:bg-brand transition-colors disabled:opacity-60 disabled:pointer-events-none"
                   >
                     {isSubmitting ? (
                       <>
-                        <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                        <Loader2 className="w-5 h-5 animate-spin" />
                         Sending...
                       </>
                     ) : (
                       <>
                         Send Message
-                        <Send className="w-4 h-4 ml-2" />
+                        <Send className="w-4 h-4" />
                       </>
                     )}
-                  </Button>
+                  </button>
 
-                  <p className="text-xs text-gray-400 text-center">
+                  <p className="font-mono-brutal text-[10px] uppercase tracking-wide text-dark/40 text-center">
                     By submitting this form, you agree to our privacy policy.
                   </p>
                 </form>

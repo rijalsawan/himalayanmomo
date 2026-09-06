@@ -103,42 +103,41 @@ export default function About() {
   };
 
   return (
-    <section id="about" className="section-padding bg-[#FDF8F3]" ref={ref}>
-      <div className="container-custom">
+    <section id="about" className="section-padding bg-cream border-b-[3px] border-dark relative overflow-hidden" ref={ref}>
+      <div className="container-custom relative z-10">
         <motion.div
           variants={containerVariants}
           initial="hidden"
           animate={isInView ? 'visible' : 'hidden'}
-          className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center"
+          className="grid lg:grid-cols-2 gap-16 lg:gap-16 items-center"
         >
           {/* Image Gallery */}
-          <motion.div variants={itemVariants} className="relative">
-            <div className="grid grid-cols-2 gap-4">
+          <motion.div variants={itemVariants} className="relative min-w-0 pb-8 pr-4 lg:pb-4">
+            <div className="grid grid-cols-2 gap-5">
               {/* Main Image */}
               <div className="col-span-2">
-                <div className="relative rounded-2xl overflow-hidden aspect-[16/10] shadow-xl">
+                <div className="relative border-brutal shadow-brutal overflow-hidden aspect-[16/10] rotate-[-0.6deg] bg-warm-light">
                   <img
                     src={settings.aboutImage1}
                     alt="Restaurant interior"
-                    className="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
+                    className="w-full h-full object-cover"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
                 </div>
               </div>
 
               {/* Secondary Images */}
-              <div className="relative rounded-2xl overflow-hidden aspect-square shadow-lg">
+              <div className="relative border-brutal shadow-brutal-sm overflow-hidden aspect-square rotate-[1deg] bg-warm-light">
                 <img
                   src={settings.aboutImage2}
                   alt="Chef preparing momos"
-                  className="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
+                  className="w-full h-full object-cover"
                 />
               </div>
-              <div className="relative rounded-2xl overflow-hidden aspect-square shadow-lg">
+              <div className="relative border-brutal shadow-brutal-sm overflow-hidden aspect-square rotate-[-1.2deg] bg-warm-light">
                 <img
                   src={settings.aboutImage3}
                   alt="Fresh momos"
-                  className="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
+                  className="w-full h-full object-cover"
                 />
               </div>
             </div>
@@ -148,43 +147,43 @@ export default function About() {
               initial={{ opacity: 0, scale: 0.8 }}
               animate={isInView ? { opacity: 1, scale: 1 } : {}}
               transition={{ duration: 0.6, delay: 0.6 }}
-              className="absolute -bottom-6 -right-6 bg-primary text-white p-6 rounded-2xl shadow-xl hidden md:block"
+              className="absolute bottom-0 right-0 lg:-bottom-4 lg:-right-4 bg-brand text-warm-light border-brutal shadow-brutal-sm px-5 py-4 rotate-[2deg] hidden md:block"
             >
-              <div className="text-4xl font-bold font-playfair">{settings.aboutBadgeNumber}</div>
-              <div className="text-sm opacity-90">{settings.aboutBadgeText}</div>
+              <div className="text-3xl font-extrabold font-heading leading-none">{settings.aboutBadgeNumber}</div>
+              <div className="font-mono-brutal text-[10px] uppercase tracking-wide mt-1.5 opacity-90">{settings.aboutBadgeText}</div>
             </motion.div>
           </motion.div>
 
           {/* Content */}
-          <motion.div variants={itemVariants}>
-            <span className="text-primary font-medium text-sm uppercase tracking-widest">
+          <motion.div variants={itemVariants} className="min-w-0">
+            <div className="eyebrow-brutal">
               {settings.aboutSubtitle}
-            </span>
-            <h2 className="font-playfair text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mt-3">
+            </div>
+            <h2 className="font-heading text-3xl md:text-4xl lg:text-5xl font-extrabold text-dark mt-5 leading-[1.05] tracking-tight">
               {settings.aboutHeadline.split(' ').slice(0, 3).join(' ')}{' '}
-              <span className="text-gradient">
+              <span className="font-accent italic text-brand">
                 {settings.aboutHeadline.split(' ').slice(3).join(' ')}
               </span>
             </h2>
 
-            <div className="space-y-4 mt-6 text-muted-foreground leading-relaxed">
+            <div className="space-y-4 mt-6 text-dark/70 leading-relaxed">
               <p>{settings.aboutParagraph}</p>
             </div>
 
             {/* Stats Grid */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 mt-10 pt-8 border-t border-border">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-10">
               {stats.map((stat, index) => (
                 <motion.div
                   key={stat.label}
                   initial={{ opacity: 0, y: 20 }}
                   animate={isInView ? { opacity: 1, y: 0 } : {}}
                   transition={{ duration: 0.5, delay: 0.8 + index * 0.1 }}
-                  className="text-center"
+                  className="border-brutal-thin bg-warm-light px-3 py-4 text-center"
                 >
-                  <div className="text-2xl md:text-3xl font-bold text-primary font-playfair">
+                  <div className="text-2xl md:text-3xl font-extrabold text-brand font-heading leading-none">
                     {stat.value}
                   </div>
-                  <div className="text-xs text-muted-foreground mt-1">
+                  <div className="font-mono-brutal text-[10px] uppercase tracking-wide text-dark/60 mt-2">
                     {stat.label}
                   </div>
                 </motion.div>

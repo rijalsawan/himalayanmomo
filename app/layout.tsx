@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, Poppins, Quicksand } from "next/font/google";
+import { Space_Grotesk, Bricolage_Grotesque, JetBrains_Mono, Instrument_Serif } from "next/font/google";
 import "./globals.css";
 import { CartProvider } from "./context/CartContext";
 import CartSidebar from "./components/CartSidebar";
@@ -7,21 +7,32 @@ import AuthProvider from "./providers/AuthProvider";
 import AuthPromptWrapper from "./components/AuthPromptWrapper";
 import { getSiteSettings } from "@/lib/getSiteSettings";
 
-const inter = Inter({
-  variable: "--font-inter",
+// Brutalist typography system: bold grotesque display font, a clean grotesque
+// body font, a mono font for uppercase labels/tags/eyebrows, and an italic
+// serif used only for single-word accents inside headings.
+const spaceGrotesk = Space_Grotesk({
+  variable: "--font-space-grotesk",
   subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
 });
 
-const poppins = Poppins({
-  variable: "--font-poppins",
+const bricolage = Bricolage_Grotesque({
+  variable: "--font-bricolage",
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700", "800", "900"],
+  weight: ["400", "500", "700", "800"],
 });
 
-const quicksand = Quicksand({
-  variable: "--font-quicksand",
+const jetbrainsMono = JetBrains_Mono({
+  variable: "--font-jetbrains-mono",
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
+  weight: ["400", "500", "700"],
+});
+
+const instrumentSerif = Instrument_Serif({
+  variable: "--font-instrument-serif",
+  subsets: ["latin"],
+  weight: ["400"],
+  style: ["normal", "italic"],
 });
 
 // Static fallback keywords (these rarely change)
@@ -144,7 +155,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="scroll-smooth">
       <body
-        className={`${inter.variable} ${poppins.variable} ${quicksand.variable} font-sans antialiased`}
+        className={`${spaceGrotesk.variable} ${bricolage.variable} ${jetbrainsMono.variable} ${instrumentSerif.variable} font-sans antialiased`}
       >
         <AuthProvider>
           <CartProvider>

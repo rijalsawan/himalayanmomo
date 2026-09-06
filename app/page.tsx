@@ -3,6 +3,7 @@ import Hero from './components/Hero';
 import About from './components/About';
 import MenuSection from './components/MenuSection';
 import WhyChooseUs from './components/WhyChooseUs';
+import OrderingOptions from './components/OrderingOptions';
 import Testimonials from './components/Testimonials';
 import Contact from './components/Contact';
 import Footer from './components/Footer';
@@ -27,6 +28,7 @@ export default function Home() {
         <About />
         <MenuSection />
         <WhyChooseUs />
+        <OrderingOptions />
         <Testimonials />
         <Contact />
         <Footer />

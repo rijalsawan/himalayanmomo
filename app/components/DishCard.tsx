@@ -50,7 +50,7 @@ export function DishCard({ item, index = 0 }: { item: DishCardItem; index?: numb
       whileHover={{ y: -6 }}
       className="h-full"
     >
-      <div className="group relative h-full rounded-[1.75rem] overflow-hidden aspect-[3/4] shadow-md hover:shadow-2xl hover:shadow-primary/25 transition-shadow duration-500 bg-gray-200">
+      <div className="group relative h-full border-brutal overflow-hidden aspect-[3/4] shadow-brutal-sm hover:shadow-brutal transition-shadow duration-300 bg-gray-200">
         <Image
           src={item.image}
           alt={item.name}
@@ -70,7 +70,7 @@ export function DishCard({ item, index = 0 }: { item: DishCardItem; index?: numb
             {item.isVegetarian && (
               <span
                 title="Vegetarian"
-                className="flex items-center justify-center w-7 h-7 rounded-full bg-emerald-500 text-white shadow-md ring-1 ring-white/40"
+                className="flex items-center justify-center w-7 h-7 border-[1.5px] border-dark bg-herb text-warm-light shadow-brutal-sm"
               >
                 <Leaf className="w-3.5 h-3.5" />
               </span>
@@ -78,22 +78,22 @@ export function DishCard({ item, index = 0 }: { item: DishCardItem; index?: numb
             {item.isPopular && (
               <span
                 title="Popular"
-                className="flex items-center justify-center w-7 h-7 rounded-full bg-primary text-white shadow-md ring-1 ring-white/40"
+                className="flex items-center justify-center w-7 h-7 border-[1.5px] border-dark bg-brand text-warm-light shadow-brutal-sm"
               >
-                <Star className="w-3.5 h-3.5 fill-white" />
+                <Star className="w-3.5 h-3.5 fill-warm-light" />
               </span>
             )}
             {item.isNew && (
               <span
                 title="New"
-                className="flex items-center justify-center w-7 h-7 rounded-full bg-amber-500 text-white shadow-md ring-1 ring-white/40"
+                className="flex items-center justify-center w-7 h-7 border-[1.5px] border-dark bg-golden text-dark shadow-brutal-sm"
               >
                 <Sparkles className="w-3.5 h-3.5" />
               </span>
             )}
           </div>
 
-          <div className="flex-shrink-0 flex items-center justify-center h-8 px-3 rounded-full bg-white text-primary font-bold text-sm shadow-lg">
+          <div className="flex-shrink-0 flex items-center justify-center h-8 px-3 border-[1.5px] border-dark bg-warm-light text-dark font-heading font-bold text-sm shadow-brutal-sm">
             ${item.price.toFixed(2)}
           </div>
         </div>
@@ -113,7 +113,7 @@ export function DishCard({ item, index = 0 }: { item: DishCardItem; index?: numb
                 item.spiceLevel === 2 ? 'text-orange-400' : 'text-red-400 fill-red-400/40'
               }`}
             />
-            <span className="text-[11px] font-medium text-white/70 uppercase tracking-wide">
+            <span className="font-mono-brutal text-[10px] font-medium text-white/70 uppercase tracking-wide">
               {spiceLabel(item.spiceLevel)}
             </span>
           </div>
@@ -143,7 +143,7 @@ export function DishListItem({ item }: { item: DishCardItem }) {
   return (
     <div className="p-4 border-b border-gray-100">
       <div className="flex gap-3">
-        <div className="relative w-20 h-20 rounded-2xl overflow-hidden bg-gray-100 flex-shrink-0 ring-1 ring-[#1A1A1A]/5">
+        <div className="relative w-20 h-20 overflow-hidden border-[1.5px] border-dark flex-shrink-0">
           <Image src={item.image} alt={item.name} fill sizes="80px" className="object-cover" />
         </div>
 
@@ -174,21 +174,21 @@ export function DishListItem({ item }: { item: DishCardItem }) {
           </div>
 
           <div className="flex items-center justify-between mt-2">
-            <span className="inline-flex items-center bg-primary text-white text-xs font-bold rounded-full px-2.5 py-1 shadow-sm shadow-primary/25">
+            <span className="inline-flex items-center bg-brand text-warm-light font-mono-brutal text-xs font-bold border-[1.5px] border-dark px-2.5 py-1">
               ${item.price.toFixed(2)}
             </span>
             <div className="flex items-center gap-1.5">
               {item.isPopular && (
-                <Badge variant="outline" className="border-primary/30 text-primary text-[10px] px-1.5 py-0 h-4">Popular</Badge>
+                <Badge variant="outline" className="rounded-none border-[1.5px] border-dark text-brand font-mono-brutal text-[10px] px-1.5 py-0 h-4">Popular</Badge>
               )}
               {item.isNew && (
-                <Badge variant="outline" className="border-amber-400/50 text-amber-700 text-[10px] px-1.5 py-0 h-4">New</Badge>
+                <Badge variant="outline" className="rounded-none border-[1.5px] border-dark text-dark font-mono-brutal text-[10px] px-1.5 py-0 h-4 bg-golden/30">New</Badge>
               )}
             </div>
           </div>
 
           <div className="flex items-center justify-between mt-2 pt-2 border-t border-dashed border-gray-200">
-            <span className={`inline-flex items-center gap-1 text-[11px] font-medium ${
+            <span className={`inline-flex items-center gap-1 font-mono-brutal text-[10px] font-medium uppercase tracking-wide ${
               item.spiceLevel === 0 ? 'text-gray-500' :
               item.spiceLevel === 1 ? 'text-yellow-600' :
               item.spiceLevel === 2 ? 'text-orange-600' : 'text-primary'

@@ -144,27 +144,15 @@ export default function WhyChooseUs() {
   ];
 
   return (
-    <section className="section-padding bg-dark relative overflow-hidden" ref={ref}>
-      {/* Background Pattern */}
-      <div className="absolute inset-0 opacity-5">
-        <div
-          className="absolute inset-0"
-          style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
-          }}
-        />
-      </div>
-
-      {/* Floating Orbs */}
-      <motion.div
-        animate={{ y: [0, -30, 0], x: [0, 20, 0] }}
-        transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
-        className="absolute top-20 right-[20%] w-64 h-64 rounded-full bg-primary/10 blur-3xl"
-      />
-      <motion.div
-        animate={{ y: [0, 30, 0], x: [0, -20, 0] }}
-        transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut' }}
-        className="absolute bottom-20 left-[10%] w-48 h-48 rounded-full bg-[#F4A261]/10 blur-3xl"
+    <section className="section-padding bg-dark relative overflow-hidden border-b-[3px] border-dark" ref={ref}>
+      {/* Background dot grid (brutalist stand-in for the soft SVG pattern) */}
+      <div
+        className="absolute inset-0 opacity-[0.07]"
+        style={{
+          backgroundImage: 'radial-gradient(circle, var(--color-warm-light) 1px, transparent 1px)',
+          backgroundSize: '22px 22px',
+        }}
+        aria-hidden="true"
       />
 
       <div className="container-custom relative">
@@ -175,20 +163,20 @@ export default function WhyChooseUs() {
           transition={{ duration: 0.6 }}
           className="text-center max-w-2xl mx-auto mb-16"
         >
-          <span className="text-primary font-medium text-sm uppercase tracking-widest">
+          <div className="inline-flex items-center gap-2 font-mono-brutal text-[11px] font-medium uppercase tracking-[0.08em] px-3.5 py-2 bg-warm-light text-dark border-[3px] border-warm-light shadow-brutal-golden">
             {settings.whySubtitle}
-          </span>
-          <h2 className="font-playfair text-3xl md:text-4xl lg:text-5xl font-bold text-white mt-3">
+          </div>
+          <h2 className="font-heading text-3xl md:text-4xl lg:text-5xl font-extrabold text-warm-light mt-5 tracking-tight">
             {settings.whyHeadline}{' '}
-            <span className="text-gradient">{settings.whyHighlightText}</span>
+            <span className="font-accent italic text-golden">{settings.whyHighlightText}</span>
           </h2>
-          <p className="text-gray-400 mt-4">
+          <p className="text-warm-light/60 mt-4">
             {settings.whyDescription}
           </p>
         </motion.div>
 
-        {/* Features Grid */}
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        {/* Features Bento Grid */}
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
           {features.map((feature, index) => {
             const Icon = iconMap[feature.icon] || ChefHat;
             return (
@@ -197,18 +185,17 @@ export default function WhyChooseUs() {
                 initial={{ opacity: 0, y: 40 }}
                 animate={isInView ? { opacity: 1, y: 0 } : {}}
                 transition={{ duration: 0.6, delay: index * 0.15 }}
-                className="glass-dark p-8 rounded-2xl text-center group hover:bg-white/10 transition-all duration-300"
+                className={`border-[3px] border-warm-light/15 bg-warm-light/[0.04] p-7 group hover:bg-warm-light/[0.07] hover:border-golden/40 transition-colors duration-300 ${
+                  index === 0 ? 'sm:col-span-2 lg:col-span-2' : ''
+                }`}
               >
-                <motion.div
-                  whileHover={{ scale: 1.1, rotate: 5 }}
-                  className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-br from-primary to-[#E5383B] flex items-center justify-center shadow-lg shadow-primary/30"
-                >
-                  <Icon className="w-8 h-8 text-white" />
-                </motion.div>
-                <h3 className="font-playfair text-xl font-semibold text-white mt-6">
+                <div className="w-14 h-14 border-[1.5px] border-golden/50 bg-golden/10 flex items-center justify-center group-hover:border-golden group-hover:bg-golden/20 transition-colors">
+                  <Icon className="w-7 h-7 text-golden" />
+                </div>
+                <h3 className="font-heading text-xl font-bold text-warm-light mt-6">
                   {feature.title}
                 </h3>
-                <p className="text-gray-400 mt-3 text-sm leading-relaxed">
+                <p className="text-warm-light/55 mt-3 text-sm leading-relaxed">
                   {feature.description}
                 </p>
               </motion.div>
@@ -223,16 +210,16 @@ export default function WhyChooseUs() {
           transition={{ duration: 0.6, delay: 0.8 }}
           className="text-center mt-16"
         >
-          <p className="text-gray-400 mb-6">
+          <p className="text-warm-light/60 mb-6 font-heading text-lg">
             {settings.whyCtaText}
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
             <button
               onClick={() => {
                 const element = document.querySelector('#menu');
                 if (element) element.scrollIntoView({ behavior: 'smooth' });
               }}
-              className="px-8 py-4 rounded-full bg-primary hover:bg-[#7A0407] text-white font-medium transition-colors"
+              className="inline-flex items-center justify-center gap-2 font-heading font-bold px-8 py-4 border-[3px] border-brand bg-brand text-warm-light shadow-brutal-golden brutal-hover hover:bg-brand-light transition-colors"
             >
               Explore Our Menu
             </button>
@@ -241,7 +228,7 @@ export default function WhyChooseUs() {
                 const element = document.querySelector('#contact');
                 if (element) element.scrollIntoView({ behavior: 'smooth' });
               }}
-              className="px-8 py-4 rounded-full border-2 border-white/20 text-white font-medium hover:bg-white/10 transition-colors"
+              className="inline-flex items-center justify-center gap-2 font-heading font-bold px-8 py-4 border-[3px] border-warm-light/40 text-warm-light hover:border-warm-light hover:bg-warm-light/10 transition-colors"
             >
               Contact Us
             </button>

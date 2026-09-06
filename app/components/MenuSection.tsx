@@ -6,7 +6,6 @@ import { useRef, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { DishCard, DishListItem } from './DishCard';
 
 // Define MenuItem type for database items
@@ -103,7 +102,7 @@ export default function MenuSection() {
   }, []);
 
   return (
-    <section id="menu" className="section-padding bg-white" ref={ref}>
+    <section id="menu" className="section-padding bg-warm-light border-b-[3px] border-dark relative" ref={ref}>
       <div className="container-custom">
         {/* Header */}
         <motion.div
@@ -112,14 +111,14 @@ export default function MenuSection() {
           transition={{ duration: 0.6 }}
           className="text-center max-w-2xl mx-auto mb-12"
         >
-          <span className="text-primary font-medium text-sm uppercase tracking-widest">
+          <div className="eyebrow-brutal mx-auto">
             Our Menu
-          </span>
-          <h2 className="font-heading text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mt-3">
+          </div>
+          <h2 className="font-heading text-3xl md:text-4xl lg:text-5xl font-extrabold text-dark mt-5 tracking-tight">
             Most Popular{' '}
-            <span className="text-gradient">Dishes</span>
+            <span className="font-accent italic text-brand">Dishes</span>
           </h2>
-          <p className="text-muted-foreground mt-4">
+          <p className="text-dark/70 mt-4">
             Discover our customers&apos; favorites - handcrafted with love and
             authentic Nepali flavors.
           </p>
@@ -133,7 +132,7 @@ export default function MenuSection() {
         >
           {/* Mobile List View */}
           <div className="sm:hidden">
-            <Card className="border border-gray-200 shadow-sm overflow-hidden">
+            <Card className="rounded-none border-brutal shadow-brutal-sm overflow-hidden py-0 bg-warm-light">
               {isLoading ? (
                 Array.from({ length: 6 }).map((_, index) => (
                   <MobileSkeletonListItem key={index} />
@@ -150,7 +149,7 @@ export default function MenuSection() {
           <div className="hidden sm:grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {isLoading ? (
               Array.from({ length: 4 }).map((_, index) => (
-                <Card key={index} className="overflow-hidden border-0 shadow-md bg-gray-200 h-full animate-pulse rounded-[1.75rem] aspect-[3/4]">
+                <Card key={index} className="overflow-hidden border-brutal py-0 bg-gray-200 h-full animate-pulse rounded-none aspect-[3/4]">
                   <CardContent className="p-0 h-full" />
                 </Card>
               ))
@@ -169,16 +168,12 @@ export default function MenuSection() {
           transition={{ duration: 0.6, delay: 0.6 }}
           className="text-center mt-12"
         >
-          <Button
-            asChild
-            size="lg"
-            className="bg-primary hover:bg-[#7A0407] text-white px-8 py-6 text-base font-semibold rounded-full shadow-lg shadow-primary/30 hover:shadow-xl hover:shadow-primary/40 transition-all"
-          >
-            <Link href="/menu">
+          <Link href="/menu">
+            <button className="inline-flex items-center gap-2 font-heading font-bold text-base px-8 py-4 border-brutal bg-dark text-warm-light shadow-brutal-sm brutal-hover hover:shadow-brutal hover:bg-brand transition-colors">
               View Full Menu
-              <ArrowRight className="w-5 h-5 ml-2" />
-            </Link>
-          </Button>
+              <ArrowRight className="w-5 h-5" />
+            </button>
+          </Link>
         </motion.div>
       </div>
     </section>

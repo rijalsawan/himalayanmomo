@@ -79,21 +79,22 @@ export default function AnnouncementBar() {
   return (
     <div
       ref={barRef}
-      className="fixed top-0 left-0 right-0 z-40 bg-gradient-to-r from-primary via-[#F4A261] to-primary text-white animate-slide-down"
+      className="fixed top-0 left-0 right-0 z-40 bg-dark text-warm-light border-b-[3px] border-dark animate-slide-down"
     >
       <div className="container-custom py-2">
-        <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-center text-xs sm:text-sm font-medium">
+        <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-center font-mono-brutal text-[11px] sm:text-xs font-medium uppercase tracking-[0.04em]">
           {settings.comingSoonEnabled && (
             <span className="flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 bg-golden rounded-full flex-shrink-0" />
               <Rocket className="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0" />
               {settings.comingSoonMessage}
             </span>
           )}
           {settings.comingSoonEnabled && settings.promoEnabled && (
-            <span className="hidden sm:inline text-white/60">•</span>
+            <span className="hidden sm:inline text-warm-light/40">//</span>
           )}
           {settings.promoEnabled && (
-            <span className="flex items-center gap-1.5 font-semibold">
+            <span className="flex items-center gap-1.5 font-bold text-golden">
               <Gift className="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0" />
               {settings.promoMessage}
             </span>
