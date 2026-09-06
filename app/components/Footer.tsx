@@ -267,46 +267,54 @@ export default function Footer() {
     return parts.map((part, i) => (
       <span key={i}>
         {part}
-        {i < parts.length - 1 && <span className="text-primary">{footerCtaHighlight}</span>}
+        {i < parts.length - 1 && (
+          <span className="font-accent italic text-warm-light">{footerCtaHighlight}</span>
+        )}
       </span>
     ));
   };
 
   return (
-    <footer className="bg-[#111111] text-white relative overflow-hidden" ref={ref}>
-      {/* Decorative Background */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-24 -right-24 w-96 h-96 rounded-full bg-primary/5 blur-3xl" />
-        <div className="absolute -bottom-24 -left-24 w-80 h-80 rounded-full bg-amber-500/5 blur-3xl" />
-      </div>
-
-      {/* Top CTA Section */}
-      <div className="relative border-b border-white/10">
-        <div className="container-custom py-12 md:py-16">
+    <footer className="bg-dark text-warm-light relative overflow-hidden" ref={ref}>
+      {/* Full-bleed brand-red closing CTA band */}
+      <div className="relative bg-brand border-b-[3px] border-dark overflow-hidden">
+        {/* Diagonal stripe texture */}
+        <div
+          className="absolute inset-0 opacity-[0.12] pointer-events-none"
+          style={{
+            backgroundImage:
+              'repeating-linear-gradient(45deg, var(--color-dark) 0, var(--color-dark) 2px, transparent 2px, transparent 18px)',
+          }}
+          aria-hidden="true"
+        />
+        <div className="container-custom py-14 md:py-20 relative">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={isInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.5 }}
-            className="flex flex-col lg:flex-row items-center justify-between gap-6"
+            className="flex flex-col lg:flex-row items-center lg:items-end justify-between gap-8"
           >
-            <div className="text-center lg:text-left">
-              <h3 className="font-heading text-2xl md:text-3xl font-bold">
+            <div className="text-center lg:text-left max-w-2xl">
+              <span className="font-mono-brutal text-[11px] font-bold uppercase tracking-[0.1em] text-dark/70">
+                Don&apos;t Wait Any Longer
+              </span>
+              <h3 className="font-heading text-4xl sm:text-5xl md:text-6xl font-extrabold text-dark leading-[0.95] mt-3 tracking-tight">
                 {renderHeadline()}
               </h3>
-              <p className="text-gray-400 mt-2">
+              <p className="text-dark/70 mt-4 text-base md:text-lg max-w-lg mx-auto lg:mx-0">
                 {settings.footerCtaDescription}
               </p>
             </div>
-            <div className="flex flex-col sm:flex-row gap-3">
+            <div className="flex flex-col sm:flex-row gap-4 shrink-0">
               <Link
                 href={settings.footerCtaButton1Url}
-                className="px-8 py-3 bg-primary hover:bg-primary/90 text-white font-medium rounded-full transition-all duration-300 shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 text-center"
+                className="px-8 py-4 bg-dark text-warm-light font-heading font-bold border-brutal shadow-brutal-cream brutal-hover text-center"
               >
                 {settings.footerCtaButton1Text}
               </Link>
               <button
                 onClick={() => scrollToSection(settings.footerCtaButton2Url)}
-                className="px-8 py-3 bg-white/10 hover:bg-white/20 text-white font-medium rounded-full border border-white/20 hover:border-white/30 transition-all duration-300 text-center"
+                className="px-8 py-4 bg-transparent text-dark font-heading font-bold border-[3px] border-dark hover:bg-dark hover:text-warm-light transition-colors duration-200 text-center"
               >
                 {settings.footerCtaButton2Text}
               </button>
@@ -314,6 +322,16 @@ export default function Footer() {
           </motion.div>
         </div>
       </div>
+
+      {/* Background dot grid */}
+      <div
+        className="absolute inset-0 opacity-[0.06] pointer-events-none"
+        style={{
+          backgroundImage: 'radial-gradient(circle, var(--color-warm-light) 1px, transparent 1px)',
+          backgroundSize: '22px 22px',
+        }}
+        aria-hidden="true"
+      />
 
       {/* Main Footer Content */}
       <div className="container-custom py-12 md:py-16 relative">
@@ -326,11 +344,11 @@ export default function Footer() {
             className="col-span-2 md:col-span-3 lg:col-span-2"
           >
             <Link href="/" className="inline-block group">
-              <span className="font-heading text-2xl font-bold text-white group-hover:text-primary transition-colors">
+              <span className="font-heading text-2xl font-extrabold text-warm-light group-hover:text-golden transition-colors">
                 {settings.footerBrandName}
               </span>
             </Link>
-            <p className="text-gray-400 mt-4 text-sm leading-relaxed max-w-sm">
+            <p className="text-warm-light/50 mt-4 text-sm leading-relaxed max-w-sm">
               {settings.footerBrandDescription}
             </p>
 
@@ -345,10 +363,10 @@ export default function Footer() {
                       href={social.href}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="w-11 h-11 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center hover:bg-primary hover:border-primary transition-all duration-300 group"
+                      className="w-11 h-11 border-[1.5px] border-warm-light/20 flex items-center justify-center hover:bg-brand hover:border-brand transition-all duration-300 group"
                       aria-label={social.icon}
                     >
-                      <IconComponent className="w-5 h-5 text-gray-400 group-hover:text-white transition-colors" />
+                      <IconComponent className="w-5 h-5 text-warm-light/60 group-hover:text-warm-light transition-colors" />
                     </a>
                   );
                 })}
@@ -363,7 +381,7 @@ export default function Footer() {
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.5, delay: 0.2 }}
             >
-              <h4 className="font-semibold text-white mb-4 text-sm uppercase tracking-wider">
+              <h4 className="font-mono-brutal font-bold text-golden mb-4 text-[11px] uppercase tracking-[0.08em]">
                 {settings.footerQuickLinksTitle}
               </h4>
               <ul className="space-y-3">
@@ -371,7 +389,7 @@ export default function Footer() {
                   <li key={index}>
                     <button
                       onClick={() => scrollToSection(link.href || '#')}
-                      className="text-gray-400 hover:text-primary transition-colors text-sm flex items-center gap-1 group"
+                      className="text-warm-light/50 hover:text-warm-light transition-colors text-sm flex items-center gap-1 group"
                     >
                       <ChevronRight className="w-3 h-3 opacity-0 -ml-4 group-hover:opacity-100 group-hover:ml-0 transition-all duration-200" />
                       {link.text}
@@ -389,7 +407,7 @@ export default function Footer() {
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.5, delay: 0.3 }}
             >
-              <h4 className="font-semibold text-white mb-4 text-sm uppercase tracking-wider">
+              <h4 className="font-mono-brutal font-bold text-golden mb-4 text-[11px] uppercase tracking-[0.08em]">
                 {settings.footerMenuTitle}
             </h4>
             <ul className="space-y-3">
@@ -397,7 +415,7 @@ export default function Footer() {
                 <li key={item.id}>
                   <Link
                     href={`/menu/${item.slug}`}
-                    className="text-gray-400 hover:text-primary transition-colors text-sm flex items-center gap-1 group"
+                    className="text-warm-light/50 hover:text-warm-light transition-colors text-sm flex items-center gap-1 group"
                   >
                     <ChevronRight className="w-3 h-3 opacity-0 -ml-4 group-hover:opacity-100 group-hover:ml-0 transition-all duration-200" />
                     {item.name}
@@ -416,7 +434,7 @@ export default function Footer() {
               transition={{ duration: 0.5, delay: 0.4 }}
               className="col-span-2 md:col-span-1 lg:col-span-2"
             >
-              <h4 className="font-semibold text-white mb-4 text-sm uppercase tracking-wider">
+              <h4 className="font-mono-brutal font-bold text-golden mb-4 text-[11px] uppercase tracking-[0.08em]">
                 {settings.footerContactTitle}
               </h4>
               <ul className="space-y-4">
@@ -427,10 +445,10 @@ export default function Footer() {
                     rel="noopener noreferrer"
                     className="flex items-start gap-3 group"
                   >
-                    <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0 group-hover:bg-primary/20 transition-colors">
-                      <MapPin className="w-4 h-4 text-primary" />
+                    <div className="w-9 h-9 border-[1.5px] border-warm-light/20 flex items-center justify-center shrink-0 group-hover:border-golden transition-colors">
+                      <MapPin className="w-4 h-4 text-golden" />
                     </div>
-                    <span className="text-gray-400 text-sm group-hover:text-white transition-colors">
+                    <span className="text-warm-light/50 text-sm group-hover:text-warm-light transition-colors">
                       {settings.contactAddressStreet}
                       <br />
                       {settings.contactAddressCity}, {settings.contactAddressState} {settings.contactAddressZip}
@@ -442,10 +460,10 @@ export default function Footer() {
                     href={`tel:${settings.contactPhone.replace(/\D/g, '')}`}
                     className="flex items-center gap-3 group"
                   >
-                    <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0 group-hover:bg-primary/20 transition-colors">
-                      <Phone className="w-4 h-4 text-primary" />
+                    <div className="w-9 h-9 border-[1.5px] border-warm-light/20 flex items-center justify-center shrink-0 group-hover:border-golden transition-colors">
+                      <Phone className="w-4 h-4 text-golden" />
                     </div>
-                    <span className="text-gray-400 text-sm group-hover:text-white transition-colors">
+                    <span className="text-warm-light/50 text-sm group-hover:text-warm-light transition-colors">
                       {settings.contactPhone}
                     </span>
                   </a>
@@ -455,20 +473,20 @@ export default function Footer() {
                     href={`mailto:${settings.contactEmail}`}
                     className="flex items-center gap-3 group"
                   >
-                    <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0 group-hover:bg-primary/20 transition-colors">
-                      <Mail className="w-4 h-4 text-primary" />
+                    <div className="w-9 h-9 border-[1.5px] border-warm-light/20 flex items-center justify-center shrink-0 group-hover:border-golden transition-colors">
+                      <Mail className="w-4 h-4 text-golden" />
                     </div>
-                    <span className="text-gray-400 text-sm group-hover:text-white transition-colors">
+                    <span className="text-warm-light/50 text-sm group-hover:text-warm-light transition-colors">
                       {settings.contactEmail}
                     </span>
                   </a>
                 </li>
                 <li className="flex items-start gap-3">
-                  <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                    <Clock className="w-4 h-4 text-primary" />
+                  <div className="w-9 h-9 border-[1.5px] border-warm-light/20 flex items-center justify-center shrink-0">
+                    <Clock className="w-4 h-4 text-golden" />
                   </div>
-                  <div className="text-gray-400 text-sm">
-                    <span className="text-white font-medium block mb-1">Hours</span>
+                  <div className="text-warm-light/50 text-sm">
+                    <span className="text-warm-light font-medium block mb-1">Hours</span>
                     {settings.contactHoursLine1}
                     <br />
                     {settings.contactHoursLine2}
@@ -481,24 +499,24 @@ export default function Footer() {
       </div>
 
       {/* Bottom Bar */}
-      <div className="border-t border-white/10 relative">
+      <div className="border-t-[3px] border-warm-light/10 relative">
         <div className="container-custom py-6">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-            <p className="text-gray-500 text-sm text-center md:text-left flex items-center gap-1 flex-wrap justify-center">
-              © {currentYear} {settings.footerBrandName}. {settings.footerCopyright.includes('Made with') ? (
+            <p className="font-mono-brutal text-[11px] text-warm-light/40 text-center md:text-left flex items-center gap-1 flex-wrap justify-center uppercase tracking-wide">
+              &copy; {currentYear} {settings.footerBrandName}. {settings.footerCopyright.includes('Made with') ? (
                 <>
                   {settings.footerCopyright.split('Made with')[0]}Made with
-                  <Heart className="w-4 h-4 text-primary inline mx-1 fill-primary" />
+                  <Heart className="w-3.5 h-3.5 text-brand inline mx-1 fill-brand" />
                   {settings.footerCopyright.split('Made with')[1]?.replace('love', '').trim()}
                 </>
               ) : settings.footerCopyright}
             </p>
-            <div className="flex items-center gap-6 text-sm">
-              <button className="text-gray-500 hover:text-white transition-colors">
+            <div className="flex items-center gap-6 font-mono-brutal text-[11px] uppercase tracking-wide">
+              <button className="text-warm-light/40 hover:text-warm-light transition-colors">
                 Privacy Policy
               </button>
-              <span className="w-1 h-1 rounded-full bg-gray-600" />
-              <button className="text-gray-500 hover:text-white transition-colors">
+              <span className="w-1 h-1 rounded-full bg-warm-light/20" />
+              <button className="text-warm-light/40 hover:text-warm-light transition-colors">
                 Terms of Service
               </button>
             </div>
@@ -511,7 +529,7 @@ export default function Footer() {
         initial={{ opacity: 0, scale: 0 }}
         animate={{ opacity: showScrollTop ? 1 : 0, scale: showScrollTop ? 1 : 0 }}
         onClick={scrollToTop}
-        className="fixed bottom-6 right-6 md:bottom-8 md:right-8 w-12 h-12 rounded-xl bg-primary text-white shadow-lg shadow-primary/30 flex items-center justify-center hover:bg-primary/90 transition-all duration-300 z-40 hover:scale-110"
+        className="fixed bottom-6 right-6 md:bottom-8 md:right-8 w-12 h-12 bg-brand text-warm-light border-brutal shadow-brutal-sm flex items-center justify-center hover:bg-dark transition-all duration-300 z-40"
         aria-label="Scroll to top"
       >
         <ArrowUp className="w-5 h-5" />
