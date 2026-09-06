@@ -1,8 +1,15 @@
 import { MetadataRoute } from 'next';
+import { getSiteSettings } from '@/lib/getSiteSettings';
 
-const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+// Same reasoning as sitemap.ts: prefer the admin-configured public domain
+// over the raw deployment env var so the advertised sitemap URL matches the
+// domain Google should actually be indexing.
+export default async function robots(): Promise<MetadataRoute.Robots> {
+  const settings = await getSiteSettings();
+  const BASE_URL = (
+    settings.siteUrl || process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+  ).replace(/\/+$/, '');
 
-export default function robots(): MetadataRoute.Robots {
   return {
     rules: [
       {

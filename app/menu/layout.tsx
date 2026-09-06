@@ -1,6 +1,10 @@
 import type { Metadata } from 'next';
 import { getSiteSettings } from '@/lib/getSiteSettings';
 
+// Keep this segment's metadata in sync with admin-edited site settings without
+// requiring a full redeploy (see app/layout.tsx for why this matters).
+export const revalidate = 300; // 5 minutes
+
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getSiteSettings();
   const siteName = settings.footerBrandName || 'MO:MO Station';

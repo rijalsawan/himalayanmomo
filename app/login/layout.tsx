@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
 import { getSiteSettings } from '@/lib/getSiteSettings';
 
+export const revalidate = 300; // 5 minutes
+
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getSiteSettings();
   const siteName = settings.footerBrandName || 'MO:MO Station';

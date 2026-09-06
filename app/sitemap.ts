@@ -1,8 +1,16 @@
 import { MetadataRoute } from 'next';
-
-const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+import { getSiteSettings } from '@/lib/getSiteSettings';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  // Use the admin-configured public domain instead of the raw deployment env
+  // var, which in production can point at the hosting platform's internal/
+  // preview URL rather than the real custom domain - submitting the wrong
+  // domain here tells Google to index pages under a URL nobody actually visits.
+  const settings = await getSiteSettings();
+  const BASE_URL = (
+    settings.siteUrl || process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+  ).replace(/\/+$/, '');
+
   // Static pages
   const staticPages: MetadataRoute.Sitemap = [
     {

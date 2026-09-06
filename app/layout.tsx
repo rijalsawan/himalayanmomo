@@ -53,6 +53,14 @@ export const viewport: Viewport = {
   maximumScale: 5,
 };
 
+// This route tree (title, OG/Twitter tags, JSON-LD, favicons, etc.) is otherwise
+// statically prerendered once at build time, which froze whatever business info
+// existed in the database at build - admin edits to site settings (address, phone,
+// social preview image, ...) never reached the live site or search engines without
+// a full redeploy. Revalidate periodically so the real, admin-entered info actually
+// propagates on its own.
+export const revalidate = 300; // 5 minutes
+
 // Dynamic metadata generation - fetches from database
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getSiteSettings();
