@@ -158,7 +158,7 @@ export default function Hero() {
       <div className="absolute top-1/2 right-[8%] w-8 h-8 rounded-lg bg-[#2D6A4F]/20 border border-[#2D6A4F]/30 hidden xl:block animate-float-3" />
 
       {/* Main Content */}
-      <div className="container-custom relative z-10 pt-28 pb-16 lg:pt-24">
+      <div className="container-custom relative z-10 pt-28 pb-16 lg:pt-24 w-full min-w-0">
         <div className="grid lg:grid-cols-2 gap-16 lg:gap-8 items-center">
           {/* Left Column - Text Content */}
           <div className="order-2 lg:order-1 relative">

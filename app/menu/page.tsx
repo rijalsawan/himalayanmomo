@@ -46,6 +46,7 @@ import { useCart } from '../context/CartContext';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import CartQuantityButton from '../components/CartQuantityButton';
+import { DishCard, DishListItem } from '../components/DishCard';
 
 // Define MenuItem type for database items
 interface MenuItem {
@@ -223,171 +224,6 @@ const SkeletonCard = ({ index }: { index: number }) => {
         </CardContent>
       </Card>
     </motion.div>
-  );
-};
-
-const MenuCard = ({ item, index }: { item: MenuItem; index: number }) => {
-  return (
-    <motion.div
-      layout
-      initial={{ opacity: 0, y: 30 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, scale: 0.9 }}
-      transition={{ duration: 0.4, delay: index * 0.05 }}
-    >
-      <Card className="group overflow-hidden rounded-[1.75rem] border border-[#1A1A1A]/5 bg-white shadow-sm hover:shadow-xl hover:shadow-primary/10 hover:-translate-y-1.5 transition-all duration-500 h-full max-sm:w-77 max-sm:mx-auto">
-        {/* Image */}
-        <div className="relative h-44 overflow-hidden">
-          <Image
-            src={item.image}
-            alt={item.name}
-            fill
-            className="object-cover transition-transform duration-700 group-hover:scale-108"
-          />
-          {/* Brand-red wash on hover */}
-          <div className="absolute inset-0 bg-gradient-to-t from-primary/35 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-
-          {/* Price - solid brand pill */}
-          <div className="absolute top-3 right-3">
-            <div className="bg-primary text-white rounded-full px-3.5 py-1.5 shadow-lg shadow-primary/30">
-              <span className="text-sm font-bold tracking-tight">
-                ${item.price.toFixed(2)}
-              </span>
-            </div>
-          </div>
-
-          {/* Badges - outline glass pills */}
-          <div className="absolute bottom-3 left-3 flex flex-wrap gap-1.5">
-            {item.isVegetarian && (
-              <span className="inline-flex items-center gap-1 bg-white/90 backdrop-blur-sm border border-emerald-500/40 text-emerald-700 text-[11px] font-semibold px-2.5 py-1 rounded-full">
-                <Leaf className="w-3 h-3" />
-                Veg
-              </span>
-            )}
-            {item.isPopular && (
-              <span className="inline-flex items-center gap-1 bg-white/90 backdrop-blur-sm border border-primary/30 text-primary text-[11px] font-semibold px-2.5 py-1 rounded-full">
-                <Star className="w-3 h-3 fill-primary" />
-                Popular
-              </span>
-            )}
-            {item.isNew && (
-              <span className="inline-flex items-center gap-1 bg-white/90 backdrop-blur-sm border border-amber-500/40 text-amber-700 text-[11px] font-semibold px-2.5 py-1 rounded-full">
-                <Sparkles className="w-3 h-3" />
-                New
-              </span>
-            )}
-          </div>
-
-          {/* Cart Button - Always visible on mobile, hover on desktop */}
-          <div className="absolute bottom-3 right-3 transform md:translate-y-2 md:opacity-0 md:group-hover:translate-y-0 md:group-hover:opacity-100 transition-all duration-300">
-            <CartQuantityButton item={item} size="sm" />
-          </div>
-        </div>
-
-        {/* Content */}
-        <CardContent className="p-5">
-          <h3 className="font-heading text-lg font-semibold text-gray-900 group-hover:text-primary transition-colors duration-300 line-clamp-1">
-            {item.name}
-          </h3>
-          <p className="text-gray-500 text-sm line-clamp-2 leading-relaxed mt-1.5">
-            {item.description}
-          </p>
-
-          {/* Bottom Row */}
-          <div className="flex items-center justify-between mt-4 pt-3 border-t border-dashed border-gray-200">
-            <div className="flex items-center gap-1.5">
-              <Flame className={`w-3.5 h-3.5 ${
-                item.spiceLevel === 0 ? 'text-gray-300' :
-                item.spiceLevel === 1 ? 'text-yellow-500' :
-                item.spiceLevel === 2 ? 'text-orange-500' : 'text-primary fill-primary/20'
-              }`} />
-              <span className="text-xs font-medium text-gray-500">
-                {item.spiceLevel === 0 ? 'Mild' : item.spiceLevel === 1 ? 'Light' : item.spiceLevel === 2 ? 'Medium' : 'Spicy'}
-              </span>
-            </div>
-
-            <Link
-              href={`/menu/${item.slug}`}
-              className="inline-flex items-center gap-1 text-sm font-semibold text-primary hover:text-[#7A0407] transition-colors"
-            >
-              Details
-              <span className="inline-block transition-transform duration-300 group-hover:translate-x-1">→</span>
-            </Link>
-          </div>
-        </CardContent>
-      </Card>
-    </motion.div>
-  );
-};
-
-// Mobile List Item Component - Matches Admin Menu UI
-const MobileMenuListItem = ({ item }: { item: MenuItem }) => {
-  return (
-    <div className="p-4 border-b border-gray-100">
-      <div className="flex gap-3">
-        {/* Image */}
-        <div className="relative w-16 h-16 rounded-2xl overflow-hidden bg-gray-100 flex-shrink-0 ring-1 ring-[#1A1A1A]/5">
-          <Image src={item.image} alt={item.name} fill className="object-cover" />
-        </div>
-
-        {/* Content */}
-        <div className="flex-1 min-w-0">
-          <div className="flex items-start justify-between gap-2">
-            <div className="min-w-0">
-              <div className="flex items-center gap-1.5">
-                <h3 className="font-heading font-semibold text-[#1A1A1A] truncate">{item.name}</h3>
-                {item.isVegetarian && <Leaf className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" />}
-              </div>
-              <p className="text-sm text-gray-500 capitalize">{item.category}</p>
-            </div>
-            {/* Actions Dropdown */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="w-8 h-8 flex-shrink-0 rounded-full">
-                  <MoreHorizontal className="w-4 h-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem className="cursor-pointer" asChild>
-                  <Link href={`/menu/${item.slug}`}>
-                    <Eye className="w-4 h-4 mr-2" />
-                    View Details
-                  </Link>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-
-          {/* Price and badges */}
-          <div className="flex items-center justify-between mt-2">
-            <span className="inline-flex items-center bg-primary text-white text-xs font-bold rounded-full px-2.5 py-1 shadow-sm shadow-primary/25">
-              ${item.price.toFixed(2)}
-            </span>
-            <div className="flex items-center gap-1.5">
-              {item.isPopular && (
-                <Badge variant="outline" className="border-primary/30 text-primary text-[10px] px-1.5 py-0 h-4">Popular</Badge>
-              )}
-              {item.isNew && (
-                <Badge variant="outline" className="border-amber-400/50 text-amber-700 text-[10px] px-1.5 py-0 h-4">New</Badge>
-              )}
-            </div>
-          </div>
-
-          {/* Bottom row - Spice & Cart */}
-          <div className="flex items-center justify-between mt-2 pt-2 border-t border-dashed border-gray-200">
-            <span className={`inline-flex items-center gap-1 text-[11px] font-medium ${
-              item.spiceLevel === 0 ? 'text-gray-500' :
-              item.spiceLevel === 1 ? 'text-yellow-600' :
-              item.spiceLevel === 2 ? 'text-orange-600' : 'text-primary'
-            }`}>
-              <Flame className={`w-3 h-3 ${item.spiceLevel === 0 ? 'text-gray-300' : ''}`} />
-              {item.spiceLevel === 0 ? 'Mild' : item.spiceLevel === 1 ? 'Light' : item.spiceLevel === 2 ? 'Medium' : 'Spicy'}
-            </span>
-            <CartQuantityButton item={item} size="sm" />
-          </div>
-        </div>
-      </div>
-    </div>
   );
 };
 
@@ -882,7 +718,7 @@ export default function MenuPage() {
                             <Card className="sm:hidden overflow-hidden mb-2">
                               <div className="divide-y divide-gray-100">
                                 {visibleItems.map((item) => (
-                                  <MobileMenuListItem key={item.id} item={item} />
+                                  <DishListItem key={item.id} item={item} />
                                 ))}
                               </div>
                             </Card>
@@ -890,7 +726,7 @@ export default function MenuPage() {
                             {/* Desktop Card Grid */}
                             <div className="hidden sm:grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                               {visibleItems.map((item, index) => (
-                                <MenuCard key={item.id} item={item} index={index} />
+                                <DishCard key={item.id} item={item} index={index} />
                               ))}
                             </div>
 
@@ -943,8 +779,15 @@ export default function MenuPage() {
       </main>
 
       {/* Category "Show all" modal */}
-      <Dialog open={modalCategory !== null} onOpenChange={(open) => !open && setModalCategory(null)}>
-        <DialogContent className="max-w-[95vw] sm:max-w-3xl lg:max-w-5xl max-h-[90vh] p-0 overflow-hidden rounded-3xl border-0 bg-[#FDF8F3] flex flex-col">
+      <Dialog
+        open={modalCategory !== null}
+        onOpenChange={(open) => !open && setModalCategory(null)}
+        modal
+      >
+        <DialogContent
+          overlayClassName="bg-[#1A1A1A]/70 backdrop-blur-sm data-[state=open]:duration-300 data-[state=closed]:duration-200"
+          className="max-w-[95vw] sm:max-w-3xl lg:max-w-5xl max-h-[90vh] p-0 overflow-hidden rounded-3xl border-0 bg-[#FDF8F3] flex flex-col gap-0 shadow-2xl data-[state=open]:duration-300 data-[state=closed]:duration-200 data-[state=open]:slide-in-from-bottom-4 data-[state=closed]:slide-out-to-bottom-4 data-[state=open]:ease-out data-[state=closed]:ease-in"
+        >
           {modalCategoryData && (
             <>
               {/* Cream header strip */}
@@ -962,13 +805,13 @@ export default function MenuPage() {
                 </div>
               </DialogHeader>
 
-              {/* Scrollable items body */}
-              <div className="overflow-y-auto px-4 sm:px-6 py-5 flex-1">
+              {/* Scrollable items body - overscroll-contain stops scroll chaining to the page behind once this reaches its own top/bottom edge */}
+              <div className="overflow-y-auto overscroll-contain px-4 sm:px-6 py-5 flex-1">
                 {/* Mobile list */}
                 <Card className="sm:hidden overflow-hidden rounded-2xl border border-[#1A1A1A]/5">
                   <div className="divide-y divide-gray-100">
                     {modalItems.map((item) => (
-                      <MobileMenuListItem key={item.id} item={item} />
+                      <DishListItem key={item.id} item={item} />
                     ))}
                   </div>
                 </Card>
@@ -976,7 +819,7 @@ export default function MenuPage() {
                 {/* Desktop grid */}
                 <div className="hidden sm:grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
                   {modalItems.map((item, index) => (
-                    <MenuCard key={item.id} item={item} index={index} />
+                    <DishCard key={item.id} item={item} index={index} />
                   ))}
                 </div>
               </div>
