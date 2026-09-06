@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
+import { MenuCategory } from "@prisma/client";
+
+const MENU_CATEGORIES = Object.values(MenuCategory);
 
 // GET - Get all menu items with optional filtering
 export async function GET(request: NextRequest) {
@@ -16,7 +19,7 @@ export async function GET(request: NextRequest) {
     
     // Build where clause
     const where: {
-      category?: 'momos' | 'sides' | 'drinks' | 'desserts';
+      category?: MenuCategory;
       isPopular?: boolean;
       isNew?: boolean;
       isVegetarian?: boolean;
@@ -26,8 +29,8 @@ export async function GET(request: NextRequest) {
       isAvailable: true,
     };
     
-    if (category && ['momos', 'sides', 'drinks', 'desserts'].includes(category)) {
-      where.category = category as 'momos' | 'sides' | 'drinks' | 'desserts';
+    if (category && MENU_CATEGORIES.includes(category as MenuCategory)) {
+      where.category = category as MenuCategory;
     }
     
     if (isPopular === 'true') {

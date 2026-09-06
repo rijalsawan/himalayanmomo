@@ -109,25 +109,14 @@ function LoginForm() {
   };
 
   return (
-    <div className="min-h-screen bg-[#FDF8F3] flex">
-      {/* Left Side - Decorative Panel */}
-      <div className="hidden lg:flex lg:w-[45%] xl:w-1/2 relative overflow-hidden">
-        {/* Background with gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-br from-[#1A1A1A] via-[#2A2A2A] to-[#1A1A1A]" />
-        
-        {/* Subtle pattern overlay */}
-        <div 
-          className="absolute inset-0 opacity-[0.03]"
-          style={{
-            backgroundImage: `radial-gradient(circle at 1px 1px, #fff 1px, transparent 0)`,
-            backgroundSize: '32px 32px'
-          }}
-        />
-        
-        {/* Animated gradient orbs */}
-        <div className="absolute -top-32 -right-32 w-[400px] h-[400px] rounded-full bg-gradient-to-br from-primary/30 via-[#F4A261]/20 to-transparent blur-3xl animate-blob-1" />
-        <div className="absolute -bottom-32 -left-32 w-[350px] h-[350px] rounded-full bg-gradient-to-tr from-[#F4A261]/30 via-primary/20 to-transparent blur-3xl animate-blob-2" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] rounded-full bg-primary/10 blur-3xl animate-blob-3" />
+    <div className="min-h-screen bg-warm-light flex">
+      {/* Left Side - Decorative brutalist panel */}
+      <div className="hidden lg:flex lg:w-[45%] xl:w-1/2 relative overflow-hidden bg-dark">
+        <div className="absolute inset-0 bg-dot-grid opacity-40" />
+
+        {/* Offset accent blocks */}
+        <div className="absolute -top-20 -right-20 w-72 h-72 border-brutal bg-brand/90 rotate-12" />
+        <div className="absolute -bottom-24 -left-16 w-64 h-64 border-brutal bg-golden/80 -rotate-6" />
 
         {/* Content */}
         <div className="relative z-10 flex flex-col justify-between p-10 xl:p-16 w-full">
@@ -138,19 +127,19 @@ function LoginForm() {
             transition={{ duration: 0.5 }}
           >
             <Link href="/" className="inline-flex items-center gap-3 group">
-              <div className="relative w-12 h-12 rounded-xl overflow-hidden bg-white/10 backdrop-blur-sm border border-white/10 p-2 transition-transform group-hover:scale-105">
-                <Image 
-                  src={settings.heroLogo || '/brandlogo.svg'} 
-                  alt="Logo" 
-                  fill 
-                  className="object-contain"
+              <div className="relative w-14 h-14 border-brutal bg-warm-light shadow-brutal-golden overflow-hidden group-hover:-translate-y-0.5 group-hover:-translate-x-0.5 transition-transform">
+                <Image
+                  src={settings.heroLogo || '/brandlogo.svg'}
+                  alt="Logo"
+                  fill
+                  className="object-contain p-1.5"
                 />
               </div>
               <div className="flex flex-col">
-                <span className="font-heading text-xl font-bold text-white">
+                <span className="font-heading text-xl font-extrabold text-warm-light">
                   {settings.siteName?.split(' ')[0] || 'Himalayan'}
                 </span>
-                <span className="font-accent text-sm text-[#F4A261] -mt-0.5">
+                <span className="font-accent text-sm text-golden -mt-0.5">
                   {settings.siteName?.split(' ').slice(1).join(' ') || 'Momos'}
                 </span>
               </div>
@@ -164,19 +153,17 @@ function LoginForm() {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="space-y-8"
           >
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-sm">
-              <Sparkles className="w-4 h-4 text-[#F4A261]" />
-              <span className="text-sm text-gray-300">Authentic Flavors Await</span>
-            </div>
-            
-            <h1 className="font-heading text-4xl xl:text-5xl font-bold text-white leading-tight">
+            <span className="eyebrow-brutal">
+              <Sparkles className="w-3.5 h-3.5" />
+              Authentic flavors await
+            </span>
+
+            <h1 className="font-heading text-4xl xl:text-5xl font-extrabold text-warm-light leading-[1.05]">
               Welcome back to<br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-[#F4A261]">
-                delicious moments
-              </span>
+              <span className="font-accent text-golden">delicious moments</span>
             </h1>
 
-            <p className="text-gray-400 text-lg max-w-sm leading-relaxed">
+            <p className="text-warm-light/60 text-lg max-w-sm leading-relaxed">
               Sign in to access your orders, save favorites, and enjoy exclusive member benefits.
             </p>
           </motion.div>
@@ -186,7 +173,7 @@ function LoginForm() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.6, delay: 0.4 }}
-            className="space-y-4"
+            className="space-y-3"
           >
             {[
               'Quick & easy ordering',
@@ -194,10 +181,10 @@ function LoginForm() {
               'Exclusive member rewards',
             ].map((feature, i) => (
               <div key={i} className="flex items-center gap-3">
-                <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center">
-                  <CheckCircle className="w-3.5 h-3.5 text-primary" />
+                <div className="w-6 h-6 border-[1.5px] border-warm-light/30 bg-warm-light/5 flex items-center justify-center flex-shrink-0">
+                  <CheckCircle className="w-3.5 h-3.5 text-golden" />
                 </div>
-                <span className="text-gray-400 text-sm">{feature}</span>
+                <span className="text-warm-light/60 text-sm">{feature}</span>
               </div>
             ))}
           </motion.div>
@@ -205,29 +192,29 @@ function LoginForm() {
       </div>
 
       {/* Right Side - Form */}
-      <div className="w-full lg:w-[55%] xl:w-1/2 flex items-center justify-center px-6 py-12 sm:px-12 lg:px-16 xl:px-24">
+      <div className="w-full lg:w-[55%] xl:w-1/2 flex items-center justify-center px-6 py-12 sm:px-12 lg:px-16 xl:px-24 bg-warm-light">
         <motion.div
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.5 }}
-          className="w-full max-w-[400px]"
+          className="w-full max-w-[420px]"
         >
           {/* Mobile Logo */}
           <div className="lg:hidden mb-10 text-center">
             <Link href="/" className="inline-flex items-center gap-3 justify-center">
-              <div className="relative w-10 h-10 rounded-xl overflow-hidden bg-primary/10 p-1.5">
-                <Image 
-                  src={settings.heroLogo || '/brandlogo.svg'} 
-                  alt="Logo" 
-                  fill 
-                  className="object-contain"
+              <div className="relative w-11 h-11 border-brutal bg-white shadow-brutal-sm p-1.5">
+                <Image
+                  src={settings.heroLogo || '/brandlogo.svg'}
+                  alt="Logo"
+                  fill
+                  className="object-contain p-1"
                 />
               </div>
               <div className="flex flex-col items-start">
-                <span className="font-heading text-lg font-bold text-[#1A1A1A]">
+                <span className="font-heading text-lg font-extrabold text-dark">
                   {settings.siteName?.split(' ')[0] || 'Himalayan'}
                 </span>
-                <span className="font-accent text-xs text-primary -mt-0.5">
+                <span className="font-accent text-xs text-brand -mt-0.5">
                   {settings.siteName?.split(' ').slice(1).join(' ') || 'Momos'}
                 </span>
               </div>
@@ -236,10 +223,11 @@ function LoginForm() {
 
           {/* Header */}
           <div className="text-center lg:text-left mb-8">
-            <h2 className="font-heading text-2xl sm:text-3xl font-bold text-[#1A1A1A]">
+            <span className="eyebrow-brutal mb-4">Account Access</span>
+            <h2 className="font-heading text-2xl sm:text-3xl font-extrabold text-dark">
               Sign in to your account
             </h2>
-            <p className="text-gray-500 mt-2 text-sm sm:text-base">
+            <p className="text-dark/60 mt-2 text-sm sm:text-base">
               Enter your credentials to continue
             </p>
           </div>
@@ -249,7 +237,7 @@ function LoginForm() {
             <motion.div
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="mb-6 p-4 bg-green-50 border border-green-200 rounded-xl text-green-700 text-sm flex items-center gap-2"
+              className="mb-6 p-4 border-brutal-thin bg-herb/10 text-herb text-sm font-medium flex items-center gap-2"
             >
               <CheckCircle className="w-4 h-4 flex-shrink-0" />
               Account created successfully! Please sign in.
@@ -261,7 +249,7 @@ function LoginForm() {
             <motion.div
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl text-red-600 text-sm"
+              className="mb-6 p-4 border-brutal-thin bg-brand/10 text-brand text-sm font-medium"
             >
               {error}
             </motion.div>
@@ -270,7 +258,7 @@ function LoginForm() {
           <form onSubmit={handleSubmit} className="space-y-5">
             {/* Email Field */}
             <div className="space-y-2">
-              <label className="text-sm font-medium text-[#1A1A1A]">
+              <label className="font-mono-brutal text-xs font-bold uppercase tracking-wide text-dark">
                 Email
               </label>
               <Input
@@ -279,7 +267,7 @@ function LoginForm() {
                 placeholder="you@example.com"
                 value={formData.email}
                 onChange={handleChange}
-                className="h-12 rounded-xl border-gray-200 focus:border-primary focus:ring-primary/20 bg-white text-base placeholder:text-gray-400"
+                className="h-12 rounded-none border-brutal-thin focus-visible:border-brand focus-visible:ring-0 bg-white text-base placeholder:text-dark/30"
                 required
               />
             </div>
@@ -287,12 +275,12 @@ function LoginForm() {
             {/* Password Field */}
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <label className="text-sm font-medium text-[#1A1A1A]">
+                <label className="font-mono-brutal text-xs font-bold uppercase tracking-wide text-dark">
                   Password
                 </label>
                 <Link
                   href="/forgot-password"
-                  className="text-xs text-primary hover:text-[#7A0407] transition-colors font-medium"
+                  className="text-xs text-brand hover:text-brand-dark transition-colors font-semibold"
                 >
                   Forgot password?
                 </Link>
@@ -304,13 +292,13 @@ function LoginForm() {
                   placeholder="••••••••"
                   value={formData.password}
                   onChange={handleChange}
-                  className="h-12 pr-12 rounded-xl border-gray-200 focus:border-primary focus:ring-primary/20 bg-white text-base placeholder:text-gray-400"
+                  className="h-12 pr-12 rounded-none border-brutal-thin focus-visible:border-brand focus-visible:ring-0 bg-white text-base placeholder:text-dark/30"
                   required
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-dark/40 hover:text-dark transition-colors"
                 >
                   {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
@@ -321,7 +309,7 @@ function LoginForm() {
             <Button
               type="submit"
               disabled={isLoading}
-              className="w-full h-12 rounded-xl bg-primary hover:bg-[#7A0407] text-white font-medium text-base transition-all duration-300 group"
+              className="w-full h-12 rounded-none border-brutal bg-dark hover:bg-dark text-warm-light font-heading font-bold text-sm uppercase tracking-wide shadow-brutal-sm hover:shadow-brutal hover:-translate-y-0.5 hover:-translate-x-0.5 transition-all duration-200 group"
             >
               {isLoading ? (
                 <Loader2 className="w-5 h-5 animate-spin" />
@@ -337,10 +325,10 @@ function LoginForm() {
           {/* Divider */}
           <div className="relative my-8">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-200"></div>
+              <div className="w-full border-t-[1.5px] border-dark/15"></div>
             </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="px-4 bg-[#FDF8F3] text-gray-400 text-xs uppercase tracking-wider">
+            <div className="relative flex justify-center">
+              <span className="px-4 bg-warm-light font-mono-brutal text-dark/40 text-[11px] uppercase tracking-[0.08em]">
                 Or continue with
               </span>
             </div>
@@ -352,7 +340,7 @@ function LoginForm() {
             variant="outline"
             onClick={handleGoogleSignIn}
             disabled={isGoogleLoading}
-            className="w-full h-12 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 text-[#1A1A1A] font-medium text-base transition-all duration-300 flex items-center justify-center gap-3 hover:border-gray-300"
+            className="w-full h-12 rounded-none border-brutal-thin bg-white hover:bg-cream text-dark font-heading font-bold text-sm transition-all duration-200 flex items-center justify-center gap-3"
           >
             {isGoogleLoading ? (
               <Loader2 className="w-5 h-5 animate-spin" />
@@ -365,21 +353,21 @@ function LoginForm() {
           </Button>
 
           {/* Sign Up Link */}
-          <p className="text-center mt-8 text-gray-500 text-sm">
+          <p className="text-center mt-8 text-dark/60 text-sm">
             Don&apos;t have an account?{' '}
             <Link
               href="/signup"
-              className="text-primary hover:text-[#7A0407] transition-colors font-semibold"
+              className="text-brand hover:text-brand-dark transition-colors font-bold"
             >
               Create one
             </Link>
           </p>
 
           {/* Back to Home */}
-          <p className="text-center mt-4 text-gray-400 text-xs">
+          <p className="text-center mt-4 text-dark/40 text-xs font-mono-brutal uppercase tracking-wide">
             <Link
               href="/"
-              className="hover:text-gray-600 transition-colors"
+              className="hover:text-dark transition-colors"
             >
               ← Back to Home
             </Link>
@@ -392,12 +380,12 @@ function LoginForm() {
 
 function LoginLoading() {
   return (
-    <div className="min-h-screen bg-[#FDF8F3] flex items-center justify-center">
+    <div className="min-h-screen bg-warm-light flex items-center justify-center">
       <div className="text-center">
-        <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
-          <Loader2 className="w-6 h-6 animate-spin text-primary" />
+        <div className="w-12 h-12 border-brutal bg-cream flex items-center justify-center mx-auto mb-4 shadow-brutal-sm">
+          <Loader2 className="w-6 h-6 animate-spin text-brand" />
         </div>
-        <p className="text-gray-500 text-sm">Loading...</p>
+        <p className="text-dark/60 text-sm font-mono-brutal uppercase tracking-wide">Loading...</p>
       </div>
     </div>
   );

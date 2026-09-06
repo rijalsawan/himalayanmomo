@@ -5,7 +5,7 @@ export interface MenuItem {
   description: string;
   longDescription?: string;
   price: number;
-  category: 'momos' | 'sides' | 'drinks' | 'desserts';
+  category: 'momos' | 'sides' | 'drinks' | 'desserts' | 'biryanis' | 'kattiRolls' | 'noodlesRice' | 'weekendSpecial' | 'streetSnacks' | 'lassi';
   image: string;
   spiceLevel: 0 | 1 | 2 | 3;
   isVegetarian: boolean;
@@ -383,7 +383,12 @@ export const menuItems: MenuItem[] = [
 
 export const categories = [
   { id: 'momos', name: 'Momos', icon: '🥟', description: 'Our signature handcrafted dumplings' },
-  { id: 'sides', name: 'Sides', icon: '🍽️', description: 'Traditional accompaniments' },
+  { id: 'noodlesRice', name: 'Noodles & Fried Rice', icon: '🍜', description: 'Wok-tossed chowmein & fried rice' },
+  { id: 'kattiRolls', name: 'Katti Rolls', icon: '🌯', description: 'Grilled flatbread wraps, packed to go' },
+  { id: 'streetSnacks', name: 'Street Snacks', icon: '🍢', description: 'Nepali street-food favorites' },
+  { id: 'biryanis', name: 'Biryanis', icon: '🍛', description: 'Fragrant slow-cooked rice specialties' },
+  { id: 'weekendSpecial', name: 'Weekend Special', icon: '🍽️', description: 'Thakali sets, weekends only' },
+  { id: 'lassi', name: 'Himalayan Lassi', icon: '🥤', description: 'Creamy yogurt drinks, classic & fruity' },
   { id: 'drinks', name: 'Drinks', icon: '🍵', description: 'Refreshing beverages' },
   { id: 'desserts', name: 'Desserts', icon: '🍮', description: 'Sweet endings' },
 ] as const;

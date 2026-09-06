@@ -22,7 +22,6 @@ import {
   MoreHorizontal,
   Eye,
 } from 'lucide-react';
-import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -37,6 +36,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogHeader,
   DialogTitle,
@@ -87,30 +87,30 @@ const sortOptions: { value: SortOption; label: string; icon: React.ReactNode }[]
   { value: 'name-za', label: 'Name: Z to A', icon: <span className="text-xs font-bold">ZA</span> },
 ];
 
-// Mobile List Item Skeleton - Matches Admin UI
+// Mobile List Item Skeleton - brutalist shimmer
 const SkeletonListItem = () => {
   return (
-    <div className="p-4 border-b border-gray-100">
+    <div className="p-4 border-b-[1.5px] border-dark/10">
       <div className="flex gap-3">
         {/* Image Skeleton */}
-        <div className="relative w-16 h-16 rounded-lg overflow-hidden bg-gray-200 flex-shrink-0">
+        <div className="relative w-16 h-16 border-[1.5px] border-dark/15 overflow-hidden bg-dark/5 flex-shrink-0">
           <motion.div
-            className="absolute inset-0 bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200"
+            className="absolute inset-0 bg-gradient-to-r from-dark/5 via-dark/10 to-dark/5"
             animate={{ x: ['-100%', '100%'] }}
             transition={{ duration: 1.5, repeat: Infinity, ease: 'linear' }}
           />
         </div>
         {/* Content Skeleton */}
         <div className="flex-1 min-w-0 space-y-2">
-          <div className="h-4 w-3/4 bg-gray-200 rounded" />
-          <div className="h-3 w-1/3 bg-gray-200 rounded" />
+          <div className="h-4 w-3/4 bg-dark/10" />
+          <div className="h-3 w-1/3 bg-dark/10" />
           <div className="flex items-center justify-between mt-2">
-            <div className="h-4 w-16 bg-gray-200 rounded" />
-            <div className="h-4 w-12 bg-gray-200 rounded" />
+            <div className="h-4 w-16 bg-dark/10" />
+            <div className="h-4 w-12 bg-dark/10" />
           </div>
-          <div className="flex items-center justify-between mt-2 pt-2 border-t border-gray-100">
-            <div className="h-4 w-12 bg-gray-200 rounded" />
-            <div className="h-8 w-8 bg-gray-200 rounded" />
+          <div className="flex items-center justify-between mt-2 pt-2 border-t border-dashed border-dark/10">
+            <div className="h-4 w-12 bg-dark/10" />
+            <div className="h-8 w-8 bg-dark/10" />
           </div>
         </div>
       </div>
@@ -126,11 +126,11 @@ const SkeletonCard = ({ index }: { index: number }) => {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: index * 0.05 }}
     >
-      <Card className="overflow-hidden border-0 shadow-lg bg-white h-full rounded-2xl">
+      <div className="overflow-hidden border-brutal-thin bg-cream h-full aspect-[3/4] relative">
         {/* Image Skeleton */}
-        <div className="relative h-48 overflow-hidden bg-gray-200">
+        <div className="absolute inset-0 overflow-hidden bg-dark/10">
           <motion.div
-            className="absolute inset-0 bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200"
+            className="absolute inset-0 bg-gradient-to-r from-dark/5 via-dark/15 to-dark/5"
             animate={{
               x: ['-100%', '100%'],
             }}
@@ -141,88 +141,15 @@ const SkeletonCard = ({ index }: { index: number }) => {
             }}
           />
           {/* Price tag skeleton */}
-          <div className="absolute top-4 right-4 w-16 h-8 bg-white/80 rounded-full" />
+          <div className="absolute top-3 right-3 w-16 h-8 border-[1.5px] border-dark/20 bg-warm-light/60" />
           {/* Badge skeleton */}
-          <div className="absolute bottom-4 left-4 w-16 h-6 bg-white/30 rounded-full" />
+          <div className="absolute bottom-4 left-4 w-full max-w-[70%] space-y-2">
+            <div className="h-5 w-3/4 bg-warm-light/30" />
+            <div className="h-3 w-full bg-warm-light/20" />
+            <div className="h-3 w-2/3 bg-warm-light/20" />
+          </div>
         </div>
-
-        {/* Content Skeleton */}
-        <CardContent className="p-5 space-y-3">
-          {/* Title skeleton */}
-          <div className="h-6 bg-gray-200 rounded-lg w-3/4 overflow-hidden relative">
-            <motion.div
-              className="absolute inset-0 bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200"
-              animate={{
-                x: ['-100%', '100%'],
-              }}
-              transition={{
-                duration: 1.5,
-                repeat: Infinity,
-                ease: 'linear',
-                delay: index * 0.1,
-              }}
-            />
-          </div>
-
-          {/* Description skeleton - 2 lines */}
-          <div className="space-y-2">
-            <div className="h-4 bg-gray-200 rounded overflow-hidden relative">
-              <motion.div
-                className="absolute inset-0 bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200"
-                animate={{
-                  x: ['-100%', '100%'],
-                }}
-                transition={{
-                  duration: 1.5,
-                  repeat: Infinity,
-                  ease: 'linear',
-                  delay: index * 0.1 + 0.1,
-                }}
-              />
-            </div>
-            <div className="h-4 bg-gray-200 rounded w-2/3 overflow-hidden relative">
-              <motion.div
-                className="absolute inset-0 bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200"
-                animate={{
-                  x: ['-100%', '100%'],
-                }}
-                transition={{
-                  duration: 1.5,
-                  repeat: Infinity,
-                  ease: 'linear',
-                  delay: index * 0.1 + 0.2,
-                }}
-              />
-            </div>
-          </div>
-
-          {/* Bottom row skeleton */}
-          <div className="flex items-center justify-between pt-2 border-t border-gray-100">
-            <div className="flex items-center gap-2">
-              <div className="flex gap-1">
-                {[1, 2, 3].map((i) => (
-                  <div key={i} className="w-3.5 h-3.5 bg-gray-200 rounded-full" />
-                ))}
-              </div>
-              <div className="w-12 h-3 bg-gray-200 rounded" />
-            </div>
-            <div className="w-14 h-4 bg-gray-200 rounded overflow-hidden relative">
-              <motion.div
-                className="absolute inset-0 bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200"
-                animate={{
-                  x: ['-100%', '100%'],
-                }}
-                transition={{
-                  duration: 1.5,
-                  repeat: Infinity,
-                  ease: 'linear',
-                  delay: index * 0.1 + 0.3,
-                }}
-              />
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+      </div>
     </motion.div>
   );
 };
@@ -390,25 +317,26 @@ export default function MenuPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#FDF8F3]">
+    <div className="min-h-screen bg-warm-light">
       <Navbar />
-      
-      <main className="pt-16 md:pt-20 mt-6">
-        
 
+      <main className="pt-16 md:pt-20">
         {/* Search and Filters */}
-        <section className="sticky top-34 md:top-30 z-30 ">
-          <div className="container-custom py-4 backdrop-blur-xs">
-            <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
+        <section
+          className="static md:sticky z-30 bg-warm-light/95 md:backdrop-blur-md border-b-[1.5px] border-dark/10"
+          style={{ top: 'calc(var(--announcement-h, 0px) + var(--navbar-h, 0px))' }}
+        >
+          <div className="container-custom py-4">
+            <div className="flex flex-col md:flex-row gap-3 md:gap-4 items-stretch md:items-center justify-between">
               {/* Search */}
               <div className="relative w-full md:w-80">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-dark/40" />
                 <Input
                   type="text"
                   placeholder="Search dishes..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 bg-gray-50 focus:border-primary focus:ring-primary"
+                  className="pl-10 h-11 border-brutal-thin rounded-none bg-cream focus-visible:ring-0 focus-visible:border-brand placeholder:text-dark/35 font-medium"
                 />
               </div>
 
@@ -420,23 +348,23 @@ export default function MenuPage() {
                     <Button
                       variant="outline"
                       size="sm"
-                      className="border-gray-200 hover:border-primary"
+                      className="h-10 rounded-none border-[1.5px] border-dark bg-warm-light hover:bg-dark hover:text-warm-light font-mono-brutal text-[11px] uppercase tracking-wide"
                     >
-                      <SlidersHorizontal className="w-4 h-4 mr-2" />
+                      <SlidersHorizontal className="w-3.5 h-3.5 mr-2" />
                       {sortOptions.find((opt) => opt.value === sortBy)?.label ||
                         'Sort'}
-                      <ChevronDown className="w-4 h-4 ml-2" />
+                      <ChevronDown className="w-3.5 h-3.5 ml-2" />
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuContent align="end" className="w-48 rounded-none border-[1.5px] border-dark shadow-brutal-sm">
                     {sortOptions.map((option) => (
                       <DropdownMenuItem
                         key={option.value}
                         onClick={() => setSortBy(option.value as SortOption)}
                         className={
                           sortBy === option.value
-                            ? 'bg-primary/10 text-primary'
-                            : ''
+                            ? 'bg-brand/10 text-brand font-semibold rounded-none'
+                            : 'rounded-none'
                         }
                       >
                         {option.icon}
@@ -450,30 +378,30 @@ export default function MenuPage() {
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button
-                      variant={dietaryFilter !== 'all' ? 'default' : 'outline'}
+                      variant="outline"
                       size="sm"
                       className={
                         dietaryFilter !== 'all'
-                          ? 'bg-[#2D6A4F] hover:bg-[#245840]'
-                          : 'border-gray-200 hover:border-primary'
+                          ? 'h-10 rounded-none border-[1.5px] border-dark bg-herb text-warm-light hover:bg-herb/90 hover:text-warm-light font-mono-brutal text-[11px] uppercase tracking-wide'
+                          : 'h-10 rounded-none border-[1.5px] border-dark bg-warm-light hover:bg-dark hover:text-warm-light font-mono-brutal text-[11px] uppercase tracking-wide'
                       }
                     >
-                      <Leaf className="w-4 h-4 mr-2" />
+                      <Leaf className="w-3.5 h-3.5 mr-2" />
                       {dietaryFilter === 'all'
                         ? 'Dietary'
                         : dietaryFilter === 'vegetarian'
                           ? 'Veg Only'
                           : 'Non-Veg Only'}
-                      <ChevronDown className="w-4 h-4 ml-2" />
+                      <ChevronDown className="w-3.5 h-3.5 ml-2" />
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-44">
+                  <DropdownMenuContent align="end" className="w-44 rounded-none border-[1.5px] border-dark shadow-brutal-sm">
                     <DropdownMenuItem
                       onClick={() => setDietaryFilter('all')}
                       className={
                         dietaryFilter === 'all'
-                          ? 'bg-primary/10 text-primary'
-                          : ''
+                          ? 'bg-brand/10 text-brand font-semibold rounded-none'
+                          : 'rounded-none'
                       }
                     >
                       All Items
@@ -482,22 +410,22 @@ export default function MenuPage() {
                       onClick={() => setDietaryFilter('vegetarian')}
                       className={
                         dietaryFilter === 'vegetarian'
-                          ? 'bg-primary/10 text-primary'
-                          : ''
+                          ? 'bg-brand/10 text-brand font-semibold rounded-none'
+                          : 'rounded-none'
                       }
                     >
-                      <Leaf className="w-4 h-4 mr-2 text-green-600" />
+                      <Leaf className="w-4 h-4 mr-2 text-herb" />
                       Vegetarian
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       onClick={() => setDietaryFilter('non-vegetarian')}
                       className={
                         dietaryFilter === 'non-vegetarian'
-                          ? 'bg-primary/10 text-primary'
-                          : ''
+                          ? 'bg-brand/10 text-brand font-semibold rounded-none'
+                          : 'rounded-none'
                       }
                     >
-                      <span className="w-4 h-4 mr-2 text-red-600">🍖</span>
+                      <span className="w-4 h-4 mr-2 text-brand">🍖</span>
                       Non-Vegetarian
                     </DropdownMenuItem>
                   </DropdownMenuContent>
@@ -507,29 +435,29 @@ export default function MenuPage() {
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button
-                      variant={spiceFilter !== 'all' ? 'default' : 'outline'}
+                      variant="outline"
                       size="sm"
                       className={
                         spiceFilter !== 'all'
-                          ? 'bg-orange-500 hover:bg-orange-600'
-                          : 'border-gray-200 hover:border-primary'
+                          ? 'h-10 rounded-none border-[1.5px] border-dark bg-brand text-warm-light hover:bg-brand-dark hover:text-warm-light font-mono-brutal text-[11px] uppercase tracking-wide'
+                          : 'h-10 rounded-none border-[1.5px] border-dark bg-warm-light hover:bg-dark hover:text-warm-light font-mono-brutal text-[11px] uppercase tracking-wide'
                       }
                     >
-                      <Flame className="w-4 h-4 mr-2" />
+                      <Flame className="w-3.5 h-3.5 mr-2" />
                       {spiceFilter === 'all'
                         ? 'Spice Level'
                         : spiceFilter.charAt(0).toUpperCase() +
                           spiceFilter.slice(1)}
-                      <ChevronDown className="w-4 h-4 ml-2" />
+                      <ChevronDown className="w-3.5 h-3.5 ml-2" />
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-40">
+                  <DropdownMenuContent align="end" className="w-40 rounded-none border-[1.5px] border-dark shadow-brutal-sm">
                     <DropdownMenuItem
                       onClick={() => setSpiceFilter('all')}
                       className={
                         spiceFilter === 'all'
-                          ? 'bg-primary/10 text-primary'
-                          : ''
+                          ? 'bg-brand/10 text-brand font-semibold rounded-none'
+                          : 'rounded-none'
                       }
                     >
                       All Levels
@@ -538,8 +466,8 @@ export default function MenuPage() {
                       onClick={() => setSpiceFilter('mild')}
                       className={
                         spiceFilter === 'mild'
-                          ? 'bg-primary/10 text-primary'
-                          : ''
+                          ? 'bg-brand/10 text-brand font-semibold rounded-none'
+                          : 'rounded-none'
                       }
                     >
                       🌶️ Mild
@@ -548,8 +476,8 @@ export default function MenuPage() {
                       onClick={() => setSpiceFilter('medium')}
                       className={
                         spiceFilter === 'medium'
-                          ? 'bg-primary/10 text-primary'
-                          : ''
+                          ? 'bg-brand/10 text-brand font-semibold rounded-none'
+                          : 'rounded-none'
                       }
                     >
                       🌶️🌶️ Medium
@@ -558,8 +486,8 @@ export default function MenuPage() {
                       onClick={() => setSpiceFilter('spicy')}
                       className={
                         spiceFilter === 'spicy'
-                          ? 'bg-primary/10 text-primary'
-                          : ''
+                          ? 'bg-brand/10 text-brand font-semibold rounded-none'
+                          : 'rounded-none'
                       }
                     >
                       🌶️🌶️🌶️ Spicy
@@ -573,49 +501,48 @@ export default function MenuPage() {
                     variant="ghost"
                     size="sm"
                     onClick={clearAllFilters}
-                    className="text-gray-500 hover:text-primary"
+                    className="h-10 rounded-none text-dark/60 hover:text-brand hover:bg-transparent font-mono-brutal text-[11px] uppercase tracking-wide"
                   >
-                    <X className="w-4 h-4 mr-1" />
+                    <X className="w-3.5 h-3.5 mr-1" />
                     Clear ({activeFilterCount})
                   </Button>
                 )}
-
-                
               </div>
             </div>
 
             {/* Category Quick Nav */}
-            <div className="flex items-center gap-2 overflow-x-auto pb-1 -mx-1 px-1 mt-3 pt-3  border-gray-100 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            <div className="gap-2 pb-1 -mx-1 px-1 mt-3 pt-3 space-x-3 space-y-3">
               <button
                 type="button"
                 onClick={() => setActiveCategory('all')}
-                className={`flex-shrink-0 inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
+                className={`flex-shrink-0 inline-flex items-center gap-1.5 px-4 py-1.5 border-[1.5px] border-dark text-sm font-semibold whitespace-nowrap transition-colors font-mono-brutal uppercase tracking-wide text-[11px] ${
                   activeCategory === 'all'
-                    ? 'bg-primary text-white shadow-sm'
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    ? 'bg-dark text-warm-light'
+                    : 'bg-warm-light text-dark/70 hover:bg-dark/5'
                 }`}
               >
                 <span>🍽️</span> All
-                <span className="opacity-70">({menuItems.length})</span>
+                <span className="opacity-60">({menuItems.length})</span>
               </button>
               {categories.map((cat) => (
                 <button
                   key={cat.id}
                   type="button"
                   onClick={() => setActiveCategory(cat.id)}
-                  className={`flex-shrink-0 inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
+                  className={`flex-shrink-0 inline-flex items-center gap-1.5 px-4 py-1.5 border-[1.5px] border-dark text-sm font-semibold whitespace-nowrap transition-colors font-mono-brutal uppercase tracking-wide text-[11px] ${
                     activeCategory === cat.id
-                      ? 'bg-primary text-white shadow-sm'
-                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                      ? 'bg-brand text-warm-light'
+                      : 'bg-warm-light text-dark/70 hover:bg-dark/5'
                   }`}
                 >
                   <span>{cat.icon}</span> {cat.name}
-                  <span className="opacity-70">({categoryCounts[cat.id] ?? 0})</span>
+                  <span className="opacity-60">({categoryCounts[cat.id] ?? 0})</span>
                 </button>
               ))}
             </div>
           </div>
         </section>
+
 
         {/* Menu Content */}
         <section className="py-8 md:py-12">
@@ -630,13 +557,13 @@ export default function MenuPage() {
                 {showSkeleton ? (
                   <motion.div key="skeleton" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
                     {/* Mobile Skeleton List */}
-                    <Card className="sm:hidden overflow-hidden">
-                      <div className="divide-y divide-gray-100">
+                    <div className="sm:hidden overflow-hidden border-brutal-thin bg-warm-light">
+                      <div className="divide-y divide-dark/10">
                         {Array.from({ length: 6 }).map((_, index) => (
                           <SkeletonListItem key={index} />
                         ))}
                       </div>
-                    </Card>
+                    </div>
                     {/* Desktop Skeleton Grid */}
                     <div className="hidden sm:grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                       {Array.from({ length: 8 }).map((_, index) => (
@@ -667,29 +594,35 @@ export default function MenuPage() {
                         return (
                           <div key={cat.id} id={`category-${cat.id}`} className="scroll-mt-40">
                             {/* Category Header */}
-                            <div className="flex items-end justify-between gap-4 mb-6 pb-4 border-b border-gray-100">
+                            <div className="flex items-end justify-between gap-4 mb-6 pb-4 border-b-[1.5px] border-dark/15">
                               <div>
-                                <div className="flex items-center gap-2.5">
-                                  <span className="text-3xl leading-none">{cat.icon}</span>
-                                  <h2 className="font-heading text-2xl md:text-3xl font-bold text-gray-900">
-                                    {cat.name}
-                                  </h2>
-                                  <span className="text-sm font-medium text-gray-400">
-                                    {items.length} {items.length === 1 ? 'item' : 'items'}
+                                <div className="flex items-center gap-3">
+                                  <span className="flex items-center justify-center w-11 h-11 border-[1.5px] border-dark bg-cream text-2xl leading-none flex-shrink-0 shadow-brutal-sm">
+                                    {cat.icon}
                                   </span>
+                                  <div>
+                                    <div className="flex items-center gap-2 flex-wrap">
+                                      <h2 className="font-heading text-xl md:text-3xl font-bold text-dark">
+                                        {cat.name}
+                                      </h2>
+                                      <span className="tag-mono bg-dark/80">
+                                        {items.length} {items.length === 1 ? 'item' : 'items'}
+                                      </span>
+                                    </div>
+                                    <p className="text-dark/55 mt-0.5 text-sm md:text-base">{cat.description}</p>
+                                  </div>
                                 </div>
-                                <p className="text-gray-500 mt-1">{cat.description}</p>
                               </div>
                             </div>
 
                             {/* Mobile List View */}
-                            <Card className="sm:hidden overflow-hidden mb-2">
-                              <div className="divide-y divide-gray-100">
+                            <div className="sm:hidden overflow-hidden border-brutal-thin bg-warm-light mb-2">
+                              <div className="divide-y divide-dark/10">
                                 {visibleItems.map((item) => (
                                   <DishListItem key={item.id} item={item} />
                                 ))}
                               </div>
-                            </Card>
+                            </div>
 
                             {/* Desktop Card Grid */}
                             <div className="hidden sm:grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -704,7 +637,7 @@ export default function MenuPage() {
                                 <Button
                                   variant="outline"
                                   onClick={() => setModalCategory(cat.id)}
-                                  className="rounded-full border-primary/25 text-primary hover:bg-primary hover:text-white hover:border-primary transition-all duration-300 px-6"
+                                  className="brutal-hover rounded-none border-[1.5px] border-dark bg-warm-light text-dark shadow-brutal-sm hover:bg-dark hover:text-warm-light px-6 font-mono-brutal text-xs uppercase tracking-wide"
                                 >
                                   Show all {items.length} {cat.name.toLowerCase()}
                                 </Button>
@@ -720,13 +653,13 @@ export default function MenuPage() {
                     animate={{ opacity: 1, y: 0 }}
                     className="text-center py-16"
                   >
-                    <div className="w-20 h-20 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-4">
-                      <Search className="w-10 h-10 text-gray-400" />
+                    <div className="w-20 h-20 border-[1.5px] border-dark bg-cream flex items-center justify-center mx-auto mb-4 shadow-brutal-sm">
+                      <Search className="w-9 h-9 text-dark/40" />
                     </div>
-                    <h3 className="font-heading text-xl font-semibold text-gray-800 mb-2">
+                    <h3 className="font-heading text-xl font-bold text-dark mb-2">
                       No items found
                     </h3>
-                    <p className="text-gray-500 mb-4">
+                    <p className="text-dark/55 mb-4">
                       Try adjusting your search or filters
                     </p>
                     <Button
@@ -735,6 +668,7 @@ export default function MenuPage() {
                         clearAllFilters();
                         setActiveCategory('all');
                       }}
+                      className="rounded-none border-[1.5px] border-dark bg-warm-light hover:bg-dark hover:text-warm-light font-mono-brutal text-xs uppercase tracking-wide"
                     >
                       Clear all filters
                     </Button>
@@ -753,36 +687,48 @@ export default function MenuPage() {
         modal
       >
         <DialogContent
-          overlayClassName="bg-[#1A1A1A]/70 backdrop-blur-sm data-[state=open]:duration-300 data-[state=closed]:duration-200"
-          className="max-w-[95vw] sm:max-w-3xl lg:max-w-5xl max-h-[90vh] p-0 overflow-hidden rounded-3xl border-0 bg-[#FDF8F3] flex flex-col gap-0 shadow-2xl data-[state=open]:duration-300 data-[state=closed]:duration-200 data-[state=open]:slide-in-from-bottom-4 data-[state=closed]:slide-out-to-bottom-4 data-[state=open]:ease-out data-[state=closed]:ease-in"
+          showCloseButton={false}
+          overlayClassName="bg-dark/80 backdrop-blur-sm data-[state=open]:duration-300 data-[state=closed]:duration-200"
+          className="max-w-[95vw] sm:max-w-3xl lg:max-w-5xl max-h-[90vh] p-0 overflow-hidden rounded-none border-[1.5px] sm:border-brutal border-dark bg-warm-light flex flex-col gap-0 shadow-brutal-lg data-[state=open]:duration-300 data-[state=closed]:duration-200 data-[state=open]:slide-in-from-bottom-6 data-[state=closed]:slide-out-to-bottom-6 data-[state=open]:zoom-in-100 data-[state=closed]:zoom-out-100 data-[state=open]:ease-out data-[state=closed]:ease-in"
         >
           {modalCategoryData && (
             <>
-              {/* Cream header strip */}
-              <DialogHeader className="px-6 pt-6 pb-4 border-b border-[#1A1A1A]/10 bg-white/60 flex-shrink-0">
-                <div className="flex items-center gap-3">
-                  <span className="text-3xl leading-none">{modalCategoryData.icon}</span>
-                  <div className="text-left">
-                    <DialogTitle className="font-heading text-2xl font-bold text-gray-900">
+              {/* Header strip */}
+              <DialogHeader className="px-5 sm:px-6 pt-5 sm:pt-6 pb-4 border-b-[1.5px] border-dark/15 bg-cream flex-shrink-0 flex-row items-center justify-between gap-3 space-y-0">
+                <div className="flex items-center gap-3 min-w-0">
+                  <span className="flex items-center justify-center w-11 h-11 border-[1.5px] border-dark bg-warm-light text-2xl leading-none flex-shrink-0 shadow-brutal-sm">
+                    {modalCategoryData.icon}
+                  </span>
+                  <div className="text-left min-w-0">
+                    <DialogTitle className="font-heading text-xl sm:text-2xl font-bold text-dark truncate">
                       {modalCategoryData.name}
                     </DialogTitle>
-                    <p className="text-sm text-gray-500 mt-0.5">
-                      {modalItems.length} {modalItems.length === 1 ? 'item' : 'items'} · {modalCategoryData.description}
+                    <p className="text-xs sm:text-sm text-dark/55 mt-0.5 truncate">
+                      {modalItems.length} {modalItems.length === 1 ? 'item' : 'items'} &middot; {modalCategoryData.description}
                     </p>
                   </div>
                 </div>
+                <DialogClose asChild>
+                  <button
+                    type="button"
+                    className="brutal-hover flex items-center justify-center w-9 h-9 border-[1.5px] border-dark bg-dark text-warm-light shadow-brutal-sm flex-shrink-0"
+                    aria-label="Close"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </DialogClose>
               </DialogHeader>
 
               {/* Scrollable items body - overscroll-contain stops scroll chaining to the page behind once this reaches its own top/bottom edge */}
               <div className="overflow-y-auto overscroll-contain px-4 sm:px-6 py-5 flex-1">
                 {/* Mobile list */}
-                <Card className="sm:hidden overflow-hidden rounded-2xl border border-[#1A1A1A]/5">
-                  <div className="divide-y divide-gray-100">
+                <div className="sm:hidden overflow-hidden border-brutal-thin bg-warm-light">
+                  <div className="divide-y divide-dark/10">
                     {modalItems.map((item) => (
                       <DishListItem key={item.id} item={item} />
                     ))}
                   </div>
-                </Card>
+                </div>
 
                 {/* Desktop grid */}
                 <div className="hidden sm:grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
