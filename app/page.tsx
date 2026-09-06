@@ -8,6 +8,11 @@ import Contact from './components/Contact';
 import Footer from './components/Footer';
 import { JsonLd, OrganizationJsonLd, WebsiteJsonLd } from './components/JsonLd';
 
+// Keep the homepage's structured data (address, phone, logo image, ...) in sync
+// with admin-edited site settings without requiring a full redeploy (see
+// app/layout.tsx for why this matters).
+export const revalidate = 300; // 5 minutes
+
 export default function Home() {
   return (
     <>

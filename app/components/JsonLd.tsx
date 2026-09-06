@@ -1,11 +1,20 @@
 import { getSiteSettings } from '@/lib/getSiteSettings';
 
-const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+// Prefer the admin-configured site URL (the actual public domain, e.g. the
+// custom domain) over the deployment platform's own URL env var, which in
+// production often points at a preview/internal URL (e.g. *.vercel.app) that
+// doesn't match the canonical domain used elsewhere in metadata. Falling back
+// to a mismatched domain here previously caused the structured data's
+// `url`/`@id` fields to disagree with the page's own canonical URL.
+function resolveBaseUrl(siteUrl?: string): string {
+  const url = siteUrl || process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+  return url.replace(/\/+$/, '');
+}
 
 // Resolve a settings-provided asset path to an absolute URL. Admin-uploaded
 // assets (e.g. Cloudinary) are already absolute; static defaults are root-relative.
-function toAbsoluteUrl(path: string): string {
-  return /^https?:\/\//i.test(path) ? path : `${BASE_URL}${path}`;
+function toAbsoluteUrl(path: string, baseUrl: string): string {
+  return /^https?:\/\//i.test(path) ? path : `${baseUrl}${path}`;
 }
 
 interface JsonLdProps {
@@ -15,6 +24,7 @@ interface JsonLdProps {
 
 export async function JsonLd({ type = 'restaurant', data }: JsonLdProps) {
   const settings = await getSiteSettings();
+  const BASE_URL = resolveBaseUrl(settings.siteUrl);
   const businessName = settings.footerBrandName;
   const socialLinks = [
     settings.contactSocial1Url,
@@ -48,10 +58,10 @@ export async function JsonLd({ type = 'restaurant', data }: JsonLdProps) {
             longitude: -74.0060,
           },
           image: [
-            toAbsoluteUrl(settings.ogImage || '/og-image.png'),
-            toAbsoluteUrl(settings.heroLogo || '/brandlogo.svg'),
+            toAbsoluteUrl(settings.ogImage || '/og-image.png', BASE_URL),
+            toAbsoluteUrl(settings.heroLogo || '/brandlogo.svg', BASE_URL),
           ],
-          logo: toAbsoluteUrl(settings.heroLogo || '/brandlogo.svg'),
+          logo: toAbsoluteUrl(settings.heroLogo || '/brandlogo.svg', BASE_URL),
           priceRange: '$$',
           servesCuisine: ['Nepali', 'Himalayan', 'Asian', 'Dumplings'],
           hasMenu: `${BASE_URL}/menu`,
@@ -188,6 +198,7 @@ export async function JsonLd({ type = 'restaurant', data }: JsonLdProps) {
 // Organization schema for the website
 export async function OrganizationJsonLd() {
   const settings = await getSiteSettings();
+  const BASE_URL = resolveBaseUrl(settings.siteUrl);
   const businessName = settings.footerBrandName;
   const socialLinks = [
     settings.contactSocial1Url,
@@ -201,7 +212,7 @@ export async function OrganizationJsonLd() {
     '@id': `${BASE_URL}/#organization`,
     name: businessName,
     url: BASE_URL,
-    logo: toAbsoluteUrl(settings.heroLogo || '/brandlogo.svg'),
+    logo: toAbsoluteUrl(settings.heroLogo || '/brandlogo.svg', BASE_URL),
     description: settings.siteDescription,
     contactPoint: {
       '@type': 'ContactPoint',
@@ -223,6 +234,7 @@ export async function OrganizationJsonLd() {
 // Website schema
 export async function WebsiteJsonLd() {
   const settings = await getSiteSettings();
+  const BASE_URL = resolveBaseUrl(settings.siteUrl);
   const businessName = settings.footerBrandName;
 
   const websiteData = {
@@ -253,6 +265,7 @@ export async function WebsiteJsonLd() {
 // Local Business schema (more specific than Restaurant for local SEO)
 export async function LocalBusinessJsonLd() {
   const settings = await getSiteSettings();
+  const BASE_URL = resolveBaseUrl(settings.siteUrl);
   const businessName = settings.footerBrandName;
 
   const localBusinessData = {
@@ -260,7 +273,7 @@ export async function LocalBusinessJsonLd() {
     '@type': 'LocalBusiness',
     '@id': `${BASE_URL}/#localbusiness`,
     name: businessName,
-    image: toAbsoluteUrl(settings.ogImage || '/og-image.png'),
+    image: toAbsoluteUrl(settings.ogImage || '/og-image.png', BASE_URL),
     telephone: settings.contactPhone,
     email: settings.contactEmail,
     address: {
