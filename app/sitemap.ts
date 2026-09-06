@@ -1,5 +1,6 @@
 import { MetadataRoute } from 'next';
 import { getSiteSettings } from '@/lib/getSiteSettings';
+import prisma from '@/lib/prisma';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Use the admin-configured public domain instead of the raw deployment env
@@ -39,22 +40,23 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
   ];
 
-  // Fetch menu items for dynamic pages
+  // Fetch menu items for dynamic pages (query the DB directly instead of
+  // self-fetching our own API over HTTP - during `next build`'s static
+  // generation there is no live server yet to answer that request, so an
+  // HTTP self-fetch reliably fails/returns HTML instead of JSON).
   let menuPages: MetadataRoute.Sitemap = [];
   try {
-    const response = await fetch(`${BASE_URL}/api/menu`, {
-      next: { revalidate: 3600 }, // Revalidate every hour
+    const menuItems = await prisma.menuItem.findMany({
+      where: { isAvailable: true },
+      select: { slug: true, updatedAt: true },
     });
-    
-    if (response.ok) {
-      const menuItems = await response.json();
-      menuPages = menuItems.map((item: { slug: string; updatedAt?: string }) => ({
-        url: `${BASE_URL}/menu/${item.slug}`,
-        lastModified: item.updatedAt ? new Date(item.updatedAt) : new Date(),
-        changeFrequency: 'weekly' as const,
-        priority: 0.8,
-      }));
-    }
+
+    menuPages = menuItems.map((item) => ({
+      url: `${BASE_URL}/menu/${item.slug}`,
+      lastModified: item.updatedAt,
+      changeFrequency: 'weekly' as const,
+      priority: 0.8,
+    }));
   } catch (error) {
     console.error('Error fetching menu items for sitemap:', error);
   }
