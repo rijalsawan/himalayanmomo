@@ -177,9 +177,13 @@ export default function Hero() {
 
           {/* Right Column - Logo as the hero's main visual asset */}
           <div className="order-1 lg:order-2 relative animate-fade-in delay-2 min-w-0">
-            <div className="relative mx-auto w-full max-w-[280px] sm:max-w-[380px] lg:max-w-[440px]">
-              {/* Main logo panel - the centerpiece asset */}
-              <div className="relative aspect-square border-brutal bg-warm-light shadow-brutal-lg overflow-hidden">
+            <div className="relative mx-auto w-full max-w-[230px] sm:max-w-[340px] lg:max-w-[400px] aspect-square">
+              {/* Animated dashed rings orbiting the logo, brutalist stand-ins for a "seal" badge */}
+              <div className="absolute -inset-3 sm:-inset-5 rounded-full border-2 border-dashed border-brand/50 animate-spin-slow pointer-events-none" aria-hidden="true" />
+              <div className="absolute -inset-6 sm:-inset-9 rounded-full border-2 border-dashed border-golden/40 animate-spin-slow-reverse pointer-events-none" aria-hidden="true" />
+
+              {/* Main logo panel - the centerpiece asset, circular to match the brand seal */}
+              <div className="absolute inset-0 rounded-full border-brutal bg-warm-light shadow-brutal-lg overflow-hidden">
                 {!settingsLoaded ? (
                   <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-cream">
                     <div className="w-16 h-16 border-[3px] border-dashed border-dark/30 rounded-full animate-spin-slow" />
@@ -191,22 +195,19 @@ export default function Hero() {
                     alt="MO:MO Station logo"
                     fill
                     priority
-                    sizes="(max-width: 640px) 280px, (max-width: 1024px) 380px, 440px"
-                    className="object-contain p-6 sm:p-8"
+                    sizes="(max-width: 640px) 260px, (max-width: 1024px) 340px, 400px"
+                    className="object-contain p-5 sm:p-6"
                   />
                 )}
               </div>
-              
 
               {/* Floating promo chip */}
-              <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 sm:left-auto sm:translate-x-0 sm:-right-5 sm:bottom-8 flex items-center gap-2 bg-brand text-warm-light border-brutal shadow-brutal-sm pl-2 pr-4 py-2 animate-float-2 whitespace-nowrap">
+              <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 sm:left-auto sm:translate-x-0 sm:-right-6 sm:bottom-6 flex items-center gap-2 bg-brand text-warm-light border-brutal shadow-brutal-sm pl-2 pr-4 py-2 animate-float-2 whitespace-nowrap z-10">
                 <span className="flex items-center justify-center w-7 h-7 border-[1.5px] border-warm-light/40 flex-shrink-0">
                   <Percent className="w-3.5 h-3.5" />
                 </span>
                 <span className="font-mono-brutal text-[11px] font-bold tracking-wide uppercase">10% Off Online Orders</span>
               </div>
-
-              
             </div>
           </div>
         </div>

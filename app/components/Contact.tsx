@@ -282,27 +282,27 @@ export default function Contact() {
                       href={item.href}
                       target={item.href.startsWith('http') ? '_blank' : undefined}
                       rel={item.href.startsWith('http') ? 'noopener noreferrer' : undefined}
-                      className="group flex items-start gap-4 p-4 border-[3px] border-warm-light/15 bg-warm-light/[0.04] hover:bg-warm-light/[0.07] hover:border-golden/40 transition-colors duration-300 max-sm:w-85"
+                      className="group flex items-start gap-4 p-4 border-[3px] border-warm-light/15 bg-warm-light/[0.04] hover:bg-warm-light/[0.07] hover:border-golden/40 transition-colors duration-300 w-full"
                     >
                       <div className="w-12 h-12 border-[1.5px] border-golden/50 bg-golden/10 flex items-center justify-center shrink-0 group-hover:border-golden group-hover:bg-golden/20 transition-colors">
                         <item.icon className="w-5 h-5 text-golden" />
                       </div>
                       <div className="min-w-0 flex-1">
                         <p className="font-mono-brutal text-[10px] text-warm-light/40 uppercase tracking-wider mb-1">{item.label}</p>
-                        <p className=" text-warm-light font-medium group-hover:text-golden transition-colors whitespace-pre-line">
+                        <p className="text-warm-light font-medium group-hover:text-golden transition-colors whitespace-pre-line break-words">
                           {item.value}
                         </p>
                       </div>
-                      <ArrowRight className="w-4 h-4 text-warm-light/40 group-hover:text-golden group-hover:translate-x-1 transition-all mt-1" />
+                      <ArrowRight className="w-4 h-4 text-warm-light/40 group-hover:text-golden group-hover:translate-x-1 transition-all mt-1 shrink-0" />
                     </a>
                   ) : (
-                    <div className="flex items-start gap-4 p-4 border-[3px] border-warm-light/15 bg-warm-light/[0.04]">
+                    <div className="flex items-start gap-4 p-4 border-[3px] border-warm-light/15 bg-warm-light/[0.04] w-full">
                       <div className="w-12 h-12 border-[1.5px] border-golden/50 bg-golden/10 flex items-center justify-center shrink-0">
                         <item.icon className="w-5 h-5 text-golden" />
                       </div>
                       <div className="min-w-0 flex-1">
                         <p className="font-mono-brutal text-[10px] text-warm-light/40 uppercase tracking-wider mb-1">{item.label}</p>
-                        <p className="text-warm-light font-medium whitespace-pre-line">
+                        <p className="text-warm-light font-medium whitespace-pre-line break-words">
                           {item.value}
                         </p>
                       </div>
@@ -346,7 +346,7 @@ export default function Contact() {
             transition={{ duration: 0.6, delay: 0.3 }}
             className="lg:col-span-3"
           >
-            <div className="bg-warm-light border-brutal shadow-brutal-lg p-6 sm:p-8 max-sm:w-85">
+            <div className="bg-warm-light border-brutal shadow-brutal-lg p-6 sm:p-8 w-full">
               <div className="flex items-center gap-3 mb-6">
                 <div className="w-10 h-10 border-[1.5px] border-dark bg-golden/30 flex items-center justify-center">
                   <MessageSquare className="w-5 h-5 text-dark" />
