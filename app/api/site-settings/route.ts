@@ -154,6 +154,8 @@ export async function GET() {
         promoMessage: 'Get 10% OFF online Pickup & Dine-In orders!',
         // Ordering / Fulfillment
         deliveryEnabled: false,
+        heroBackgroundStyle: 'momos',
+        sectionBackgroundStyle: 'dots',
         createdAt: new Date(),
         updatedAt: new Date(),
       };

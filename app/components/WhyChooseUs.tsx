@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion';
 import { useInView } from 'framer-motion';
 import { useRef, useEffect, useState } from 'react';
+import SectionBackdrop from './SectionBackdrop';
 import { 
   ChefHat, 
   ScrollText, 
@@ -75,6 +76,7 @@ interface WhyChooseUsSettings {
   whyFeature4Icon: string;
   whyFeature4Title: string;
   whyFeature4Desc: string;
+  sectionBackgroundStyle: string;
 }
 
 const defaultSettings: WhyChooseUsSettings = {
@@ -95,6 +97,7 @@ const defaultSettings: WhyChooseUsSettings = {
   whyFeature4Icon: 'Truck',
   whyFeature4Title: 'Fast Delivery',
   whyFeature4Desc: 'Hot and fresh momos delivered to your doorstep in 30 minutes or less.',
+  sectionBackgroundStyle: 'dots',
 };
 
 export default function WhyChooseUs() {
@@ -126,6 +129,7 @@ export default function WhyChooseUs() {
             whyFeature4Icon: data.whyFeature4Icon || defaultSettings.whyFeature4Icon,
             whyFeature4Title: data.whyFeature4Title || defaultSettings.whyFeature4Title,
             whyFeature4Desc: data.whyFeature4Desc || defaultSettings.whyFeature4Desc,
+            sectionBackgroundStyle: data.sectionBackgroundStyle || defaultSettings.sectionBackgroundStyle,
           });
         }
       } catch (error) {
@@ -145,15 +149,7 @@ export default function WhyChooseUs() {
 
   return (
     <section className="section-padding bg-dark relative overflow-hidden border-b-[3px] border-dark" ref={ref}>
-      {/* Background dot grid (brutalist stand-in for the soft SVG pattern) */}
-      <div
-        className="absolute inset-0 opacity-[0.07]"
-        style={{
-          backgroundImage: 'radial-gradient(circle, var(--color-warm-light) 1px, transparent 1px)',
-          backgroundSize: '22px 22px',
-        }}
-        aria-hidden="true"
-      />
+      <SectionBackdrop style={settings.sectionBackgroundStyle} tone="dark" />
 
       <div className="container-custom relative">
         {/* Header */}

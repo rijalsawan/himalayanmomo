@@ -255,6 +255,9 @@ model SiteSettings {
   promoMessage           String   @default("Get 10% OFF online Pickup & Dine-In orders!")
   // Ordering / Fulfillment
   deliveryEnabled        Boolean  @default(false)
+  // Landing page decorative variety (admin-selectable, purely visual)
+  heroBackgroundStyle    String   @default("momos")
+  sectionBackgroundStyle String   @default("dots")
   createdAt              DateTime @default(now())
   updatedAt              DateTime @updatedAt
 }
