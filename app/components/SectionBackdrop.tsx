@@ -1,19 +1,6 @@
 'use client';
 
-import { CSSProperties } from 'react';
-
-// Faint hand-drawn momo outline, used only as a low-opacity decorative doodle in section
-// backgrounds - not a brand asset, so it stays local to this file.
-const DoodleMomo = ({ className = '', style }: { className?: string; style?: CSSProperties }) => (
-  <svg viewBox="0 0 48 48" fill="none" className={className} style={style} aria-hidden="true">
-    <path
-      d="M24 6c9 0 16 5.5 16 14 0 6-4 9-4 13 0 3.5-2.5 5-4 5H16c-1.5 0-4-1.5-4-5 0-4-4-7-4-13C8 11.5 15 6 24 6Z"
-      stroke="currentColor"
-      strokeWidth="2"
-    />
-    <path d="M14 20c2-4 5.5-6 10-6s8 2 10 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-  </svg>
-);
+import { MomoIcon } from './MomoArt';
 
 interface SectionBackdropProps {
   /** 'dots' | 'blobs' | 'doodles' | 'none' - driven by admin Customize > Landing Page Background */
@@ -64,8 +51,9 @@ export default function SectionBackdrop({ style, tone = 'light' }: SectionBackdr
     return (
       <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
         {doodlePositions.map((p, i) => (
-          <DoodleMomo
+          <MomoIcon
             key={i}
+            variant="outline"
             className={`absolute ${p.size} ${p.rotate} ${doodleColor}`}
             style={{ top: p.top, left: p.left }}
           />

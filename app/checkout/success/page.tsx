@@ -25,6 +25,7 @@ import { Button } from '@/components/ui/button';
 import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
 import { useCart } from '../../context/CartContext';
+import { MomoIcon, SteamSwirl } from '../../components/MomoArt';
 
 type FulfillmentType = 'PICKUP' | 'DINE_IN' | 'DELIVERY';
 
@@ -47,33 +48,6 @@ interface OrderData {
   }[];
 }
 
-// Small hand-drawn-style momo dumpling doodle, reused for celebratory / empty states.
-const MomoDoodle = ({ className = '', style }: { className?: string; style?: React.CSSProperties }) => (
-  <svg viewBox="0 0 48 48" fill="none" className={className} style={style} aria-hidden="true">
-    <path
-      d="M24 6c9 0 16 5.5 16 14 0 6-4 9-4 13 0 3.5-2.5 5-4 5H16c-1.5 0-4-1.5-4-5 0-4-4-7-4-13C8 11.5 15 6 24 6Z"
-      fill="currentColor"
-      opacity="0.9"
-    />
-    <path d="M24 6c9 0 16 5.5 16 14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" opacity="0.5" />
-    <path d="M14 20c2-4 5.5-6 10-6s8 2 10 6" stroke="#00000022" strokeWidth="1.5" strokeLinecap="round" />
-    <circle cx="24" cy="8" r="1.6" fill="#00000033" />
-  </svg>
-);
-
-// Rising steam swirl doodle used behind success/loading states.
-const SteamSwirl = ({ className = '' }: { className?: string }) => (
-  <svg viewBox="0 0 24 60" fill="none" className={className} aria-hidden="true">
-    <path
-      d="M12 58c-4-6 4-10 0-16s4-10 0-16 4-10 0-16"
-      stroke="currentColor"
-      strokeWidth="2.5"
-      strokeLinecap="round"
-      opacity="0.35"
-    />
-  </svg>
-);
-
 // Ring of momo doodles + steam that pop in around the success checkmark.
 const CelebrationGraphic = () => (
   <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
@@ -84,7 +58,7 @@ const CelebrationGraphic = () => (
       { top: '78%', left: '90%', size: 'w-8 h-8', color: 'text-golden', delay: '80ms' },
       { top: '-4%', left: '46%', size: 'w-5 h-5', color: 'text-brand-light', delay: '200ms' },
     ].map((d, i) => (
-      <MomoDoodle
+      <MomoIcon
         key={i}
         className={`absolute ${d.size} ${d.color} animate-in zoom-in fade-in duration-700`}
         style={{ top: d.top, left: d.left, animationDelay: d.delay }}
@@ -300,7 +274,7 @@ const LoadingSkeleton = () => (
         <div className="relative w-20 h-20 mx-auto mb-6">
           <div className="absolute inset-0 border-[1.5px] border-dark rounded-full border-t-brand animate-spin" />
           <div className="absolute inset-0 flex items-center justify-center">
-            <MomoDoodle className="w-9 h-9 text-golden" />
+            <MomoIcon className="w-9 h-9 text-golden" />
           </div>
           <SteamSwirl className="absolute -top-9 left-1/2 -translate-x-1/2 w-4 h-10 text-dark/40" />
         </div>
@@ -323,7 +297,7 @@ const ErrorState = ({ message }: { message: string }) => (
         <div className="text-center max-w-md mx-auto">
           <div className="relative w-24 h-24 mx-auto mb-6">
             <div className="absolute inset-0 rounded-full border-[1.5px] border-dark bg-cream shadow-brutal-sm flex items-center justify-center">
-              <MomoDoodle className="w-12 h-12 text-brand -rotate-12" />
+              <MomoIcon className="w-12 h-12 text-brand -rotate-12" />
             </div>
             {[
               { top: '-4%', left: '-6%' },

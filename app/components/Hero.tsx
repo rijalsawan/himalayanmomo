@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { ArrowRight, ArrowDown, Sparkles, Clock, Award, Users, Timer, Star, Trophy, Heart, Zap, Target, TrendingUp, Shield, ThumbsUp, CheckCircle, Percent, LucideIcon } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { MomoIcon, MomoSteamerArt } from './MomoArt';
 
 // Icon mapping
 const iconMap: Record<string, LucideIcon> = {
@@ -65,73 +66,6 @@ const defaultSettings: SiteSettings = {
   testimonialStat2Value: '4.9',
 };
 
-// Small hand-drawn-style momo dumpling doodle, used to build the hero background art.
-const MomoDoodle = ({ className = '' }: { className?: string }) => (
-  <svg viewBox="0 0 48 48" fill="none" className={className} aria-hidden="true">
-    <path
-      d="M24 6c9 0 16 5.5 16 14 0 6-4 9-4 13 0 3.5-2.5 5-4 5H16c-1.5 0-4-1.5-4-5 0-4-4-7-4-13C8 11.5 15 6 24 6Z"
-      fill="currentColor"
-      opacity="0.9"
-    />
-    <path d="M24 6c9 0 16 5.5 16 14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" opacity="0.5" />
-    <path d="M14 20c2-4 5.5-6 10-6s8 2 10 6" stroke="#00000022" strokeWidth="1.5" strokeLinecap="round" />
-    <circle cx="24" cy="8" r="1.6" fill="#00000033" />
-  </svg>
-);
-
-// Rising steam wisp doodle, paired with the momo/basket art.
-const SteamSwirl = ({ className = '' }: { className?: string }) => (
-  <svg viewBox="0 0 24 60" fill="none" className={className} aria-hidden="true">
-    <path
-      d="M12 58c-4-6 4-10 0-16s4-10 0-16 4-10 0-16"
-      stroke="currentColor"
-      strokeWidth="2.5"
-      strokeLinecap="round"
-      opacity="0.4"
-    />
-  </svg>
-);
-
-// A woven bamboo steamer basket holding a few momos, with steam rising - the detailed
-// "momos" hero background variant.
-const MomoBasketArt = ({ className = '' }: { className?: string }) => (
-  <div className={`relative ${className}`} aria-hidden="true">
-    {/* Steam */}
-    <SteamSwirl className="absolute -top-9 left-[18%] w-3 h-12 text-dark/50 animate-steam-1" />
-    <SteamSwirl className="absolute -top-11 left-1/2 -translate-x-1/2 w-3 h-14 text-dark/50 animate-steam-2" />
-    <SteamSwirl className="absolute -top-9 right-[18%] w-3 h-12 text-dark/50 animate-steam-3" />
-
-    {/* Momos sitting in the basket */}
-    <MomoDoodle className="absolute top-2 left-[10%] w-9 h-9 sm:w-11 sm:h-11 text-brand -rotate-6" />
-    <MomoDoodle className="absolute top-0 left-1/2 -translate-x-1/2 w-10 h-10 sm:w-12 sm:h-12 text-golden" />
-    <MomoDoodle className="absolute top-2 right-[10%] w-9 h-9 sm:w-11 sm:h-11 text-brand-light rotate-6" />
-
-    {/* Bamboo steamer basket */}
-    <svg viewBox="0 0 160 70" className="w-full h-auto relative z-10">
-      <ellipse cx="80" cy="14" rx="76" ry="13" fill="currentColor" className="text-golden/30" stroke="currentColor" strokeWidth="2" />
-      <path
-        d="M6 14 C6 34, 20 58, 80 58 C140 58, 154 34, 154 14"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        className="text-dark/70"
-      />
-      {Array.from({ length: 9 }).map((_, i) => (
-        <line
-          key={i}
-          x1={14 + i * 16.5}
-          y1={16 + Math.abs(i - 4) * 2}
-          x2={14 + i * 16.5}
-          y2={50 - Math.abs(i - 4) * 3}
-          stroke="currentColor"
-          strokeWidth="1.5"
-          className="text-dark/30"
-        />
-      ))}
-    </svg>
-  </div>
-);
-
 // Background decoration behind the hero content - swappable from the admin Customize page
 // via `heroBackgroundStyle` ('momos' | 'shapes' | 'minimal').
 const HeroDecorations = ({ style }: { style: string }) => {
@@ -149,12 +83,12 @@ const HeroDecorations = ({ style }: { style: string }) => {
   // Default: detailed momo + steam basket illustrations
   return (
     <>
-      <MomoBasketArt className="absolute top-16 -right-4 w-64 sm:w-80 hidden sm:block animate-float-1" />
+      <MomoSteamerArt className="absolute top-16 -right-4 w-64 sm:w-80 hidden sm:block animate-float-1" />
       <div className="absolute bottom-10 -left-6 w-24 sm:w-32 hidden sm:block animate-float-2">
-        <MomoDoodle className="w-full h-auto text-golden -rotate-12" />
+        <MomoIcon className="w-full h-auto text-golden -rotate-12" />
       </div>
       <div className="absolute bottom-4 left-16 sm:left-24 w-14 sm:w-20 hidden sm:block animate-float-3">
-        <MomoDoodle className="w-full h-auto text-brand rotate-12" />
+        <MomoIcon className="w-full h-auto text-brand rotate-12" />
       </div>
     </>
   );
