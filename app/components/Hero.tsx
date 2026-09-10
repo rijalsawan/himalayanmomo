@@ -142,8 +142,7 @@ export default function Hero() {
       id="home"
       className="relative min-h-screen flex items-center overflow-hidden bg-warm-light bg-dot-grid border-b-[3px] border-dark"
     >
-      {/* Decorative background art, swappable in admin Customize > Hero Section */}
-      <HeroDecorations style={settings.heroBackgroundStyle} />
+      
 
       {/* Main Content */}
       <div className="container-custom relative z-10 pt-28 pb-16 lg:pt-24 w-full min-w-0">
