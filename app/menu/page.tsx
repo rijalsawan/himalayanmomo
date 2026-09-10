@@ -41,7 +41,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { categories } from '../data/menuItems';
+import { categories, getDisplayCategory, MOMO_SUB_CATEGORIES } from '../data/menuItems';
 import { useCart } from '../context/CartContext';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
@@ -56,7 +56,11 @@ interface MenuItem {
   description: string;
   longDescription?: string | null;
   price: number;
-  category: 'momos' | 'sides' | 'drinks' | 'desserts';
+  category: string;
+  // Computed client-side: splits the Chef's Special momos out of the plain
+  // "momos" DB category so the /menu page can mirror the physical menu board's
+  // 9-category layout without needing a schema change.
+  displayCategory: string;
   image: string;
   spiceLevel: number;
   isVegetarian: boolean;
@@ -183,7 +187,11 @@ export default function MenuPage() {
       const response = await fetch('/api/menu');
       if (response.ok) {
         const data = await response.json();
-        setMenuItems(data);
+        const withDisplayCategory = (data as MenuItem[]).map((item) => ({
+          ...item,
+          displayCategory: getDisplayCategory(item),
+        }));
+        setMenuItems(withDisplayCategory);
       }
     } catch (error) {
       console.error('Error fetching menu items:', error);
@@ -240,7 +248,7 @@ export default function MenuPage() {
   const filteredItems = useMemo(() => {
     let items = menuItems.filter((item) => {
       const matchesCategory =
-        activeCategory === 'all' || item.category === activeCategory;
+        activeCategory === 'all' || item.displayCategory === activeCategory;
       const matchesSearch =
         item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         item.description.toLowerCase().includes(searchQuery.toLowerCase());
@@ -292,7 +300,7 @@ export default function MenuPage() {
   const categoryCounts = useMemo(() => {
     const counts: Record<string, number> = {};
     for (const cat of categories) {
-      counts[cat.id] = menuItems.filter((item) => item.category === cat.id).length;
+      counts[cat.id] = menuItems.filter((item) => item.displayCategory === cat.id).length;
     }
     return counts;
   }, [menuItems]);
@@ -306,8 +314,50 @@ export default function MenuPage() {
     ? categories.find((c) => c.id === modalCategory) ?? null
     : null;
   const modalItems = modalCategory
-    ? filteredItems.filter((item) => item.category === modalCategory)
+    ? filteredItems.filter((item) => item.displayCategory === modalCategory)
     : [];
+
+  // Shared mobile-list + desktop-grid renderer, reused for flat categories,
+  // momo sub-groups, and the "show all" modal.
+  const renderItemGrid = (items: MenuItem[]) => (
+    <>
+      <div className="sm:hidden overflow-hidden border-brutal-thin bg-warm-light mb-2">
+        <div className="divide-y divide-dark/10">
+          {items.map((item) => (
+            <DishListItem key={item.id} item={item} />
+          ))}
+        </div>
+      </div>
+      <div className="hidden sm:grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        {items.map((item, index) => (
+          <DishCard key={item.id} item={item} index={index} />
+        ))}
+      </div>
+    </>
+  );
+
+  // Himalayan Momos are split into 5 preparation-style sub-groups (Steamed,
+  // Jhol, Fried, Kothey, Chilli) to mirror the physical menu board's layout.
+  const renderMomoSubGroups = (items: MenuItem[]) => (
+    <div className="space-y-8">
+      {MOMO_SUB_CATEGORIES.map((sub) => {
+        const subItems = items.filter((item) => item.slug.startsWith(sub.prefix));
+        if (subItems.length === 0) return null;
+        return (
+          <div key={sub.id}>
+            <div className="flex items-center gap-2 mb-4">
+              <span className="w-1.5 h-5 bg-brand flex-shrink-0" aria-hidden="true" />
+              <h3 className="font-heading text-base md:text-lg font-bold text-dark uppercase tracking-wide">
+                {sub.label}
+              </h3>
+              <span className="tag-mono bg-dark/60">{subItems.length}</span>
+            </div>
+            {renderItemGrid(subItems)}
+          </div>
+        );
+      })}
+    </div>
+  );
 
   const clearAllFilters = () => {
     setSortBy('default');
@@ -583,13 +633,14 @@ export default function MenuPage() {
                     {categories
                       .filter((cat) => activeCategory === 'all' || activeCategory === cat.id)
                       .map((cat) => {
-                        const items = filteredItems.filter((item) => item.category === cat.id);
+                        const items = filteredItems.filter((item) => item.displayCategory === cat.id);
                         if (items.length === 0) return null;
 
                         // When a single category is filtered via the nav pills, show it all
                         // inline; otherwise show a preview and let "Show all" open a modal.
                         const showAllInline = activeCategory !== 'all';
                         const visibleItems = showAllInline ? items : items.slice(0, PREVIEW_COUNT);
+                        const isMomosCategory = cat.id === 'momos';
 
                         return (
                           <div key={cat.id} id={`category-${cat.id}`} className="scroll-mt-40">
@@ -615,21 +666,9 @@ export default function MenuPage() {
                               </div>
                             </div>
 
-                            {/* Mobile List View */}
-                            <div className="sm:hidden overflow-hidden border-brutal-thin bg-warm-light mb-2">
-                              <div className="divide-y divide-dark/10">
-                                {visibleItems.map((item) => (
-                                  <DishListItem key={item.id} item={item} />
-                                ))}
-                              </div>
-                            </div>
-
-                            {/* Desktop Card Grid */}
-                            <div className="hidden sm:grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                              {visibleItems.map((item, index) => (
-                                <DishCard key={item.id} item={item} index={index} />
-                              ))}
-                            </div>
+                            {isMomosCategory && showAllInline
+                              ? renderMomoSubGroups(visibleItems)
+                              : renderItemGrid(visibleItems)}
 
                             {/* Show all modal trigger */}
                             {!showAllInline && items.length > PREVIEW_COUNT && (
@@ -721,21 +760,7 @@ export default function MenuPage() {
 
               {/* Scrollable items body - overscroll-contain stops scroll chaining to the page behind once this reaches its own top/bottom edge */}
               <div className="overflow-y-auto overscroll-contain px-4 sm:px-6 py-5 flex-1">
-                {/* Mobile list */}
-                <div className="sm:hidden overflow-hidden border-brutal-thin bg-warm-light">
-                  <div className="divide-y divide-dark/10">
-                    {modalItems.map((item) => (
-                      <DishListItem key={item.id} item={item} />
-                    ))}
-                  </div>
-                </div>
-
-                {/* Desktop grid */}
-                <div className="hidden sm:grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {modalItems.map((item, index) => (
-                    <DishCard key={item.id} item={item} index={index} />
-                  ))}
-                </div>
+                {modalCategory === 'momos' ? renderMomoSubGroups(modalItems) : renderItemGrid(modalItems)}
               </div>
             </>
           )}

@@ -30,6 +30,7 @@ interface SiteSettings {
   heroHeadingLine2: string;
   heroDescription: string;
   heroLogo: string;
+  heroBackgroundStyle: string;
   stat1Icon: string;
   stat1Value: string;
   stat1Label: string;
@@ -50,6 +51,7 @@ const defaultSettings: SiteSettings = {
   heroHeadingLine2: 'Magic in Every Bite',
   heroDescription: 'Handcrafted momos made fresh daily using traditional family recipes passed down through generations. Experience the authentic flavors of Nepal.',
   heroLogo: '/brandlogo.svg',
+  heroBackgroundStyle: 'momos',
   stat1Icon: 'Award',
   stat1Value: '15+',
   stat1Label: 'Years Experience',
@@ -61,6 +63,101 @@ const defaultSettings: SiteSettings = {
   stat3Label: 'Avg. Prep Time',
   testimonialStat1Value: '500+',
   testimonialStat2Value: '4.9',
+};
+
+// Small hand-drawn-style momo dumpling doodle, used to build the hero background art.
+const MomoDoodle = ({ className = '' }: { className?: string }) => (
+  <svg viewBox="0 0 48 48" fill="none" className={className} aria-hidden="true">
+    <path
+      d="M24 6c9 0 16 5.5 16 14 0 6-4 9-4 13 0 3.5-2.5 5-4 5H16c-1.5 0-4-1.5-4-5 0-4-4-7-4-13C8 11.5 15 6 24 6Z"
+      fill="currentColor"
+      opacity="0.9"
+    />
+    <path d="M24 6c9 0 16 5.5 16 14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" opacity="0.5" />
+    <path d="M14 20c2-4 5.5-6 10-6s8 2 10 6" stroke="#00000022" strokeWidth="1.5" strokeLinecap="round" />
+    <circle cx="24" cy="8" r="1.6" fill="#00000033" />
+  </svg>
+);
+
+// Rising steam wisp doodle, paired with the momo/basket art.
+const SteamSwirl = ({ className = '' }: { className?: string }) => (
+  <svg viewBox="0 0 24 60" fill="none" className={className} aria-hidden="true">
+    <path
+      d="M12 58c-4-6 4-10 0-16s4-10 0-16 4-10 0-16"
+      stroke="currentColor"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      opacity="0.4"
+    />
+  </svg>
+);
+
+// A woven bamboo steamer basket holding a few momos, with steam rising - the detailed
+// "momos" hero background variant.
+const MomoBasketArt = ({ className = '' }: { className?: string }) => (
+  <div className={`relative ${className}`} aria-hidden="true">
+    {/* Steam */}
+    <SteamSwirl className="absolute -top-9 left-[18%] w-3 h-12 text-dark/50 animate-steam-1" />
+    <SteamSwirl className="absolute -top-11 left-1/2 -translate-x-1/2 w-3 h-14 text-dark/50 animate-steam-2" />
+    <SteamSwirl className="absolute -top-9 right-[18%] w-3 h-12 text-dark/50 animate-steam-3" />
+
+    {/* Momos sitting in the basket */}
+    <MomoDoodle className="absolute top-2 left-[10%] w-9 h-9 sm:w-11 sm:h-11 text-brand -rotate-6" />
+    <MomoDoodle className="absolute top-0 left-1/2 -translate-x-1/2 w-10 h-10 sm:w-12 sm:h-12 text-golden" />
+    <MomoDoodle className="absolute top-2 right-[10%] w-9 h-9 sm:w-11 sm:h-11 text-brand-light rotate-6" />
+
+    {/* Bamboo steamer basket */}
+    <svg viewBox="0 0 160 70" className="w-full h-auto relative z-10">
+      <ellipse cx="80" cy="14" rx="76" ry="13" fill="currentColor" className="text-golden/30" stroke="currentColor" strokeWidth="2" />
+      <path
+        d="M6 14 C6 34, 20 58, 80 58 C140 58, 154 34, 154 14"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        className="text-dark/70"
+      />
+      {Array.from({ length: 9 }).map((_, i) => (
+        <line
+          key={i}
+          x1={14 + i * 16.5}
+          y1={16 + Math.abs(i - 4) * 2}
+          x2={14 + i * 16.5}
+          y2={50 - Math.abs(i - 4) * 3}
+          stroke="currentColor"
+          strokeWidth="1.5"
+          className="text-dark/30"
+        />
+      ))}
+    </svg>
+  </div>
+);
+
+// Background decoration behind the hero content - swappable from the admin Customize page
+// via `heroBackgroundStyle` ('momos' | 'shapes' | 'minimal').
+const HeroDecorations = ({ style }: { style: string }) => {
+  if (style === 'minimal') return null;
+
+  if (style === 'shapes') {
+    return (
+      <>
+        <div className="absolute top-24 -right-16 w-56 h-56 sm:w-72 sm:h-72 rounded-full bg-brand border-brutal hidden sm:block animate-float-1" aria-hidden="true" />
+        <div className="absolute bottom-16 -left-10 w-32 h-32 sm:w-40 sm:h-40 bg-golden border-brutal rotate-[12deg] hidden sm:block animate-float-2" aria-hidden="true" />
+      </>
+    );
+  }
+
+  // Default: detailed momo + steam basket illustrations
+  return (
+    <>
+      <MomoBasketArt className="absolute top-16 -right-4 w-64 sm:w-80 hidden sm:block animate-float-1" />
+      <div className="absolute bottom-10 -left-6 w-24 sm:w-32 hidden sm:block animate-float-2">
+        <MomoDoodle className="w-full h-auto text-golden -rotate-12" />
+      </div>
+      <div className="absolute bottom-4 left-16 sm:left-24 w-14 sm:w-20 hidden sm:block animate-float-3">
+        <MomoDoodle className="w-full h-auto text-brand rotate-12" />
+      </div>
+    </>
+  );
 };
 
 export default function Hero() {
@@ -111,9 +208,8 @@ export default function Hero() {
       id="home"
       className="relative min-h-screen flex items-center overflow-hidden bg-warm-light bg-dot-grid border-b-[3px] border-dark"
     >
-      {/* Hard-edged floating shapes (brutalist stand-in for the old soft gradient blobs) */}
-      <div className="absolute top-24 -right-16 w-56 h-56 sm:w-72 sm:h-72 rounded-full bg-brand border-brutal hidden sm:block animate-float-1" aria-hidden="true" />
-      <div className="absolute bottom-16 -left-10 w-32 h-32 sm:w-40 sm:h-40 bg-golden border-brutal rotate-[12deg] hidden sm:block animate-float-2" aria-hidden="true" />
+      {/* Decorative background art, swappable in admin Customize > Hero Section */}
+      <HeroDecorations style={settings.heroBackgroundStyle} />
 
       {/* Main Content */}
       <div className="container-custom relative z-10 pt-28 pb-16 lg:pt-24 w-full min-w-0">
@@ -177,9 +273,13 @@ export default function Hero() {
 
           {/* Right Column - Logo as the hero's main visual asset */}
           <div className="order-1 lg:order-2 relative animate-fade-in delay-2 min-w-0">
-            <div className="relative mx-auto w-full max-w-[280px] sm:max-w-[380px] lg:max-w-[440px]">
-              {/* Main logo panel - the centerpiece asset */}
-              <div className="relative aspect-square border-brutal bg-warm-light shadow-brutal-lg overflow-hidden">
+            <div className="relative mx-auto w-full max-w-[230px] sm:max-w-[340px] lg:max-w-[400px] aspect-square">
+              {/* Animated dashed rings orbiting the logo, brutalist stand-ins for a "seal" badge */}
+              <div className="absolute -inset-3 sm:-inset-5 rounded-full border-2 border-dashed border-brand/50 animate-spin-slow pointer-events-none" aria-hidden="true" />
+              <div className="absolute -inset-6 sm:-inset-9 rounded-full border-2 border-dashed border-golden/40 animate-spin-slow-reverse pointer-events-none" aria-hidden="true" />
+
+              {/* Main logo panel - the centerpiece asset, circular to match the brand seal */}
+              <div className="absolute inset-0 rounded-full border-brutal bg-warm-light shadow-brutal-lg overflow-hidden">
                 {!settingsLoaded ? (
                   <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-cream">
                     <div className="w-16 h-16 border-[3px] border-dashed border-dark/30 rounded-full animate-spin-slow" />
@@ -191,22 +291,19 @@ export default function Hero() {
                     alt="MO:MO Station logo"
                     fill
                     priority
-                    sizes="(max-width: 640px) 280px, (max-width: 1024px) 380px, 440px"
-                    className="object-contain p-6 sm:p-8"
+                    sizes="(max-width: 640px) 260px, (max-width: 1024px) 340px, 400px"
+                    className="object-contain p-5 sm:p-6"
                   />
                 )}
               </div>
-              
 
               {/* Floating promo chip */}
-              <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 sm:left-auto sm:translate-x-0 sm:-right-5 sm:bottom-8 flex items-center gap-2 bg-brand text-warm-light border-brutal shadow-brutal-sm pl-2 pr-4 py-2 animate-float-2 whitespace-nowrap">
+              <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 sm:left-auto sm:translate-x-0 sm:-right-6 sm:bottom-6 flex items-center gap-2 bg-brand text-warm-light border-brutal shadow-brutal-sm pl-2 pr-4 py-2 animate-float-2 whitespace-nowrap z-10">
                 <span className="flex items-center justify-center w-7 h-7 border-[1.5px] border-warm-light/40 flex-shrink-0">
                   <Percent className="w-3.5 h-3.5" />
                 </span>
                 <span className="font-mono-brutal text-[11px] font-bold tracking-wide uppercase">10% Off Online Orders</span>
               </div>
-
-              
             </div>
           </div>
         </div>

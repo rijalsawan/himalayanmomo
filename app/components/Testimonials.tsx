@@ -11,6 +11,7 @@ import {
   Truck, Leaf, Flame, Sparkles, Trophy, Medal, Crown, Target, Zap
 } from 'lucide-react';
 import { testimonials as defaultTestimonials } from '../data/testimonials';
+import SectionBackdrop from './SectionBackdrop';
 
 interface Testimonial {
   id: string;
@@ -38,6 +39,7 @@ interface SiteSettings {
   testimonialStat3Icon: string;
   testimonialStat3Value: string;
   testimonialStat3Label: string;
+  sectionBackgroundStyle: string;
 }
 
 // Icon mapping for dynamic rendering
@@ -82,6 +84,7 @@ export default function Testimonials() {
     testimonialStat3Icon: 'CheckCircle',
     testimonialStat3Value: '100%',
     testimonialStat3Label: 'Authentic Recipes',
+    sectionBackgroundStyle: 'dots',
   });
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-100px' });
@@ -124,6 +127,7 @@ export default function Testimonials() {
               testimonialStat3Icon: data.testimonialStat3Icon || prev.testimonialStat3Icon,
               testimonialStat3Value: data.testimonialStat3Value || prev.testimonialStat3Value,
               testimonialStat3Label: data.testimonialStat3Label || prev.testimonialStat3Label,
+              sectionBackgroundStyle: data.sectionBackgroundStyle || prev.sectionBackgroundStyle,
             }));
           }
         }
@@ -221,6 +225,7 @@ export default function Testimonials() {
       onMouseEnter={() => setIsAutoPlaying(false)}
       onMouseLeave={() => setIsAutoPlaying(true)}
     >
+      <SectionBackdrop style={settings.sectionBackgroundStyle} tone="light" />
       <div className="container-custom relative">
         {/* Header */}
         <motion.div

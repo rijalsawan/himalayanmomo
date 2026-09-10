@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion';
 import { useInView } from 'framer-motion';
 import { useRef, useEffect, useState } from 'react';
+import SectionBackdrop from './SectionBackdrop';
 
 interface SiteSettings {
   aboutImage1: string;
@@ -21,6 +22,7 @@ interface SiteSettings {
   aboutStat3Label: string;
   aboutStat4Value: string;
   aboutStat4Label: string;
+  sectionBackgroundStyle: string;
 }
 
 const defaultSettings: SiteSettings = {
@@ -40,6 +42,7 @@ const defaultSettings: SiteSettings = {
   aboutStat3Label: 'Recipes',
   aboutStat4Value: '100%',
   aboutStat4Label: 'Fresh Daily',
+  sectionBackgroundStyle: 'dots',
 };
 
 export default function About() {
@@ -70,6 +73,7 @@ export default function About() {
             aboutStat3Label: data.aboutStat3Label || defaultSettings.aboutStat3Label,
             aboutStat4Value: data.aboutStat4Value || defaultSettings.aboutStat4Value,
             aboutStat4Label: data.aboutStat4Label || defaultSettings.aboutStat4Label,
+            sectionBackgroundStyle: data.sectionBackgroundStyle || defaultSettings.sectionBackgroundStyle,
           });
         }
       } catch (error) {
@@ -104,6 +108,7 @@ export default function About() {
 
   return (
     <section id="about" className="section-padding bg-cream border-b-[3px] border-dark relative overflow-hidden" ref={ref}>
+      <SectionBackdrop style={settings.sectionBackgroundStyle} tone="light" />
       <div className="container-custom relative z-10">
         <motion.div
           variants={containerVariants}

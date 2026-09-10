@@ -381,17 +381,54 @@ export const menuItems: MenuItem[] = [
   },
 ];
 
+// The 9 main categories, laid out to match the physical Himalayan Express
+// Momo Station menu board exactly (order + grouping).
 export const categories = [
-  { id: 'momos', name: 'Momos', icon: '🥟', description: 'Our signature handcrafted dumplings' },
-  { id: 'noodlesRice', name: 'Noodles & Fried Rice', icon: '🍜', description: 'Wok-tossed chowmein & fried rice' },
-  { id: 'kattiRolls', name: 'Katti Rolls', icon: '🌯', description: 'Grilled flatbread wraps, packed to go' },
-  { id: 'streetSnacks', name: 'Street Snacks', icon: '🍢', description: 'Nepali street-food favorites' },
-  { id: 'biryanis', name: 'Biryanis', icon: '🍛', description: 'Fragrant slow-cooked rice specialties' },
-  { id: 'weekendSpecial', name: 'Weekend Special', icon: '🍽️', description: 'Thakali sets, weekends only' },
-  { id: 'lassi', name: 'Himalayan Lassi', icon: '🥤', description: 'Creamy yogurt drinks, classic & fruity' },
-  { id: 'drinks', name: 'Drinks', icon: '🍵', description: 'Refreshing beverages' },
-  { id: 'desserts', name: 'Desserts', icon: '🍮', description: 'Sweet endings' },
+  { id: 'momos', name: 'Himalayan Momos', icon: '🥟', description: 'Steamed, Jhol, Fried, Kothey & Chilli - Veg, Paneer, Chicken & Halal Chicken' },
+  { id: 'chefSpecialMomos', name: "Chef's Special Momos", icon: '👨‍🍳', description: 'Unique fusion flavors crafted by Momo Station' },
+  { id: 'noodlesRice', name: 'Himalayan Noodles & Fried Rice', icon: '🍜', description: 'Wok-tossed chowmein & fried rice' },
+  { id: 'kattiRolls', name: 'Himalayan Katti Roll', icon: '🌯', description: 'Grilled flatbread wraps (wraps), packed to go' },
+  { id: 'streetSnacks', name: 'Himalayan Street Snacks', icon: '🍢', description: 'Nepali street-food favorites' },
+  { id: 'biryanis', name: 'Himalayan Biryanis', icon: '🍛', description: 'Fragrant slow-cooked rice specialties' },
+  { id: 'drinks', name: 'Normal Drinks', icon: '🥤', description: 'Refreshing everyday beverages' },
+  { id: 'lassi', name: 'Himalayan Special Lassi', icon: '🥛', description: 'Natural yoghurt drinks' },
+  { id: 'weekendSpecial', name: 'Weekend Special', icon: '🍽️', description: 'Himalayan Thakali Khana Set - weekends only' },
 ] as const;
+
+export type DisplayCategoryId = (typeof categories)[number]['id'];
+
+// Slug prefixes that identify the 13 "Chef's Special" fusion momos so they can
+// be split out from the regular Himalayan Momos category on the /menu page,
+// matching the physical menu board's layout, without needing a DB schema change.
+const CHEF_SPECIAL_MOMO_PREFIXES = [
+  'manchurian-',
+  'tandoori-',
+  'butter-chicken-momo',
+  'kurkure-',
+  'devil-',
+  'red-dragon-',
+  'honey-garlic-',
+];
+
+export function getDisplayCategory(item: { category: string; slug: string }): DisplayCategoryId {
+  if (item.category === 'momos' && CHEF_SPECIAL_MOMO_PREFIXES.some((prefix) => item.slug.startsWith(prefix))) {
+    return 'chefSpecialMomos';
+  }
+  return item.category as DisplayCategoryId;
+}
+
+// The 5 preparation-style sub-categories inside Himalayan Momos, in menu-board order.
+export const MOMO_SUB_CATEGORIES = [
+  { id: 'steamed', label: 'Steamed Momo', prefix: 'steamed-' },
+  { id: 'jhol', label: 'Jhol (Gravy) Momo', prefix: 'jhol-' },
+  { id: 'fried', label: 'Fried Momo', prefix: 'fried-' },
+  { id: 'kothey', label: 'Pan Fried / Kothey Momo', prefix: 'kothey-' },
+  { id: 'chilli', label: 'Chilli Momo', prefix: 'chilli-' },
+] as const;
+
+export function getMomoSubCategory(slug: string) {
+  return MOMO_SUB_CATEGORIES.find((sub) => slug.startsWith(sub.prefix)) ?? null;
+}
 
 export function getMenuItemBySlug(slug: string): MenuItem | undefined {
   return menuItems.find(item => item.slug === slug);

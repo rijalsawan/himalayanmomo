@@ -73,6 +73,10 @@ import {
   Megaphone,
   Tag,
   Store,
+  Wind,
+  Shapes,
+  Grid3x3,
+  Ban,
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -153,6 +157,8 @@ interface SiteSettings {
   heroHeadingLine2: string;
   heroDescription: string;
   heroLogo: string;
+  heroBackgroundStyle: string;
+  sectionBackgroundStyle: string;
   stat1Icon: string;
   stat1Value: string;
   stat1Label: string;
@@ -320,6 +326,22 @@ const defaultTestimonial: Omit<Testimonial, 'id' | 'createdAt' | 'updatedAt'> = 
   order: 0,
 };
 
+// Decorative variety pickers, shown in the admin Hero tab. Purely visual - no schema
+// beyond the two string settings the values map to.
+const heroBackgroundStyleOptions = [
+  { value: 'momos', label: 'Momo & Steam', description: 'Detailed dumpling & steam basket art', icon: Wind },
+  { value: 'shapes', label: 'Bold Shapes', description: 'Brutalist geometric circles & squares', icon: Shapes },
+  { value: 'minimal', label: 'Minimal', description: 'No background illustration', icon: Ban },
+];
+
+const sectionBackgroundStyleOptions = [
+  { value: 'dots', label: 'Dot Grid', description: 'Subtle dotted texture', icon: Grid3x3 },
+  { value: 'blobs', label: 'Soft Blobs', description: 'Rounded color blobs in corners', icon: Sparkles },
+  { value: 'doodles', label: 'Momo Doodles', description: 'Faint dumpling & steam doodles', icon: Wind },
+  { value: 'none', label: 'Plain', description: 'Flat background, no extra texture', icon: Ban },
+];
+
+
 const defaultSettings: SiteSettings = {
   id: 'default',
   heroBadgeText: 'Authentic Nepali Mo:Mo',
@@ -328,6 +350,8 @@ const defaultSettings: SiteSettings = {
   heroHeadingLine2: 'Magic in Every Bite',
   heroDescription: 'Handcrafted momos made fresh daily using traditional family recipes passed down through generations. Experience the authentic flavors of Nepal.',
   heroLogo: '/brandlogo.svg',
+  heroBackgroundStyle: 'momos',
+  sectionBackgroundStyle: 'dots',
   stat1Icon: 'Award',
   stat1Value: '15+',
   stat1Label: 'Years Experience',
@@ -1395,6 +1419,68 @@ export default function CustomizePage() {
                     </div>
                   </div>
                 </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Hero Background Style */}
+          <Card className="border-gray-100 shadow-sm pb-4">
+            <CardHeader>
+              <CardTitle className="font-heading text-lg">Hero Background Art</CardTitle>
+              <CardDescription>Pick the decorative artwork behind the hero content</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                {heroBackgroundStyleOptions.map((option) => {
+                  const isSelected = settings.heroBackgroundStyle === option.value;
+                  return (
+                    <button
+                      key={option.value}
+                      type="button"
+                      onClick={() => updateSetting('heroBackgroundStyle', option.value)}
+                      className={`text-left p-4 rounded-xl border-2 transition-all ${
+                        isSelected ? 'border-primary bg-primary/5 shadow-sm' : 'border-gray-100 hover:border-gray-200'
+                      }`}
+                    >
+                      <div className={`w-10 h-10 rounded-lg flex items-center justify-center mb-3 ${isSelected ? 'bg-primary text-white' : 'bg-gray-100 text-gray-500'}`}>
+                        <option.icon className="w-5 h-5" />
+                      </div>
+                      <p className="text-sm font-semibold text-gray-900">{option.label}</p>
+                      <p className="text-xs text-gray-500 mt-0.5">{option.description}</p>
+                    </button>
+                  );
+                })}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Landing Page Background Style (site-wide) */}
+          <Card className="border-gray-100 shadow-sm pb-4">
+            <CardHeader>
+              <CardTitle className="font-heading text-lg">Landing Page Background</CardTitle>
+              <CardDescription>Applies to About, Why Choose Us, Testimonials & Contact sections site-wide</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                {sectionBackgroundStyleOptions.map((option) => {
+                  const isSelected = settings.sectionBackgroundStyle === option.value;
+                  return (
+                    <button
+                      key={option.value}
+                      type="button"
+                      onClick={() => updateSetting('sectionBackgroundStyle', option.value)}
+                      className={`text-left p-4 rounded-xl border-2 transition-all ${
+                        isSelected ? 'border-primary bg-primary/5 shadow-sm' : 'border-gray-100 hover:border-gray-200'
+                      }`}
+                    >
+                      <div className={`w-10 h-10 rounded-lg flex items-center justify-center mb-3 ${isSelected ? 'bg-primary text-white' : 'bg-gray-100 text-gray-500'}`}>
+                        <option.icon className="w-5 h-5" />
+                      </div>
+                      <p className="text-sm font-semibold text-gray-900">{option.label}</p>
+                      <p className="text-xs text-gray-500 mt-0.5">{option.description}</p>
+                    </button>
+                  );
+                })}
               </div>
             </CardContent>
           </Card>
